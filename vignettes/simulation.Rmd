@@ -1,0 +1,117 @@
+--- 
+title: "Introduction and Selection Effects" 
+author: "Stijn Masschelein" 
+date: "`r Sys.Date()`" 
+output: rmarkdown::html_vignette 
+vignette: > 
+  %\VignetteIndexEntry{My Use Case} 
+  %\VignetteEngine{knitr::rmarkdown} 
+  %\VignetteEncoding{UTF-8} 
+---
+
+## Selection Pressure and Complementarity
+
+Under ideal circumstance, where the complement drives most of the performance
+($\beta_1 = \beta_2 = 0, sd = 0.5$), the matching approach is superior whenever
+selection pressure is at non-neglible levels. The matching method is able to
+detect the complementarity when using a significance level of 0.05. The actual
+false detection rate is given by the simulations with $\beta_{12} = 0$ while the
+power is given by the simulations with $\beta_{12} = 1$. The traditional
+interaction approach quickly loses power to detect the complementarity effect 
+when the survival pressure increases. The augmented approach dominates the
+traditional method over all rate of survival levels. When diminishing returns 
+are an acceptable assumption, the power and error rate control of the intraction
+approach can be improved by adding the quadratic terms $x_1^2$ and $x_2^2$.
+
+```{r cache=TRUE, fig.width = 7, fig.align = 'center'}
+devtools::load_all(".")
+require(dplyr)
+require(ggplot2)
+require(ggthemes)
+rates <- list(0.95, 0.75, 0.5, 0.25, 0.1, 0.05)
+bs <- list(c(0, 0, 0, 0), c(0, 0, 0, 1))
+nobs <- 100
+nsim <- 500
+sim1 <- run_sim(nsim = nsim, obs = nobs, rate = rates, b = bs) %>% tbl_df()
+
+sim1_summ <- group_by(sim1, method, b, survival_rate) %>% 
+  summarise(detect = mean(pvalue < .05 & coefficient > 0))
+
+sim1_plot <- ggplot(sim1_summ, aes(y = detect, 
+                                   x = as.factor(survival_rate), 
+                                   colour = b)) + 
+  geom_point() +
+  geom_hline(yintercept = .05, colour = "grey") +
+  geom_hline(yintercept = .025, colour = "grey") +
+  facet_wrap( ~ method) + 
+  theme_tufte()
+
+print(sim1_plot)  
+```
+
+When increasing the noise factor, both methods remain to have a reasonable error
+control but power drops dramatically. The matching approach remains to have 
+reasonable power as long as the survival pressure is sufficiently high. The
+augmented interaction appproach looses most of its shine compared to the
+traditional interaction approach when noise increases.
+
+```{r cache=TRUE, fig.width = 7, fig.align = 'center'}
+rates <- list(0.75, 0.5, 0.25, 0.1)
+sds <- list(0.5, 1, 2, 4)
+bs <- list(c(0, 0, 0, 0), c(0, 0, 0, 1))
+nobs <- 100
+nsim <- 500
+sim2 <- run_sim(nsim = nsim, obs = nobs, rate = rates, b = bs, sd = sds) %>% tbl_df()
+
+sim2_summ <- group_by(sim2, method, b, sd, survival_rate) %>% 
+  summarise(detect = mean(pvalue < .05 & coefficient > 0))
+
+sim2_plot <- ggplot(sim2_summ, aes(y = detect, 
+                                   x = as.factor(survival_rate), 
+                                   colour = log(sd), shape = b)) + 
+  geom_point(alpha = .5) +
+  geom_hline(yintercept = .05, colour = "grey") +
+  geom_hline(yintercept = .025, colour = "grey") +
+  facet_wrap( ~ method) + 
+  theme_tufte()
+```
+
+To get an idea about the reason for these differences, I plot the estimated 
+coefficient and the $R^2$ for each test. The spread of the coefficients in the
+first figure is less pronouned for the matching period than for the interaction 
+method. The coefficients are attenuated for both methods depending on the 
+survival rate and nois. The combined attenuation is stronger for the interaction
+method than for the matching period.
+
+The $R^2$ is not strongly affected by the survival rate and noise except in the 
+ideal situation where noise is low and the selection pressure is low. The $R^2$ 
+is generally higher for the matching approach. One possible explanation is that
+the effect of the noise is on performance, $y$, which is not included in the
+matching model.
+
+```{r fig.align='center', fig.width=7}
+sim2_plot_coef <- ggplot(filter(sim2, b == "0, 0, 0, 1", 
+                                method != "interaction_traditional"), 
+                         aes(y = coefficient, x = as.factor(survival_rate))) +
+  geom_boxplot() +
+  facet_grid(~ method + sd) +
+  theme_tufte()
+
+sim2_plot_r <- ggplot(filter(sim2, b == "0, 0, 0, 1", 
+                                method != "interaction_traditional"), 
+                         aes(y = r2, x = as.factor(survival_rate))) +
+  geom_boxplot() +
+  facet_grid(~ method + sd) +
+  theme_tufte()
+
+plot(sim2_plot_coef)
+plot(sim2_plot_r)
+```
+
+
+## 
+
+
+
+
+

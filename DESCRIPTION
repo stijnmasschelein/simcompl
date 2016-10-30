@@ -1,0 +1,20 @@
+Package: simcompl
+Type: Package
+Title: Run Simulations of Complementarity Tests
+Version: 0.0.0.9000
+Author: Stijn Masschelein
+Maintainer: Stijn Masschelein <stijnmasschelein@gmail.com>
+Description: The package simulates data and compares different tests for
+  complementarities between two choices. The simulated data assumes a
+  number of independent decion makers choosing x1 and x2 with outcome y. Only
+  observations with the highest outcome y are retained in the data. Different
+  tests for complementarity between x1 and x2 are implemented. The simulations
+  report test statistics for each test on each dataset in one dataset.
+License: What license is it under?
+LazyData: TRUE
+RoxygenNote: 5.0.1
+Depends: R (>= 3.3.0)
+Suggests: testthat,
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr

@@ -1,0 +1,515 @@
+--- 
+title: "Introduction and Selection Effects" 
+author: "Stijn Masschelein" 
+date: "`r Sys.Date()`" 
+output: rmarkdown::html_vignette 
+vignette: > 
+  %\VignetteIndexEntry{My Use Case} 
+  %\VignetteEngine{knitr::rmarkdown} 
+  %\VignetteEncoding{UTF-8} 
+---
+
+## Introduction
+
+One of the typical research questions in my field of research is how two 
+management decisions are related to each other and how to develop statistical 
+tests to estimate that relation. For instance, delegating decisions to 
+employees and incentive contracts for employees are deemed to be complements, 
+i.e. both decisions work better in tandem. This condition can be written as
+
+\[ \frac{dy^2}{dx_1 dx_2} > 0 \]
+
+where $y$ is employee performance, $x_1$ is the level of delegation, and $x_2$ 
+is the extent to which the employees are rewarded based on incentive 
+compensation. The difficulty to test this relation is that the appropriate 
+cross-sectional test for the condition depends on whether the management
+decisions are optimal in the dataset are not. Typical tests either assume that
+the decision are completely optimal or completely chosen randomly.
+
+The `simcompl` package allows to simulate datasets with varying levels of 
+optimality with the `create_sample` function which is described in the next
+section. The following section explain the tests that are implemented in this
+package: `match_reg` assumes optimality, `interaction_reg` assumes randomly
+chosen decisions. The last section explains the purpose of this package with my
+use case.
+
+## Simulate Data
+
+The data are simulated based on the following equations.
+
+\begin{equation}
+x_i \sim N(0,1) \\
+\mu = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \beta_{12} x_1 x_2 + \delta_1 x_1 +
+      \delta_2 x_2 \\
+y \sim N(\mu, \sigma)
+\end{equation}
+
+The parameters, $\beta$, $\delta$, and $\sigma$, can all be set in the function
+`create_sample` by the parameters `b`, `d`, `sd`. To simulate the selection bias
+from optimal choices, the function only retains a subset of the generated $y$, 
+$x_1$, and $x_2$ with the highest level of $y$. 
+
+More specifically, the number of surviving of observations, `obs`, and the
+survival rate, `rate`, can be specified. The function will generate `obs/rate`
+total observations while keeping the subset of size `obs` with the highest $y$. 
+In other words, the function creates a dataset with selection bias on
+performance which can stand in for self-selection based on performance. The 
+selection mechanism is rather naive but should serve most of my purposes[^1]. A
+call to the function would look as follows. 
+
+[^1]: I will probaby change the selection mechanism once I want to compare
+different approaches to correct for (self-) selection.
+
+```{r message=FALSE}
+devtools::load_all(".")
+dat <- create_sample(obs = 200, rate = .5, sd = 1, b = c(0, 1, 1, 1),
+                     d = c(.5,  .5)) 
+```
+
+Further on I will use the `dplyr` and `ggplot2` package to analyse and visualise
+the simulation results. If you are not familiar with those packages, you can do
+everything without them. You can see below how a simulated dataset looks. 
+
+```{r message=FALSE}
+require(dplyr)
+require(ggplot2)
+require(ggthemes)
+dat <- tbl_df(dat)
+dat
+```
+
+I demonstrate some quick insights this function can generate. Let us generate
+two default datasets one with `rate = .5` and one with `rate = .01`. The second 
+dataset is subject to more survival pressure than the first. 
+
+```{r}
+dat_5 <- create_sample(rate = .5) %>%
+  summarise_each(funs(mean, sd))
+dat_1 <- create_sample(rate = .01) %>%
+  summarise_each(funs(mean, sd))
+print.data.frame(dat_5, digits = 2)
+print.data.frame(dat_1, digits = 2)
+```
+
+Remark that `y_mean` is higher for the second dataset than for the first (
+`r round(dat_1$y_mean[1], 2)` > `r round(dat_5$y_mean[1], 2)`) while the 
+standard deviations of the $x$'s is lower in the second dataset than in the 
+first (`r round(dat_1$x1_sd, 2)` < `r round(dat_5$x1_sd, 2)`, 
+`r round(dat_1$x2_sd, 2)` < `r round(dat_5$x2_sd, 2)`). This is not surprising.
+The selection mechanism pushes the $x$'s closer to optimal and the outcome, $y$,
+higher. 
+
+```{r}
+dat_1_1 <- create_sample(rate = .01, sd = .25) %>%
+  summarise_each(funs(mean, sd))
+print.data.frame(dat_1_1, digits = 2)
+```
+
+The push towards optimal is however restricted by the unexplained variation of 
+the outcome. The default value for $\sigma$ equals 1. The code above shows how
+decreasing the noise (`sd = .25`), also decreases the standard deviations of the
+$x$'s. The best way to think about the selection mechanism is that decision 
+makers will only change their $x$'s when the outcome, $y$, is low. 
+
+There is more to be said about the selection mechanism in relation to the 
+\beta's. The importance of the selection mechanism is more important when not 
+everything points in the same direction. 
+<!-- Some of these graphs actually suggest that the regression approach could 
+benefit from some correction for heteroskedasticity -->
+
+## Regression tests
+The package contain three tests of two different families. The difference
+between the two families is in the assumption of optimality. The `match` 
+family assumes optimaly chosen $x$'s while the `interaction` approach assumes
+randomly chosen $x$'s. All 
+
+### Optimal strategy ('match')  
+
+The optimal decisions for $x_i$ are determined by the following equations.
+\begin{equation}
+\frac{dy}{dx_1} = \beta_1 + \beta_{12} x_2 - 2 \delta_1 x_1 = 0 \\
+\frac{dy}{dx_2} = \beta_2 + \beta_{12} x_1 - 2 \delta_2 x_2 = 0
+\end{equation}
+\begin{equation}
+x_1 = \frac{\beta_1 + \beta_{12} x_2}{2 \delta_1} \\
+x_2 = \frac{\beta_1 + \beta_{12} x_1}{2 \delta_2}
+\end{equation}
+
+If we assume that $\delta_i > 0$, i.e. there diminishing returns to the 
+management decisions, than we can test whether $\beta_{12} > 0$ by the following 
+statistical model [^alternative] . If $\gamma > 0$, than $\beta_{12} > 0$. 
+\begin{equation}
+x_1 \sim N(\gamma_0 + \gamma_1 x_2, \sigma_{x_1})
+\end{equation}
+[^alternative]: $x_1$ and $x_2$ can be switched around
+
+The matching approach is to run an OLS regression and use \gamma_1 as the test
+for the complimentarity. 
+
+### Straightforward regression ('interaction' approach)
+
+The `interaction` family basically ignores the selection mechanism and thus
+the survival pressure or optimallity decisions. The traditional approach also 
+ignores the potential for diminishing return. To be able to assess the effect of
+ignoring selection, I also implement a version of the traditional model with 
+quadratic terms to incorporate the diminishing returns. The traditional method
+test the following statistical model.
+
+\begin{equation}
+y \sim N(\beta_0 + \beta_1 x_1 + \beta_2 x_2 \beta_{12} x_1 x_2), sd_y)
+\end{equation}
+
+The augmented test uses the following model
+
+\begin{equation}
+y \sim N(\beta_0 + \beta_1 x_1 + \beta_2 x_2 \beta_{12} x_1 x_2)
+      + \delta_1 x_1^2 + \delta_2 x_2^2, sd_y)
+\end{equation}
+
+Both approaches directly test the complimentarity parameter, $\beta_{12}$, which
+has the advantage that this approach could provide a better estimate of the size
+and importance of the complimentarity.
+
+## R calls and running simulations.
+
+The three complimentarity approaches are currently implemented in the
+`run_regression` function in the package. For a simulated dataset, `dat`, the
+following calls run the appropriate models:
+
+| Model                       | R call                                     |
+|-----------------------------+--------------------------------------------|
+|Match: optimality assumption | `run_regression(dat, family = "matching"`) |
+|Interaction: no selection assumption|                                            | 
+| - Traditional: no quadratics| `run_regression(dat, family = "interaction", method = "traditional"`)|
+| - Augmented: with quadratics| `run_regression(dat, family = "interaction", method = "augmented"`)|
+
+The `run_regression` call returns a list with two elements, a regression object
+and and a string with the name of the test being used. However, to run actual
+simulations you will normally not need `run_regression` or `create_sample`. Both
+functions are wrapped in the function `run_sim` which will
+
+1. create samples with potentially different characteristics
+2. run the specified tests on each sample
+3. create a vector with the statistics from the regression and the sample simulation
+4. add the vector to a data.frame which is the final result of the simulation
+
+### Samples
+
+Samples are created with the `create_sample` function. The number of samples for
+each combination of parameters is specified by the `nsim` argument. You can
+specify the same parameters in `run_sim` and in addition your can specificy
+different values for the same parameter as long as they are given as a list. For
+instance, `run_sim(b = list(c(0,1,1,1), c(0,1,1,0)))` will run the simulation
+for two sorts of simulated samples. One where $\beta_1 = 1$, $\beta_2 = 1$, and
+$\beta_3 = 1$, and one where $\beta_1 = 1$, $\beta_2 = 1$, and $\beta_3 = 0$.
+This type of specification will be usefull when comparing type-1 and type-2
+error rates.
+
+### Tests
+
+The tests are specified as a single string or as a list of strings with the 
+`family_method` argument. The argument can take four values `all`, `match`, 
+`interaction_traditional`, and `interaction_augmented`, with `all` as the 
+default. The tests are performed on the same dataset which means that within 
+dataset comparisons of the datastes are possible. This feature can be usefull to
+compare the variability in performance differences between the different tests,
+i.e. a test can be better on average but maybe only in 70% of the generated
+datasets.
+
+### Result vector
+
+The vector consists of information about the parameters used for sampling a
+dataset the second is the test statistics for the complimentarity test. A
+weakness in the first information set is that parametes such as `b` with
+multiple values are returned as a string. You cannot use their numerical value
+immediately without any further processing.
+
+The second set of variables returns the method of the test, the coefficient, the
+t-statistic, p-value, and $R^2$ of the regression. Under the hood, `run_sim`
+uses `format_reg` to reformat the regression object to a vector. You can
+directly use these numerical values to summarise your simulation.
+
+### Dataset 
+
+Finally, all vectors are gathered in one data frame which makes further
+processing relatively straight forward. Use your favourite method to calculate
+summary statistics or plot the simulation.
+
+## My Use Case: Distribution of decision variables and selection effects
+
+The main difficulty in testing for complements is that the level of selection 
+pressure is hard to test. The selection mechanism in `create_sample` is a
+simplification of a (perfect) survival of the fittest process. The decision
+makers are not actively trying to optimise their decision, they just survive if
+they do. Under this assumption a number of interesting conclusions can be drawn,
+as I will demonstrate below. The most important take away is that the selection
+pressure depends on the values of the parameters in $\mu(x_1, x_2)$.
+
+### The effect of selection pressure.
+
+This section shows the effect of changing the selection pressure by varying the
+`rate` parameter and the `sd` parameter where the effect of the decisions only 
+depends on the interaction with each other. So, $\beta_0 = \beta_1 = \beta_2 = 
+0$ and $\beta_{12} = 1$. 
+
+In this section, I will use 1000 observations per sample to make the
+visualisations clearer. However, few published papers have that many
+observations.
+
+```{r fig.width=5, fig.height=5, fig.align='center'}
+set.seed(12345)
+nobs <- 1000
+rates <- c(0.5, 0.1, 0.01)
+sds <- c(2, 1, .5, .1)
+dt <- data.frame()
+
+for (r in rates){
+  for (s in sds){
+    dtin <- create_sample(obs = nobs, rate = r, sd = s, b = c(0, 0, 0, 1))
+    dtin$rate <- rep(paste("rate =", r), nobs)
+    dtin$sd <- rep(paste("sd = ", s), nobs)
+    dt <- rbind(dt, dtin)
+  }
+}
+
+rate_plot <- ggplot(dt, aes(x2, x1)) +
+  geom_point(alpha = .10) + 
+  facet_grid(rate ~ sd) + 
+  scale_x_continuous(breaks = c(-2, -1, 0, 1, 2)) +
+  scale_y_continuous(breaks = c(-2, -1, 0, 1, 2)) +
+  geom_smooth() + 
+  theme_tufte()
+
+print(rate_plot)
+```
+
+The plot shows that with strong selection pressure (`rate = .01`) and little
+noise (`sd = .1`), the conditions are ideal for an approach that assumes
+optimality and expects a strong correlation between $x_1$ and $x_2$. In
+contrast, the distribution of $x_1$ and $x_2$ looks close to independent in the
+bottom right where there is little selection pressure and more noise. Decreasing
+the selection pressure, increases the spread around the strong correlation in
+the top left corner, which is probably most easily seen in the rectangular shape
+of the distribution in the bottom left. The increases spread, has a negative
+effect on the estimated relation as shown in the blue line, not unlike the
+attenuating effect of measurement error.
+
+In addition, increase noise or the effect of other factors on performance, $y$, 
+makes the distribution of $x_1$ and $x_2$ rounder. The rounder and more spread 
+out distribution also attenuates the strength of the relation between $x_1$ and
+$x_2$. One way to think about this effect is that if other factors improve
+performance, decision makers might pay less attention to optimising management
+decisions and optimise those other factors.
+
+### Size of the compelementarity
+
+I need to point out the dirty little secret about the setup in this section. The
+truly optimal decision does lie along a line between $x_1$ and $x_2$. Although
+the line is amenable to the optimality approach, the truly optimal decision
+could also be a point or at infinity. If I fill in the parameters except for 
+$\beta_{12}$ and $\delta_1 = \delta_2 = \delta$, we get
+
+\begin{equation}
+x_1 = \frac{\beta_{12}}{2 \delta} x_2  \\
+x_2 = \frac{\beta_{12}}{2 \delta} x_1
+\end{equation}
+
+Only when $\beta_{12} = 2 \delta$, is $x_1 = x_2$  a sufficient condition for
+optimality. This special case means that the complementarity and the diminishing
+return of the management decisions are exactly equal. We can explore what
+happens when they are not equal by varying $\beta_{12}$, and holding $\delta$ at
+the default of .5 under relatively low noise and relatively high selection
+pressure.
+
+```{r fig.width=5, fig.height=2.5, fig.align='center'}
+set.seed(12345)
+bs <- c(.25, .5, 1, 1.5, 2, 4)
+nobs <- 1000
+du <- data.frame()
+
+for (b in bs){
+  dtin <- create_sample(obs = nobs, rate = .1, sd = .5, b = c(0, 0, 0, b))
+  dtin$b <- rep(paste("b12 =", b), nobs)
+  du <- rbind(du, dtin)
+}
+
+b12_plot <- ggplot(du, aes(x2, x1)) +
+  geom_point(alpha = .10) + 
+  facet_wrap(~ b) + 
+  scale_x_continuous(breaks = c(-2, -1, 0, 1, 2)) +
+  scale_y_continuous(breaks = c(-2, -1, 0, 1, 2)) +
+  geom_smooth() + 
+  theme_tufte()
+
+print(b12_plot)
+```
+
+A quick glance shows that with $\beta_{12} = 1$, the $x$'s are distributed along
+a line with random noise added, with $\beta_{12} < 1$, they bunch around the 
+origin, and with $\beta_{12} > 1$, they start to spread out towards the left
+bottom and right upper corner. However, there are limitations to these effects, 
+the difference in distributions between $\beta_{12} = .25$ and $\beta_{12} = .5$
+is small. The noise, `sd`, is couteracting the push towards $x_1 = x_2 = 0$. On
+the other end of the graph, the separation between the two clusters is limited 
+by the fact that $| x_1 |, |x_2| > 3$ is quite rare because $x_1$ and $x_2$ are
+drawn from a standard normal distribution. This restriction can be taught of as
+unmodelled restrictions on the decisions that limit them from going to infinity.
+These restrictions can be physical restrictions, a function of the measurement 
+instrument, or economic restrictions. Even a social restriction, where every 
+decision makers does not like to stray away from the average in its (sub-)sample
+could be approximated by the range restrictions on $x_1$ and $x_2$. The most
+easy extention to the current set-up is to include explicit economic
+restrictions and is high on the agenda. Another less pressing feature is to
+allow for different distributions to generate the $x$'s which can stand in for 
+other unmodelled restrictions.
+
+Despite, these restrictions it is clear that separation in different clusters 
+does not favour the matching approach. The stronger the complementarity the more
+the matching approach will underestimate the complimentarity. With high expected
+complimentarity, classification approaches are more appropriate. The `simcompl` 
+package ignores these methods so far mainly because the complimentarity effects 
+need to be large before the `matching` approach breaks down completely.
+Nevertheless, it seems advisable to plot the decision variables to visually
+inspect for clustering.
+
+``` {r}
+summ_du <- group_by(du, b) %>%
+  summarise(correlation = cor(x1, x2)) %>%
+  mutate(b = bs,  underestimation = correlation/b)
+
+print.data.frame(summ_du, digits = 2)
+```
+
+To get a sense of how large the complementarity should be compared to other
+unmodelled factors in, I generate new datasets with `rate = .1` and vary $sd$
+and $\beta_{12}$. The figure shows that the complement is a multiple of
+the diminishing returns ($\delta = .5$) and the unexplained variance in the 
+profit ($sd$), for clustering to appear. More rigorous investigation could 
+uncover the specific  necessary conditions, however it suffices for now to 
+establish that clustering only a problem when the complementarity is very
+obvious.
+
+```{r, fig.width = 5, fig.height = 5, fig.align='center'}
+set.seed(12345)
+bs <- c(1.5, 2, 4)
+sds <- c(.1, .5, 1, 2)
+nobs <- 1000
+dv <- data.frame()
+
+for (b in bs){
+  for (s in sds){
+    dtin <- create_sample(obs = nobs, rate = .1, sd = s, b = c(0, 0, 0, b))
+    dtin$bc <- rep(paste("b12 =", b), nobs)
+    dtin$b <- rep(b, nobs)
+    dtin$sdc <- rep(paste("sd =", s), nobs)
+    dtin$sd <- rep(s, nobs)
+    dv <- rbind(dv, dtin)
+  }
+}
+
+dv_plot <- ggplot(dv, aes(x2, x1)) +
+  geom_point(alpha = .10) + 
+  facet_wrap(bc ~ sdc) + 
+  scale_x_continuous(breaks = c(-2, -1, 0, 1, 2)) +
+  scale_y_continuous(breaks = c(-2, -1, 0, 1, 2)) +
+  geom_smooth() + 
+  theme_tufte()
+
+print(dv_plot)
+```
+
+### Diminishing returns. 
+
+We can also take a quick look at the effect of varying diminishing returns. 
+Unsuprisingly, diminishing returns push the distribution closer to the origin, 
+amplifying the selection effect. Going left to right, we can see the slopes 
+becoming flatter which is not necessarily problematic. Recall that the matching 
+approach estimates the parameter $\gamma_1 = \frac{\beta_{12}}{delta}$. The
+empirical relationship between $x_1$ and $x_2$ is supposed to go down.
+
+```{r, fig.width = 5, fig.height = 5, fig.align='center'}
+set.seed(12345)
+ds <- c(.25, .5, 1)
+bs <- ds * 2
+nobs <- 1000
+dw <- data.frame()
+
+for (d in ds){
+  for (b in bs){
+    dtin <- create_sample(obs = nobs, rate = .1, b = c(0, 0, 0, b), d = c(d, d))
+    dtin$d <- rep(d, nobs)
+    dtin$dc <- rep(paste("d = ", d), nobs)
+    dtin$b <- rep(b, nobs)
+    dtin$bc <- rep(paste("b = ", b), nobs)
+    dw <- rbind(dw, dtin)
+  }
+}
+
+dw_plot <- ggplot(dw, aes(x2, x1)) +
+  geom_point(alpha = .10) + 
+  facet_grid(bc ~ dc) + 
+  scale_x_continuous(breaks = c(-2, -1, 0, 1, 2)) +
+  scale_y_continuous(breaks = c(-2, -1, 0, 1, 2)) +
+  geom_smooth() + 
+  theme_tufte()
+
+print(dw_plot)
+```
+
+### The main effects of management decisions.
+
+So far I have set the main effect of the management decisions at 0. Let's see 
+what happens when we vary the parameters $\beta_1$ and $\beta_2$, while holding
+$\beta_{12}$ constant at 1. The most important insight is that the selection
+pressure to reveal the complementarity is dependent on the size of the main 
+effects. Large absolute main effects of the same sign overwhelm the selection 
+for the complementarity. Decision makers realise they do better by maximising by
+using both management systems (with positive main effects) or by not using them 
+at all (with negative main effects). The complementarity provides a very similar
+selection pressure.
+
+```{r, fig.width = 5, fig.height = 5, fig.align='center'}
+set.seed(12345)
+bs <- c(-2, -1, -.5, .5, 1, 2)
+signs <- c(1, -1)
+nobs <- 1000
+dx <- data.frame()
+
+for (b1 in bs){
+  for (b2 in bs[4:6]){
+    dtin <- create_sample(obs = nobs, rate = .1, b = c(0, b1,  b2, 1))
+    dtin$b1 <- rep(b1, nobs)
+    dtin$b1c <- rep(paste("b1 = ", b1), nobs)
+    dtin$b2 <- rep(b2, nobs)
+    dtin$b2c <- rep(paste("b2 = ", b2), nobs)
+    dx <- rbind(dx, dtin)
+  }
+}
+
+dx_plot <- ggplot(dx, aes(x2, x1)) +
+  geom_point(alpha = .10) + 
+  facet_grid(b2 ~ b1) + 
+  scale_x_continuous(breaks = c(-2, -1, 0, 1, 2)) +
+  scale_y_continuous(breaks = c(-2, -1, 0, 1, 2)) +
+  geom_smooth() + 
+  theme_tufte()
+
+print(dx_plot)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
