@@ -57,7 +57,8 @@ run_sim <- function(obs = 200,
                     b1 = c(0, 0, 0, 0),
                     b2 = c(1, 1, 1),
                     d = c(0.5, 0.5, 0.5),
-                    g = c(0, 0, 0),
+                    g1 = c(0, 0, 0),
+                    g2 = c(0, 0, 0),
                     nsim = 100,
                     family_method = "all",
                     seed = 12345,
@@ -78,11 +79,12 @@ run_sim <- function(obs = 200,
   b1 <- make_list(b1)
   b2 <- make_list(b2)
   d <- make_list(d)
-  g <- make_list(g)
+  g1 <- make_list(g1)
+  g2 <- make_list(g2)
 
-  parameters <- expand.grid(obs, rate, sd, b1, b2, d, g)
+  parameters <- expand.grid(obs, rate, sd, b1, b2, d, g1, g2)
   N_variations <- nrow(parameters)
-  names(parameters) <- c("N", "survival_rate", "sd", "b1", "b2", "d", "g")
+  names(parameters) <- c("N", "survival_rate", "sd", "b1", "b2", "d", "g1", "g2")
   if (family_method == "all"){
     family_method <- list("match", "interaction_traditional",
                           "interaction_augmented", "interaction_moderation",
@@ -118,7 +120,8 @@ run_sim <- function(obs = 200,
                        b2 = character(0),
                        d = character(0),
                        sd = character(0),
-                       g = character(0),
+                       g1 = character(0),
+                       g2 = character(0),
                        N = numeric(0),
                        survival_rate = numeric(0),
                        sim_id = numeric(0),
@@ -136,19 +139,21 @@ run_sim <- function(obs = 200,
     b2_in <- unlist(params$b2)
     d_in <- unlist(params$d)
     sd_in <- unlist(params$sd)
-    g_in <- unlist(params$g)
+    g1_in <- unlist(params$g1)
+    g2_in <- unlist(params$g2)
     obs_in <- unlist(params$N)
     rate_in <- unlist(params$survival_rate)
     params_in <- list(b1 = paste(b1_in, collapse = ", "),
                       b2 = paste(b2_in, collapse = ", "),
                       d = paste(d_in, collapse = ", "), sd = sd_in,
-                      g = paste(g_in, collapse = ", "),
+                      g1 = paste(g1_in, collapse = ", "),
+                      g2 = paste(g2_in, collapse = ", "),
                       N = obs_in, survival_rate = rate_in)
 
     for (s in 1:nsim){
       dat <- create_sample(
-        b1 = b1_in, b2 = b2_in, d = d_in, sd = sd_in, g = g_in, obs = obs_in,
-        rate = rate_in
+        b1 = b1_in, b2 = b2_in, d = d_in, sd = sd_in, g1 = g1_in, g2 = g2_in,
+        obs = obs_in, rate = rate_in
       )
       for (fm in 1:length(familys_in)){
         reg_list <- run_regression(dat, familys_in[[fm]],

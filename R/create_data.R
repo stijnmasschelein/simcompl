@@ -43,7 +43,8 @@ create_sample <-
            b1 = c(0, 0, 0, 0),
            b2 = c(1, 1, 1),
            d = c(.5, .5, .5),
-           g = c(0, 0, 0)
+           g1 = c(0, 0, 0),
+           g2 = c(0, 0, 0)
            ){
     check_numeric(obs, 1)
     check_numeric(rate, 1, c(0, 1))
@@ -51,7 +52,8 @@ create_sample <-
     check_numeric(b1, 4)
     check_numeric(b2, 3)
     check_numeric(d, 3, c(0, Inf))
-    check_numeric(g, 3)
+    check_numeric(g1, 3)
+    check_numeric(g2, 3)
 
     freq <- 1/rate
     if(ceiling(freq) != floor(freq)){
@@ -71,12 +73,13 @@ create_sample <-
     for (i in 1:obs){
       N <- Nfunction()
       z <- replicate(N, rnorm(1))
+      w <- replicate(N, rnorm(1))
       x1 <- rnorm(N)
       x2 <- rnorm(N)
       x3 <- rnorm(N)
       x_exp  <- cbind(model.matrix( ~ (x1 + x2 + x3) ^ 2), x1 ^ 2,  x2 ^ 2,
-                      x3 ^ 2, z * x1, z * x2, z * x3)
-      yhat = x_exp %*% c(b1, b2, -d, g)
+                      x3 ^ 2, z * x1, z * x2, z * x3, w * x1, w * x2, w * x3)
+      yhat = x_exp %*% c(b1, b2, -d, g1, g2)
       y = rnorm(yhat, yhat, sd)
       # stupid selection mechanism
       # select the rate highest percentile, can probably be improvemed by working
