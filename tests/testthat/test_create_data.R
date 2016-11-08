@@ -6,5 +6,5 @@ test_that("check_numeric", {
                "c_test does not lie in the interval")
 })
 test_that("create_sample",{
-  expect_equal(any(dim(create_sample() == c(200, 7))), TRUE)
+  expect_equal(any(dim(create_sample() == c(200, 4))), TRUE)
 })

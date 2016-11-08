@@ -54,14 +54,16 @@
 run_sim <- function(obs = 200,
                     rate = .5,
                     sd = 1,
-                    b = c(0, 1, 1, 1),
-                    d = c(0.5, 0.5),
+                    b1 = c(0, 0, 0, 0),
+                    b2 = c(1, 1, 1),
+                    d = c(0.5, 0.5, 0.5),
+                    g = c(0, 0, 0),
                     nsim = 100,
                     family_method = "all",
                     seed = 12345,
                     show_progress = F){
   set.seed(seed)
-  output_names <- c("method", "coefficient", "tstat", "pvalue", "r2")
+  output_names <- c("method", "coefficient", "stat", "pvalue", "r2")
 
   make_list <- function(x, len){
     if (!is.list(x)){
@@ -73,15 +75,18 @@ run_sim <- function(obs = 200,
   obs <- make_list(obs)
   rate <- make_list(rate)
   sd <- make_list(sd)
-  b <- make_list(b)
+  b1 <- make_list(b1)
+  b2 <- make_list(b2)
   d <- make_list(d)
+  g <- make_list(g)
 
-  parameters <- expand.grid(obs, rate, sd, b, d)
+  parameters <- expand.grid(obs, rate, sd, b1, b2, d, g)
   N_variations <- nrow(parameters)
-  names(parameters) <- c("N", "survival_rate", "sd", "b", "d")
+  names(parameters) <- c("N", "survival_rate", "sd", "b1", "b2", "d", "g")
   if (family_method == "all"){
     family_method <- list("match", "interaction_traditional",
-                          "interaction_augmented")
+                          "interaction_augmented", "interaction_moderation",
+                          "interaction_moderationaugmented", "sur")
   } else{
     family_method <- make_list(family_method)
   }
@@ -104,17 +109,19 @@ run_sim <- function(obs = 200,
   }
 
   N_res <- N_variations * len_fm * nsim
-  result <- data.frame(method = rep("", N_res),
-                       coefficient = rep(NA, N_res),
-                       tstat = rep(NA, N_res),
-                       pvalue = rep(NA, N_res),
-                       r2 = rep(NA, N_res),
-                       b = rep("", N_res),
-                       d = rep("", N_res),
-                       sd = rep(NA, N_res),
-                       N = rep(NA, N_res),
-                       survival_rate = rep(NA, N_res),
-                       sim_id = rep(NA, N_res),
+  result <- data.frame(method = character(0),
+                       coefficient = numeric(0),
+                       stat = numeric(0),
+                       pvalue = numeric(0),
+                       r2 = numeric(0),
+                       b1 = character(0),
+                       b2 = character(0),
+                       d = character(0),
+                       sd = character(0),
+                       g = character(0),
+                       N = numeric(0),
+                       survival_rate = numeric(0),
+                       sim_id = numeric(0),
                        stringsAsFactors = FALSE)
 
   for (r in 1:N_variations) {
@@ -125,25 +132,32 @@ run_sim <- function(obs = 200,
       pb <- txtProgressBar(min = 0, max = nsim)
     }
     params <- parameters[r,]
-    b_in <- unlist(params$b)
+    b1_in <- unlist(params$b1)
+    b2_in <- unlist(params$b2)
     d_in <- unlist(params$d)
     sd_in <- unlist(params$sd)
+    g_in <- unlist(params$g)
     obs_in <- unlist(params$N)
     rate_in <- unlist(params$survival_rate)
-    params_in <- c(paste(b_in, collapse = ", "),
-                       paste(d_in, collapse = ", "),
-                       sd_in, obs_in, rate_in)
+    params_in <- list(b1 = paste(b1_in, collapse = ", "),
+                      b2 = paste(b2_in, collapse = ", "),
+                      d = paste(d_in, collapse = ", "), sd = sd_in,
+                      g = paste(g_in, collapse = ", "),
+                      N = obs_in, survival_rate = rate_in)
 
     for (s in 1:nsim){
       dat <- create_sample(
-        b = b_in, d = d_in, sd = sd_in, obs = obs_in, rate = rate_in
+        b1 = b1_in, b2 = b2_in, d = d_in, sd = sd_in, g = g_in, obs = obs_in,
+        rate = rate_in
       )
       for (fm in 1:length(familys_in)){
         reg_list <- run_regression(dat, familys_in[[fm]],
                                    method = methods_in[[fm]])
-        index_res <- len_fm * (N_variations * (s-1) + (r-1)) + fm
-        result[index_res, ] <- c(format_reg(reg_list),
-                                               params_in, s)
+        new_result <- format_reg(reg_list)
+        for (i in 1:nrow(new_result)){
+          result <- rbind(result, cbind(new_result[i,], params_in,
+                                        list(sim_id = s)))
+        }
       }
       if (show_progress == TRUE){
         setTxtProgressBar(pb, s)

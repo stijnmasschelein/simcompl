@@ -31,6 +31,8 @@ check_numeric <- function(input, len, interval = NULL) {
 #'   four element vector for the intercept, \code{x1, x2, x1:x2}
 #' @param d The quadratic effect of the two decisions that captures their the
 #'   diminishing returns.
+#' @param g A vector of two coefficients that indicate the size of the
+#' moderation effect of z on the relation between x and y.
 #' @return A dataset with simulated \code{y} and \code{x1}, \code{x2} for
 #'   surviving observations. The data has dimensions = \code{c(obs, 7)}.
 
@@ -38,31 +40,54 @@ create_sample <-
   function(obs = 200,
            rate = .5,
            sd = 1,
-           b = c(0, 1, 1, 1)
-           ,
-           d = c(.5, .5)) {
+           b1 = c(0, 0, 0, 0),
+           b2 = c(1, 1, 1),
+           d = c(.5, .5, .5),
+           g = c(0, 0, 0)
+           ){
     check_numeric(obs, 1)
-    check_numeric(rate, 1)
+    check_numeric(rate, 1, c(0, 1))
     check_numeric(sd, 1, c(0, Inf))
-    check_numeric(b, 4)
-    check_numeric(d, 2, c(0, Inf))
+    check_numeric(b1, 4)
+    check_numeric(b2, 3)
+    check_numeric(d, 3, c(0, Inf))
+    check_numeric(g, 3)
 
-    N <- obs / rate
-    # For now the x's are independently generated
-    x1 <- rnorm(N)
-    x2 <- rnorm(N)
-    x_exp  <- cbind(model.matrix( ~ (x1 + x2) ^ 2), x1 ^ 2,  x2 ^ 2)
-    yhat = x_exp %*% c(b,-d)
-    y = rnorm(yhat, yhat, sd)
+    freq <- 1/rate
+    if(ceiling(freq) != floor(freq)){
+      cfreq <- c(ceiling(freq), floor(freq))
+      probfreq <- c(freq - cfreq[2], cfreq[1] - freq)
+      Nfunction <- function(){
+        sample(size = 1, x = cfreq, prob = probfreq)
+      }
+    }else{
+      Nfunction <- function(){freq}
+    }
 
-    # stupid selection mechanism
-    # select the rate highest percentile, can probably be improvemed by working
-    # with a probabilitstic model. Only improvement when directly modeling the
-    # censoring?
-    survive <- I(y > quantile(y, (1 - rate)))
-    xsurv <- cbind(x1[survive], x2[survive])
-    ysurv <- y[survive]
-    dt <-  as.data.frame(cbind(ysurv, xsurv))
-    names(dt) <- c("y", "x1", "x2")
+    xsurv <- matrix(rep(NA, 3 * obs), ncol = 3)
+    zsurv <- rep(NA, obs)
+    ysurv <- rep(NA, obs)
+
+    for (i in 1:obs){
+      N <- Nfunction()
+      z <- replicate(N, rnorm(1))
+      x1 <- rnorm(N)
+      x2 <- rnorm(N)
+      x3 <- rnorm(N)
+      x_exp  <- cbind(model.matrix( ~ (x1 + x2 + x3) ^ 2), x1 ^ 2,  x2 ^ 2,
+                      x3 ^ 2, z * x1, z * x2, z * x3)
+      yhat = x_exp %*% c(b1, b2, -d, g)
+      y = rnorm(yhat, yhat, sd)
+      # stupid selection mechanism
+      # select the rate highest percentile, can probably be improvemed by working
+      # with a probabilitstic model. Only improvement when directly modeling the
+      # censoring?
+      max_y = max(y)
+      ysurv[i] = max_y
+      xsurv[i,] = cbind(x1, x2, x3)[y == max_y, ]
+      zsurv[i] = z[y == max_y]
+    }
+    dt <-  as.data.frame(cbind(ysurv, xsurv, zsurv))
+    names(dt) <- c("y", "x1", "x2", "x3", "z")
     return(dt)
   }
