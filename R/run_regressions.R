@@ -3,11 +3,11 @@ nr_columns <- 4
 #' Perform the traditional single equation regression approach under the
 #' assumption that \code{x1, x2} are optimally chosen.
 #'
+#' @export
 #' @family tests
 #' @param dat A simulated dataset with 5 columns.
 #' @seealso interaction_reg run_regression format_reg
 #' @return A list with the regression object and the name of the method
-#' @export
 
 match_reg <- function(dat){
   stopifnot(ncol(dat) >= nr_columns)
@@ -18,6 +18,7 @@ match_reg <- function(dat){
 #' Perform the traditional single equation regression approach under the
 #' assumption that \code{x1, x2} are randomly chosen.
 #'
+#' @export
 #' @family tests
 #' @param dat A simulated dataset with 5 columns.
 #' @param method 'traditional' for the typical model with interaction and
@@ -28,7 +29,6 @@ match_reg <- function(dat){
 #' @seealso match_reg run_regression format_reg
 #'
 #' @return A list with the regression object and the name of the method
-#' @export
 
 interaction_reg <- function(dat, method = "traditional"){
   stopifnot(ncol(dat) >= nr_columns)
@@ -50,17 +50,28 @@ interaction_reg <- function(dat, method = "traditional"){
   }
 }
 
+#'
 #' The SUR approach to detecting the complementarity
 #'
+#' @export
 #' @family tests
 #' @param dat A simulated dataset with 5 columns
 #' @seealso match_reg run_regression format_reg
 #'
 #' @return A list with the sur object and the name of the method
+
+#' The SUR approach to detecting the complementarity
+#'
 #' @export
+#' @family tests
+#' @param dat A simulated dataset with 5 columns
+#' @seealso match_reg run_regression format_reg
+#'
+#' @return A list with the sur object and the name of the method
 
 sur_reg <- function(dat){
   stopifnot(ncol(dat) == nr_columns + 1)
+  # should be rewritten. See packages by Hadley Wickham
   if (!require("systemfit")){
     stop("The `systemfit` is not installed. Install `systemfit` to use the sur
          option")
@@ -70,8 +81,24 @@ sur_reg <- function(dat){
   return(list(reg = reg, method = "sur"))
 }
 
+#' The conditional correlation approach to detecting the complementarity
+#'
+#' @export
+#' @family tests
+#' @param dat A simulated dataset with 5 columns
+#' @seealso match_reg run_regression format_reg
+#'
+#' @return A list with the sur object and the name of the method
+
+cond_reg <- function(dat){
+  reg1 <- lm(x1 ~ z, data = dat)
+  reg2 <- lm(x2 ~ z, data = dat)
+  return(list(reg1 = reg1, reg2 = reg2, method = "conditional"))
+}
+
 #' A general function to run all possible regression based approaches.
 #'
+#' @export
 #' @family tests
 #' @param dat A simulated dataset with 7 columns.
 #' @param family "match" for the approach where the optimal choice of the
@@ -85,7 +112,6 @@ sur_reg <- function(dat){
 #' @seealso match_reg interaction_regression format_reg
 #'
 #' @return A list with the regression object and the name of the method
-#' @export
 
 run_regression <- function(dat, family = "match", method = "traditional"){
   family_options <- c("match", "interaction", "sur")
@@ -104,6 +130,7 @@ run_regression <- function(dat, family = "match", method = "traditional"){
 
 #' Transform the regression and method list into a vector.
 #'
+#' @export
 #' @param list_reg A list with two elements. The regression object and a string
 #' with the name of the methodology.
 #' @seealso match_reg interaction_regression run_regression
@@ -111,7 +138,6 @@ run_regression <- function(dat, family = "match", method = "traditional"){
 #' p - value of the complementarity test for the 'sur' (in one estimation) and
 #' for the two ols regression approach with the correlation between residuals
 #' ('resid')
-#' @export
 
 format_reg <- function(list_reg){
   if (is.null(list_reg)){
@@ -126,6 +152,18 @@ format_reg <- function(list_reg){
                           coefficient = cor_resid,
                           r2 = summ_reg$ols.r.squared,
                           pvalue =  cortest$p.value,
+                          stat = cortest$statistic,
+                          stringsAsFactors = FALSE)
+  } else if(list_reg$method == "conditional"){
+    reg1 <- list_reg$reg1
+    reg2 <- list_reg$reg2
+    summ1 <- summary(reg1)
+    summ2 <- summary(reg2)
+    cor_test <- cor.test(resid(reg1), resid(reg2))
+    results <- data.frame(method = "conditional",
+                          coefficient = cor_test$statistic,
+                          r2 = mean(summ1$r.squared, summ2$r.squared),
+                          pvalue = cortest$p.value,
                           stat = cortest$statistic,
                           stringsAsFactors = FALSE)
   }

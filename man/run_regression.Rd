@@ -28,7 +28,8 @@ A general function to run all possible regression based approaches.
 \seealso{
 match_reg interaction_regression format_reg
 
-Other tests: \code{\link{interaction_reg}},
-  \code{\link{match_reg}}, \code{\link{sur_reg}}
+Other tests: \code{\link{cond_reg}},
+  \code{\link{interaction_reg}}, \code{\link{match_reg}},
+  \code{\link{sur_reg}}
 }
 

@@ -20,7 +20,8 @@ assumption that \code{x1, x2} are optimally chosen.
 \seealso{
 interaction_reg run_regression format_reg
 
-Other tests: \code{\link{interaction_reg}},
+Other tests: \code{\link{cond_reg}},
+  \code{\link{interaction_reg}},
   \code{\link{run_regression}}, \code{\link{sur_reg}}
 }
 

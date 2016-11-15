@@ -89,7 +89,9 @@ run_sim <- function(obs = 200,
   if (family_method == "all"){
     family_method <- list("match", "interaction_traditional",
                           "interaction_augmented", "interaction_moderation",
-                          "interaction_moderationaugmented", "sur")
+                          "interaction_moderationaugmented", "conditional")
+  } else if (family_method == "basic"){
+    family_method <- list("conditional", "interaction_traditional")
   } else{
     family_method <- make_list(family_method)
   }

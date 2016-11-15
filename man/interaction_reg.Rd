@@ -26,7 +26,8 @@ assumption that \code{x1, x2} are randomly chosen.
 \seealso{
 match_reg run_regression format_reg
 
-Other tests: \code{\link{match_reg}},
-  \code{\link{run_regression}}, \code{\link{sur_reg}}
+Other tests: \code{\link{cond_reg}},
+  \code{\link{match_reg}}, \code{\link{run_regression}},
+  \code{\link{sur_reg}}
 }
 
