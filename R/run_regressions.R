@@ -113,7 +113,8 @@ run_regression <- function(dat, family = "match", method = "traditional"){
     reg_list <- switch(family,
                        match = match_reg(dat),
                        interaction = interaction_reg(dat, method = method),
-                       sur = sur_reg(dat))
+                       sur = sur_reg(dat),
+                       conditional = cond_reg(dat))
     return(reg_list)
   }
 }
