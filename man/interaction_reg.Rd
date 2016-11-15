@@ -8,10 +8,13 @@ assumption that \code{x1, x2} are randomly chosen.}
 interaction_reg(dat, method = "traditional")
 }
 \arguments{
-\item{dat}{A simulated dataset with 7 columns.}
+\item{dat}{A simulated dataset with 5 columns.}
 
 \item{method}{'traditional' for the typical model with interaction and
-'augmented' for the model with interaction and quadratic effects.}
+'augmented' for the model with interaction and quadratic effects.
+'moderation' takes into account the moderation effect of z1 on y. The
+'moderationaugmented` option takes into account both moderation and
+'augmented' effects.}
 }
 \value{
 A list with the regression object and the name of the method
@@ -24,6 +27,6 @@ assumption that \code{x1, x2} are randomly chosen.
 match_reg run_regression format_reg
 
 Other tests: \code{\link{match_reg}},
-  \code{\link{run_regression}}
+  \code{\link{run_regression}}, \code{\link{sur_reg}}
 }
 

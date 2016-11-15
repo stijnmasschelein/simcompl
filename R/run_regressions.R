@@ -7,6 +7,7 @@ nr_columns <- 4
 #' @param dat A simulated dataset with 5 columns.
 #' @seealso interaction_reg run_regression format_reg
 #' @return A list with the regression object and the name of the method
+#' @export
 
 match_reg <- function(dat){
   stopifnot(ncol(dat) >= nr_columns)
@@ -27,6 +28,7 @@ match_reg <- function(dat){
 #' @seealso match_reg run_regression format_reg
 #'
 #' @return A list with the regression object and the name of the method
+#' @export
 
 interaction_reg <- function(dat, method = "traditional"){
   stopifnot(ncol(dat) >= nr_columns)
@@ -55,6 +57,7 @@ interaction_reg <- function(dat, method = "traditional"){
 #' @seealso match_reg run_regression format_reg
 #'
 #' @return A list with the sur object and the name of the method
+#' @export
 
 sur_reg <- function(dat){
   stopifnot(ncol(dat) == nr_columns + 1)
@@ -82,6 +85,7 @@ sur_reg <- function(dat){
 #' @seealso match_reg interaction_regression format_reg
 #'
 #' @return A list with the regression object and the name of the method
+#' @export
 
 run_regression <- function(dat, family = "match", method = "traditional"){
   family_options <- c("match", "interaction", "sur")
@@ -107,6 +111,7 @@ run_regression <- function(dat, family = "match", method = "traditional"){
 #' p - value of the complementarity test for the 'sur' (in one estimation) and
 #' for the two ols regression approach with the correlation between residuals
 #' ('resid')
+#' @export
 
 format_reg <- function(list_reg){
   if (is.null(list_reg)){

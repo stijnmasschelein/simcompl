@@ -8,7 +8,7 @@ assumption that \code{x1, x2} are optimally chosen.}
 match_reg(dat)
 }
 \arguments{
-\item{dat}{A simulated dataset with 7 columns.}
+\item{dat}{A simulated dataset with 5 columns.}
 }
 \value{
 A list with the regression object and the name of the method
@@ -18,7 +18,9 @@ Perform the traditional single equation regression approach under the
 assumption that \code{x1, x2} are optimally chosen.
 }
 \seealso{
+interaction_reg run_regression format_reg
+
 Other tests: \code{\link{interaction_reg}},
-  \code{\link{run_regression}}
+  \code{\link{run_regression}}, \code{\link{sur_reg}}
 }
 

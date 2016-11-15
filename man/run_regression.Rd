@@ -13,9 +13,11 @@ run_regression(dat, family = "match", method = "traditional")
 \code{x}'s is chosen and "interaction" where the \code{x}'s are assumed
 to be chosen optimally.}
 
-\item{method}{"traditional" for the typical model with interaction and
-'augmented' for the model with interaction and quadratic effects.
-\code{method} is ignored when \code{family = "match"}.}
+\item{method}{"traditional" for the typical model with interaction,
+'augmented' for the model with interaction and quadratic effects, and
+'sur' for the seemingly unrelated regression method.
+\code{method} is ignored when \code{family = "match"} or
+\code{family = "sur"}.}
 }
 \value{
 A list with the regression object and the name of the method
@@ -24,7 +26,9 @@ A list with the regression object and the name of the method
 A general function to run all possible regression based approaches.
 }
 \seealso{
+match_reg interaction_regression format_reg
+
 Other tests: \code{\link{interaction_reg}},
-  \code{\link{match_reg}}
+  \code{\link{match_reg}}, \code{\link{sur_reg}}
 }
 

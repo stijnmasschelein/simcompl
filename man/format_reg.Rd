@@ -12,9 +12,14 @@ with the name of the methodology.}
 }
 \value{
 A row vector with type of analysis, coefficient, t - statistic, and
-p - value of the complementarity test.
+p - value of the complementarity test for the 'sur' (in one estimation) and
+for the two ols regression approach with the correlation between residuals
+('resid')
 }
 \description{
 Transform the regression and method list into a vector.
+}
+\seealso{
+match_reg interaction_regression run_regression
 }
 

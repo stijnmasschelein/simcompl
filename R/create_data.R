@@ -35,6 +35,7 @@ check_numeric <- function(input, len, interval = NULL) {
 #' moderation effect of z on the relation between x and y.
 #' @return A dataset with simulated \code{y} and \code{x1}, \code{x2} for
 #'   surviving observations. The data has dimensions = \code{c(obs, 7)}.
+#' @export
 
 create_sample <-
   function(obs = 200,

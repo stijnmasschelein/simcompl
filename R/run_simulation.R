@@ -49,6 +49,7 @@
 #' @param seed The seed can be set for reproducibility.
 #' @return A dataframe with test statistics and the parameters for each
 #'   simulation and test.
+#' @export
 
 
 run_sim <- function(obs = 200,

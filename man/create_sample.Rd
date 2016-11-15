@@ -4,8 +4,9 @@
 \alias{create_sample}
 \title{Create a sample of surviving observations for simulation}
 \usage{
-create_sample(obs = 200, rate = 0.5, sd = 1, b = c(0, 1, 1, 1),
-  d = c(0.5, 0.5))
+create_sample(obs = 200, rate = 0.5, sd = 1, b1 = c(0, 0, 0, 0),
+  b2 = c(1, 1, 1), d = c(0.5, 0.5, 0.5), g1 = c(0, 0, 0), g2 = c(0, 0,
+  0))
 }
 \arguments{
 \item{obs}{The number of observations in the dataset}
@@ -17,11 +18,14 @@ closer to 0 the stronger the pressure to be optimal.}
 \code{sd} means that the decisions of interest are less important for
 performance.}
 
+\item{d}{The quadratic effect of the two decisions that captures their the
+diminishing returns.}
+
 \item{b}{The contribution to performance of the two decisions of interest. A
 four element vector for the intercept, \code{x1, x2, x1:x2}}
 
-\item{d}{The quadratic effect of the two decisions that captures their the
-diminishing returns.}
+\item{g}{A vector of two coefficients that indicate the size of the
+moderation effect of z on the relation between x and y.}
 }
 \value{
 A dataset with simulated \code{y} and \code{x1}, \code{x2} for

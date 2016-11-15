@@ -4,9 +4,9 @@
 \alias{run_sim}
 \title{Run data simulations and tests together}
 \usage{
-run_sim(obs = 200, rate = 0.5, sd = 1, b = c(0, 1, 1, 1), d = c(0.5,
-  0.5), nsim = 100, family_method = "all", seed = 12345,
-  show_progress = F)
+run_sim(obs = 200, rate = 0.5, sd = 1, b1 = c(0, 0, 0, 0), b2 = c(1,
+  1, 1), d = c(0.5, 0.5, 0.5), g1 = c(0, 0, 0), g2 = c(0, 0, 0),
+  nsim = 100, family_method = "all", seed = 12345, show_progress = F)
 }
 \arguments{
 \item{obs}{A single numeric value or a list with the number of observations
@@ -19,10 +19,6 @@ pressure to be optimal.}
 \item{sd}{A single numeric value or a list with the standard deviation of
 noise term of the performance. A higher \code{sd} means that the decisions
 of interest are less important for performance.}
-
-\item{b}{A vector with four numeric values or a list of vectors. The
-contribution to performance of the two decisions of interest. A four
-element vector for the intercept, \code{x1, x2, x1:x2}}
 
 \item{d}{A vector with two numeric values or a list of vectors. The quadratic
 effect of the two decisions that captures their the diminishing returns.}
@@ -37,6 +33,10 @@ be of the from "'family'_'method'" where 'family' can be "interaction" or
 effects) when \code{family = "interaction"}}
 
 \item{seed}{The seed can be set for reproducibility.}
+
+\item{b}{A vector with four numeric values or a list of vectors. The
+contribution to performance of the two decisions of interest. A four
+element vector for the intercept, \code{x1, x2, x1:x2}}
 }
 \value{
 A dataframe with test statistics and the parameters for each
