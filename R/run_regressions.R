@@ -50,16 +50,6 @@ interaction_reg <- function(dat, method = "traditional"){
   }
 }
 
-#'
-#' The SUR approach to detecting the complementarity
-#'
-#' @export
-#' @family tests
-#' @param dat A simulated dataset with 5 columns
-#' @seealso match_reg run_regression format_reg
-#'
-#' @return A list with the sur object and the name of the method
-
 #' The SUR approach to detecting the complementarity
 #'
 #' @export
@@ -114,9 +104,9 @@ cond_reg <- function(dat){
 #' @return A list with the regression object and the name of the method
 
 run_regression <- function(dat, family = "match", method = "traditional"){
-  family_options <- c("match", "interaction", "sur")
+  family_options <- c("match", "conditional", "interaction", "sur")
   if (!(family %in% family_options)){
-    family_options_str <- paste(family, collapse = ", ")
+    family_options_str <- paste(family_options, collapse = ", ")
     stop("family has no valid input. It should be one of the following: ",
        family_options_str, ".")
   } else {
