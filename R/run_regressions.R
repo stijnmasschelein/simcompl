@@ -150,7 +150,7 @@ format_reg <- function(list_reg){
     reg2 <- list_reg$reg2
     summ1 <- summary(reg1)
     summ2 <- summary(reg2)
-    cor_test <- cor.test(resid(reg1), resid(reg2))
+    cortest <- cor.test(resid(reg1), resid(reg2))
     results <- data.frame(method = "conditional",
                           coefficient = cor_test$statistic,
                           r2 = mean(summ1$r.squared, summ2$r.squared),
