@@ -8,8 +8,12 @@ sur_reg(dat)
 }
 \arguments{
 \item{dat}{A simulated dataset with 5 columns}
+
+\item{dat}{A simulated dataset with 5 columns}
 }
 \value{
+A list with the sur object and the name of the method
+
 A list with the sur object and the name of the method
 }
 \description{
@@ -18,7 +22,14 @@ The SUR approach to detecting the complementarity
 \seealso{
 match_reg run_regression format_reg
 
-Other tests: \code{\link{interaction_reg}},
-  \code{\link{match_reg}}, \code{\link{run_regression}}
+match_reg run_regression format_reg
+
+Other tests: \code{\link{cond_reg}},
+  \code{\link{interaction_reg}}, \code{\link{match_reg}},
+  \code{\link{run_regression}}
+
+Other tests: \code{\link{cond_reg}},
+  \code{\link{interaction_reg}}, \code{\link{match_reg}},
+  \code{\link{run_regression}}
 }
 
