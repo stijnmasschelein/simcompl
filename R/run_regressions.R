@@ -50,16 +50,6 @@ interaction_reg <- function(dat, method = "traditional"){
   }
 }
 
-#'
-#' The SUR approach to detecting the complementarity
-#'
-#' @export
-#' @family tests
-#' @param dat A simulated dataset with 5 columns
-#' @seealso match_reg run_regression format_reg
-#'
-#' @return A list with the sur object and the name of the method
-
 #' The SUR approach to detecting the complementarity
 #'
 #' @export
