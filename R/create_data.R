@@ -13,7 +13,7 @@ check_numeric <- function(input, len, interval = NULL) {
   if (length(input) != len) {
     stop(paste(name, "should have", len, ifelse(len == 1, "item", "items")))
   }
-  if (!is.null(interval) && (any(input <= interval[1]) ||
+  if (!is.null(interval) && (any(input < interval[1]) ||
                              any(input >= interval[2]))) {
     stop(paste(name, "does not lie in the interval"))
   }
@@ -41,15 +41,17 @@ create_sample <-
   function(obs = 200,
            rate = .5,
            sd = 1,
+           sd_eps = c(0, 0, 0),
            b1 = c(0, 0, 0, 0),
            b2 = c(1, 1, 1),
-           d = c(.5, .5, .5),
+           d = c(1, 1, 1),
            g1 = c(0, 0, 0),
            g2 = c(0, 0, 0)
            ){
     check_numeric(obs, 1)
     check_numeric(rate, 1, c(0, 1))
     check_numeric(sd, 1, c(0, Inf))
+    check_numeric(sd_eps, 3, c(0, Inf))
     check_numeric(b1, 4)
     check_numeric(b2, 3)
     check_numeric(d, 3, c(0, Inf))
@@ -73,6 +75,7 @@ create_sample <-
 
     for (i in 1:obs){
       N <- Nfunction()
+      eps <- c(0, rnorm(3, rep(0, 3), sd_eps))
       z <- replicate(N, rnorm(1))
       w <- replicate(N, rnorm(1))
       x1 <- rnorm(N)
@@ -80,10 +83,10 @@ create_sample <-
       x3 <- rnorm(N)
       x_exp  <- cbind(model.matrix( ~ (x1 + x2 + x3) ^ 2), x1 ^ 2,  x2 ^ 2,
                       x3 ^ 2, z * x1, z * x2, z * x3, w * x1, w * x2, w * x3)
-      yhat = x_exp %*% c(b1, b2, -d, g1, g2)
-      y = rnorm(yhat, yhat, sd)
+      yhat = x_exp %*% c(b1 + eps, b2, -d/2, g1, g2)
+      y = rnorm(length(yhat), yhat, sd)
       # stupid selection mechanism
-      # select the rate highest percentile, can probably be improvemed by working
+      # can probably be improvemed by working
       # with a probabilitstic model. Only improvement when directly modeling the
       # censoring?
       max_y = max(y)

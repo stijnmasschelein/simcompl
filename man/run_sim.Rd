@@ -5,8 +5,9 @@
 \title{Run data simulations and tests together}
 \usage{
 run_sim(obs = 200, rate = 0.5, sd = 1, b1 = c(0, 0, 0, 0), b2 = c(1,
-  1, 1), d = c(0.5, 0.5, 0.5), g1 = c(0, 0, 0), g2 = c(0, 0, 0),
-  nsim = 100, family_method = "all", seed = 12345, show_progress = F)
+  1, 1), d = c(1, 1, 1), g1 = c(0, 0, 0), g2 = c(0, 0, 0), sd_eps = c(0,
+  0, 0), nsim = 100, family_method = "all", seed = 12345,
+  show_progress = F)
 }
 \arguments{
 \item{obs}{A single numeric value or a list with the number of observations

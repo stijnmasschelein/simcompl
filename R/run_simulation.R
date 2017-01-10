@@ -57,9 +57,10 @@ run_sim <- function(obs = 200,
                     sd = 1,
                     b1 = c(0, 0, 0, 0),
                     b2 = c(1, 1, 1),
-                    d = c(0.5, 0.5, 0.5),
+                    d = c(1, 1, 1),
                     g1 = c(0, 0, 0),
                     g2 = c(0, 0, 0),
+                    sd_eps = c(0, 0, 0),
                     nsim = 100,
                     family_method = "all",
                     seed = 12345,
@@ -82,16 +83,18 @@ run_sim <- function(obs = 200,
   d <- make_list(d)
   g1 <- make_list(g1)
   g2 <- make_list(g2)
+  sd_eps <- make_list(sd_eps)
 
-  parameters <- expand.grid(obs, rate, sd, b1, b2, d, g1, g2)
+  parameters <- expand.grid(obs, rate, sd, b1, b2, d, g1, g2, sd_eps)
   N_variations <- nrow(parameters)
-  names(parameters) <- c("N", "survival_rate", "sd", "b1", "b2", "d", "g1", "g2")
+  names(parameters) <- c("N", "survival_rate", "sd", "b1", "b2",
+                         "d", "g1", "g2", "sd_eps")
   if (family_method == "all"){
     family_method <- list("match", "interaction_traditional",
                           "interaction_augmented", "interaction_moderation",
                           "interaction_moderationaugmented", "conditional")
   } else if (family_method == "basic"){
-    family_method <- list("conditional", "interaction_traditional")
+    family_method <- list("match", "interaction_traditional")
   } else{
     family_method <- make_list(family_method)
   }
@@ -125,6 +128,7 @@ run_sim <- function(obs = 200,
                        sd = character(0),
                        g1 = character(0),
                        g2 = character(0),
+                       sd_eps = character(0),
                        N = numeric(0),
                        survival_rate = numeric(0),
                        sim_id = numeric(0),
@@ -144,6 +148,7 @@ run_sim <- function(obs = 200,
     sd_in <- unlist(params$sd)
     g1_in <- unlist(params$g1)
     g2_in <- unlist(params$g2)
+    sd_eps_in <- unlist(params$sd_eps)
     obs_in <- unlist(params$N)
     rate_in <- unlist(params$survival_rate)
     params_in <- list(b1 = paste(b1_in, collapse = ", "),
@@ -151,12 +156,13 @@ run_sim <- function(obs = 200,
                       d = paste(d_in, collapse = ", "), sd = sd_in,
                       g1 = paste(g1_in, collapse = ", "),
                       g2 = paste(g2_in, collapse = ", "),
+                      sd_eps = paste(sd_eps_in, collapse = ", "),
                       N = obs_in, survival_rate = rate_in)
 
     for (s in 1:nsim){
       dat <- create_sample(
         b1 = b1_in, b2 = b2_in, d = d_in, sd = sd_in, g1 = g1_in, g2 = g2_in,
-        obs = obs_in, rate = rate_in
+        sd_eps = sd_eps_in, obs = obs_in, rate = rate_in
       )
       for (fm in 1:length(familys_in)){
         reg_list <- run_regression(dat, familys_in[[fm]],
