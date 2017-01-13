@@ -47,10 +47,12 @@
 #'   "traditional" (without quadratic effects) or "augmented" (with quadratic
 #'   effects) when \code{family = "interaction"}
 #' @param seed The seed can be set for reproducibility.
+#' @param mc_cores The number of cores to be used when running different
+#'   simulations on different cores. That means that the core unit for
+#'   parallelizing is a simulation.
 #' @return A dataframe with test statistics and the parameters for each
 #'   simulation and test.
 #' @export
-
 
 run_sim <- function(obs = 200,
                     rate = .5,
@@ -64,7 +66,8 @@ run_sim <- function(obs = 200,
                     nsim = 100,
                     family_method = "all",
                     seed = 12345,
-                    show_progress = F){
+                    show_progress = F,
+                    mc_cores = 1){
   set.seed(seed)
   output_names <- c("method", "coefficient", "stat", "pvalue", "r2")
 
@@ -87,7 +90,7 @@ run_sim <- function(obs = 200,
 
   parameters <- expand.grid(obs, rate, sd, b1, b2, d, g1, g2, sd_eps)
   N_variations <- nrow(parameters)
-  names(parameters) <- c("N", "survival_rate", "sd", "b1", "b2",
+  names(parameters) <- c("obs", "rate", "sd", "b1", "b2",
                          "d", "g1", "g2", "sd_eps")
   if (family_method == "all"){
     family_method <- list("match", "interaction_traditional",
@@ -149,39 +152,70 @@ run_sim <- function(obs = 200,
     g1_in <- unlist(params$g1)
     g2_in <- unlist(params$g2)
     sd_eps_in <- unlist(params$sd_eps)
-    obs_in <- unlist(params$N)
-    rate_in <- unlist(params$survival_rate)
+    obs_in <- unlist(params$obs)
+    rate_in <- unlist(params$rate)
+
     params_in <- list(b1 = paste(b1_in, collapse = ", "),
                       b2 = paste(b2_in, collapse = ", "),
                       d = paste(d_in, collapse = ", "), sd = sd_in,
                       g1 = paste(g1_in, collapse = ", "),
                       g2 = paste(g2_in, collapse = ", "),
                       sd_eps = paste(sd_eps_in, collapse = ", "),
-                      N = obs_in, survival_rate = rate_in)
+                      obs = obs_in, rate = rate_in)
 
-    for (s in 1:nsim){
-      dat <- create_sample(
-        b1 = b1_in, b2 = b2_in, d = d_in, sd = sd_in, g1 = g1_in, g2 = g2_in,
-        sd_eps = sd_eps_in, obs = obs_in, rate = rate_in
-      )
+    #### parallel ###
+    run_single_sim <- function(x, ...){
+      # All variables are from above
+      # The advantage is that all variabls are already calculated I guess
+      dat <- create_sample(b1 = unlist(params$b1), b2 = unlist(params$b2),
+                          d = unlist(params$d), sd = unlist(params$sd),
+                          g1 = unlist(params$g1), g2 = unlist(params$g2),
+                          sd_eps = unlist(params$sd_eps),
+                          obs = unlist(params$obs), rate = unlist(params$rate))
       for (fm in 1:length(familys_in)){
         reg_list <- run_regression(dat, familys_in[[fm]],
                                    method = methods_in[[fm]])
         new_result <- format_reg(reg_list)
         for (i in 1:nrow(new_result)){
           result <- rbind(result, cbind(new_result[i,], params_in,
-                                        list(sim_id = s)))
+                                        ## Adapt this
+                                        list(sim_id = x)))
         }
       }
-      if (show_progress == TRUE){
-        setTxtProgressBar(pb, s)
-      }
+      return(result)
     }
-    if (show_progress == TRUE){
-    close(pb)
-    }
+
+    result_list <- parallel::mclapply(1:nsim,
+                                      run_single_sim,
+                                      mc.cores = mc_cores)
+
+    result <- do.call(rbind, result_list)
+    rm(result_list)
+
+#     for (s in 1:nsim){
+#       dat <- create_sample(
+#         b1 = b1_in, b2 = b2_in, d = d_in, sd = sd_in, g1 = g1_in, g2 = g2_in,
+#         sd_eps = sd_eps_in, obs = obs_in, rate = rate_in
+#       )
+#       for (fm in 1:length(familys_in)){
+#         reg_list <- run_regression(dat, familys_in[[fm]],
+#                                    method = methods_in[[fm]])
+#         new_result <- format_reg(reg_list)
+#         for (i in 1:nrow(new_result)){
+#           result <- rbind(result, cbind(new_result[i,], params_in,
+#                                         list(sim_id = s)))
+#         }
+#       }
+#       if (show_progress == TRUE){
+#         setTxtProgressBar(pb, s)
+#       }
+#     }
+#     if (show_progress == TRUE){
+#     close(pb)
+#     }
   }
-  vars <- c("sd", "N", "survival_rate")
-  result[vars] <- lapply(result[vars], as.numeric)
+
+  # vars <- c("sd", "N", "survival_rate")
+  # result[vars] <- lapply(result[vars], as.numeric)
   return(result)
 }

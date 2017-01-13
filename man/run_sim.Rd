@@ -7,7 +7,7 @@
 run_sim(obs = 200, rate = 0.5, sd = 1, b1 = c(0, 0, 0, 0), b2 = c(1,
   1, 1), d = c(1, 1, 1), g1 = c(0, 0, 0), g2 = c(0, 0, 0), sd_eps = c(0,
   0, 0), nsim = 100, family_method = "all", seed = 12345,
-  show_progress = F)
+  show_progress = F, mc_cores = 1)
 }
 \arguments{
 \item{obs}{A single numeric value or a list with the number of observations
@@ -34,6 +34,10 @@ be of the from "'family'_'method'" where 'family' can be "interaction" or
 effects) when \code{family = "interaction"}}
 
 \item{seed}{The seed can be set for reproducibility.}
+
+\item{mc_cores}{The number of cores to be used when running different
+simulations on different cores. That means that the core unit for
+parallelizing is a simulation.}
 
 \item{b}{A vector with four numeric values or a list of vectors. The
 contribution to performance of the two decisions of interest. A four
