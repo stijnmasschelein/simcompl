@@ -1,0 +1,873 @@
+---
+title: "Statistical tests for Complementarity"
+author: "Stijn Masschelein"
+date: "`r Sys.Date()`"
+output: 
+  pdf_document: 
+    number_sections: yes
+bibliography: "~/Dropbox/Teksten/bibtex/complement.bib"
+classoption: a4paper
+fontsize: 12pt
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Theory
+
+## Structural Model with Two Choices
+
+I use a similar production function as @Kretschmer2012 and @Gentzkow2007 which
+is based on @Athey1998. The performance of firm i, $y_i$, is a function of the
+two choices, $x_{1i}$ and $x_{2i}$, and the environmental variable $z$. The effect of
+each choice, $x_{ji}$, is given by an average effect, $\beta_j$, an effect that
+varies based on the environmental variable, $\gamma_j z_i$, and unobservable
+effects between firms, $\epsilon_{ji}$.
+
+The $\delta$'s > 0 represent decreasing returns on performance for both choices.
+The complementarity effect is captured by $\beta_{12}$.
+
+\begin{equation} \label{structural}
+y_i = \beta_0 + (\beta_1 + \gamma_1 z_i + \epsilon_{1i}) x_{1i} 
+                 + (\beta_2 + \gamma_2 z_i + \epsilon_{2i}) x_{2i} 
+                 + \beta_{12} x_{1i} x_{2i}
+                 - .5 \delta_1 x^2_{1i} - .5 \delta_2 x^2_{2i} + \nu_i
+\end{equation}
+
+$$
+\mathbf{\epsilon_{1}}, \mathbf{\epsilon_{2}}, \mathbf{\nu} \sim i.i.d
+$$
+In other words, the unobservable factors are not correlated with each other
+(restriction XI in @Athey1998). 
+
+The first order condition for the optimal choice of $x_{1i}$ and $x_{2i}$ is
+given by the following equations.
+
+$$
+\delta_j x_{ji} = \beta_j + \gamma_j z_i + \epsilon_{ji} + \beta_{12} x_{ki}
+$$
+
+Some further restrictions on the parameters can be derived by analysing the 
+distribution of the optimal $\mathbf{x_1}$ and $\mathbf{x_2}$.
+\begin{equation} \label{optimal}
+\delta_j x_{ji} = \beta_j + \gamma_j z_i + \epsilon_{ji} + 
+                        \frac{\beta_{12}}
+                        {\delta_k}(\beta_k + \gamma_k z_i + \epsilon_{ki} +
+                        \beta_{12} x_{ji})
+\end{equation}
+
+$$
+j,k \in \{1,2\}, j \neq k
+$$
+
+\begin{equation} \label{distribution}
+(\delta_j \delta_k - \beta_{12}^2) x_{ji}
+    =  \delta_k \beta_j + \beta_{12} \beta_k
+    + (\delta_k \gamma_j + \beta_{12} \gamma_k) z_i
+    + \delta_k \epsilon_{ji} + \beta_{12} \epsilon_{ki}
+\end{equation}
+
+Equation \ref{distribution} shows that the optimal choice is a weighted average 
+of the average effects ($\beta_j, \beta_k$), the environmental effect
+($\gamma_j, \gamma_k$), and the unobservable effects 
+($\epsilon_{ji}, \epsilon_{ki}$). The effects of the other choice, $x_{ki}$, are
+more important when the decreasing effect ($\delta_k$) is small and the 
+complementarity ($\beta_{12}$) is large.
+
+In addition, when $\delta_j \delta_k \geq \beta_{12}$, the optimal choices move
+towards $\pm \infty$, i.e. corner solutions. That is, when the decreasing
+returns are small enough compared to the complementarity and firms can be
+expected to make close to optimal choices, the set theory approach of
+@Erkens2015 and @Bedford2016 is probably more appropriate than the regression
+approach. The intuition behind this is that in the absence of strong enough
+decreasing returns there is no reason to not maximise (or minimise) the use of
+the choices, and the potential complementarity (substitution) lowers the
+treshold of decreasing returns because of a reinforcing feedback loop.
+
+## Two statistical approaches
+
+The *production function* approach estimates equation \ref{structural} with the
+following regression model.
+
+$$
+\mathbf{y} = \beta^p_0 + \beta^p_1 \mathbf{x_1} + \beta^p_2 \mathbf{x_2} 
+  + \beta^p_{12} \mathbf{x_1} \mathbf{x_2} + \mathbf{\nu^p}
+$$
+$$
+\nu^p \sim \mathcal{N}(0, \sigma^p)
+$$
+
+The *demand function* approach estimates equation \ref{optimal} with the 
+following regression model. The estimate of $\beta_{12}^d$ does not directly
+estimate the complementarity $\beta_{12}$ but $\frac{\beta_{12}}{\delta_j}$.
+
+$$
+\mathbf{x_j} = \beta_j^d + \gamma_j^d \mathbf{z} + \beta_{12}^d \mathbf{x_k} 
+  + \mathbf{\epsilon^d_j}
+$$ 
+$$
+\mathbf{\epsilon_j^d} \sim \mathcal{N}(0, \sigma_j^d)
+$$
+
+An alternative demand function approach is to estimate the
+*conditional correlation*, $\rho_c$. 
+
+\begin{align*}
+\mathbf{x_1} &= \beta_1^c + \gamma_1^c \mathbf{z} + \mathbf{\epsilon^c_1} \\
+\mathbf{x_2} &= \beta_2^c + \gamma_2^c \mathbf{z} + \mathbf{\epsilon^c_2} \\
+\end{align*}
+$$
+\rho^c = cor(\mathbf{\epsilon^c_1}, \mathbf{\epsilon^c_1}),
+\mathbf{\epsilon_1^c} \sim \mathcal{N}(0, \sigma_1^c),
+\mathbf{\epsilon_2^c} \sim \mathcal{N}(0, \sigma_2^c)
+$$
+
+### Link between demand function and conditional correlation
+
+The estimates of $\beta^d_{12}$ and $\rho^c$ are analytically related to each 
+other because $\beta^d_{12}$ is a semipartial covariance of $\mathbf{x_j}$ and 
+$\mathbf{x_k}$ partialling out $\mathbf{z}$ while $\rho^c$ is the partial 
+correlation.
+
+\begin{align} \label{deterministic}
+\rho^c &= cor(x_j|z, x_k|z) = \frac{cor(x_j, x_k|z)}{\sqrt{1 - cor^2(x_k, z)}} \\
+\beta^d_{12} &= cor(x_j, x_k |z ) \frac{sd(x_j)}{sd(x_k|z)} \\
+             &= \rho^c \sqrt{1 - cor^2(x_k, z)} \frac{sd(x_j)}{sd(x_k|z)}
+\end{align}
+
+In other words, $\beta_{12}$ and $\rho_c$ will always have the same sign.
+
+### Link between structural model and conditional correlation
+
+From equation \ref{distribution}, we can analytically determine the conditional
+correlation, $\rho^c$ under the assumption that firms optimize their decisions. 
+We assume that $\delta_1 \delta_2 \geq \beta_{12}^2$. 
+
+\begin{align*}
+(\delta_1 \delta_2 - \beta_{12}^2) \mathbf{x_1}
+    &=  \delta_2 (\beta_1 + \gamma_1 \mathbf{z} + \mathbf{\epsilon_{1}})
+        + \beta_{12} (\beta_2 + \gamma_2 \mathbf{z} + \mathbf{\epsilon_{2}}) \\
+(\delta_1 \delta_2 - \beta_{12}^2) \mathbf{x_2}
+    &=  \delta_1 (\beta_2 + \gamma_2 \mathbf{z} + \mathbf{\epsilon_{2}})
+        + \beta_{12} (\beta_1 + \gamma_1 \mathbf{z} + \mathbf{\epsilon_{1}})
+\end{align*}
+
+Under the assumption that $\mathbf{z}$, $\mathbf{\epsilon_1}$, 
+$\mathbf{\epsilon_2}$ are independent. 
+
+\begin{align*}
+\rho^c &= cor(x_1 | z, x_2 | z) \\
+       &= \frac{cov(x_1 | z, x_2 | z)}{sd(x_1 | z) sd(x_2 | z)} \\
+cov(x_1 | z, x_2 | z) &= \beta_{12} \frac{
+         \delta_2 var(\epsilon_1) + \delta_1 var(\epsilon_2)
+       }{
+         (\delta_1 \delta_2 - \beta_{12})^2
+       } \\
+var(x_1 | z) &= \frac{
+         \delta_2^2 var(\epsilon_1) + \beta_{12}^2 var(\epsilon_2)
+      }{
+         (\delta_1 \delta_2 - \beta_{12})^2
+      } \\
+var(x_2 | z) &= \frac{
+         \delta_1^2 var(\epsilon_2) + \beta_{12}^2 var(\epsilon_1)
+      }{
+         (\delta_1 \delta_2 - \beta_{12})^2
+      } \\
+\end{align*}
+
+The conditional covariance is thus biased by a factor 
+$$  
+\frac{\delta_2 var(\epsilon_1) + \delta_1 var(\epsilon_2)} 
+     {(\delta_1 \delta_2 - \beta_{12})^2} \geq 0
+$$
+
+This is the simultaneity bias identified in @Chenhall2007. An important
+consequence is that the bias is always positive and thus the conditional 
+correlation $\rho^c$ and the estimate of $\beta_{12}^d$ will have the same sign
+as the structural parameter for the complementarity, $\beta_{12}$. 
+
+The conditional correlation under the assumption of optimality can be further
+derived.
+
+\begin{align*}
+\rho^c &= \beta_{12} \frac{
+         \delta_2 var(\epsilon_1) + \delta_1 var(\epsilon_2)
+       }{ 
+         (\delta_1 \delta_2 - \beta_{12})
+         \sqrt{
+           (\delta_2^2 + \beta_{12}^2)var(\epsilon_1)
+           (\delta_1^2 + \beta_{12}^2)var(\epsilon_2)
+         }
+       } \\
+       &= \beta_{12} \frac{
+         \delta_2 sd(\epsilon_1) + \delta_1 sd(\epsilon_2)
+       }{
+           (\delta_1 \delta_2 - \beta_{12})
+         \sqrt{
+           (\delta^2_2 + \beta^2_{12})(\delta^2_1 + \beta^2_{12})
+         }
+       } 
+\end{align*}
+
+### Quick discussion
+
+There are a number of differences between the two main approaches. i.e. the
+production function approach and the equivalent demand and conditional correlation
+approach. First of all, the demand function approach assumes that firms choose
+optimal decisions in contrast to the production function approach. The difference 
+between relying on suboptimal choices (production function) or the optimal
+choices (demand function) is the most common difference in discussions of both 
+approaches [@Grabner2013]. The numerical simulation in the following section 
+will focus on how the two approaches compare with varying levels of optimality.
+
+There are other differences that are less often discussed. For instance, the
+production function approach typically ignores the observable ($\gamma_j z$) and
+unobservable moderators ($\mathbf{\epsilon_j}$). The production approach allows
+to incorporate observable moderators as interactions with the choices, 
+$\mathbf{x_1}$ and $\mathbf{x_2}$, while unobservable moderators can be 
+estimated with panel data as random effects [@Gentzkow2007]. The demand function
+approach also ignores potential decreasing returns to the choices ($\delta_j$).
+Again, decreasing returns can be incorporated in the production approach as the 
+quadratic terms, $\mathbf{x_1^2}$ and $\mathbf{x_1^2}$. One way to think about 
+these difference is that the production approach uses a first-order 
+approximation while the demand approach uses a second-order approach.
+
+Similarly, the demand approach ignores all effects that are not related to the
+choices, $\mathbf{x_1}$ and $\mathbf{x_2}$, as captured by $\mathbf{\nu_i}$. The
+decreasing returns, $\delta_j$, are scaling the effects of the observed
+moderators, $\mathbf{z}$, unobserved moderators, $\mathbf{\mathbf{\epsilon_i}}$,
+and the interdependency, $\beta_{12}$. In other words, the demand approach does 
+not allow to directly estimate the effect of the choices on payoffs.
+
+## Non Corner Solution with Three Choices.
+
+The analytical derivations are quite tedious when analysing the distribution of
+three optimal choices with interdependencies (see Appendix). However, some 
+interesting conclusions can be drawn. 
+
+First of all, the conditional (on $\mathbf{z}$) correlation of $\mathbf{x_1}$ and
+$\mathbf{x_2}$ will still have the same sign as $\beta_{12}$ as long as only one
+of the two choices is interdependent with the third choice $\mathbf{x_3}$. As 
+a result, both the conditional correlation approach and the demand function 
+approach are biased but provide adquate tests for the interdependencies.
+
+Nr of complementarities  Condition
+-----------------------  ---------
+3                        $0 < \frac{\beta}{\delta} < .5$
+2                        $\frac{\lvert \beta \rvert}{\delta} < 0.5$
+1                        $\frac{\beta}{\delta} \neq 1 \land \frac{\beta}{\delta} > 0$
+0                        $\frac{\beta}{\delta} \neq -1 \land \frac{\beta}{\delta} < 0$
+
+Table: Condition to Avoid Corner Solutions
+
+Second, to avoid corner solutions there is an asymmetry between substitution 
+effects and complementarity effects. The intuition is that substitutions work as
+negative feedback loops while complementarities are positive feedback loops. The
+table shows the condition to avoid corner solutions for the solution where the
+decreasing returns are equal for the three choices ($\lvert \beta \rvert$) and 
+the interdependencies are equal to each other ($\delta$).
+
+TODO? conditional correlation when all are correlated could be interesting but
+I have currently no idea about how to do the derivations.
+ 
+# Simulation Results
+
+We investigate the differences between both approaches to test for the
+complementarity between two choices in the absence of other complementarities. 
+To that end, we simulate datasets based on equation $\ref{structural}$ for each 
+firm $i$. More specifically, we generate $x_{1i}$, $x_{2i}$, and $z_i$ as 
+univariate standard normal distributions. The unobservable factors, 
+$\epsilon_{1i}$, $\epsilon_{2i}$, and $\nu_i$ are generated as normally 
+distributed with standard deviation $\sigma_{\epsilon_1}$,
+$\sigma_{\epsilon_2}$, and $\sigma_{\nu}$. The parameters of interest, $\beta$,
+$\gamma$, $\delta$, and $\sigma$, are varied to investigate different parameters
+spaces.
+
+Finally, we also vary the level of optimality as follows. First, for each firm 
+$i$ the exogenous variable, $z_i$, is drawn. Next, $N$ combinations of $x_{1i}$,
+$x_{2i}$, $\epsilon_{1i}$, $\epsilon_{2i}$, and $\nu_i$ are simulated per the
+distribution above. The productivity, $y_i$, is calculated for each of these
+combinations and the combination with $max(y_i)$ of the $N$ observations is
+retained in the simulated dataset. In other words, the combination that best 
+fits the environment, $z_i$, is retained in the dataset. With a higher $N$, firm
+$i$ is more likely to have the optimal $x_{1i}$ and $x_{2i}$ for its given
+environment $z_i$.
+
+## Optimality Parameter $N$
+
+To illustrate the effect of varying the $N$, we present a scatterplot of the 
+choices, $\mathbf{x_1}$ and $\mathbf{x_2}$, for different levels of $N$ in 
+Figure $\ref{scatter}$. The simulated datasets contain 500 observations each.
+The figure shows that with smaller $N$, $\mathbf{x_1}$ and $\mathbf{x_2}$ are
+largely uncorrelated, while they are closely correlated with larger $N$ which
+indicates the expected relation for optimal choices. In other words, with $N=1$ 
+the simulated dataset is consistent with randomly chosen $\mathbf{x_1}$ and
+$\mathbf{x_2}$. With $N \to \infty$, the choices are closer to the optimal 
+choices in equation $\ref{optimal}$
+
+```{r include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r warning=FALSE}
+require(simcompl, quietly = TRUE)
+require(dplyr, quietly = TRUE, warn.conflicts = FALSE)
+require(tidyr, quietly = TRUE, warn.conflicts = FALSE)
+require(ggplot2, quietly = TRUE, warn.conflicts = FALSE)
+require(ggthemes, quietly = TRUE, warn.conflicts = FALSE)
+```
+
+```{r, eval = FALSE}
+sample2 <- tbl_df(create_sample(obs = 500, rate = 1/2, b2 = c(.5, 0, 0),
+                                sd_eps = c(.5,.5,0))) %>% mutate(opt_param = 2)
+sample4 <- tbl_df(create_sample(obs = 500, rate = 1/4, b2 = c(.5, 0, 0),
+                                sd_eps = c(.5,.5,0))) %>% mutate(opt_param = 4)
+sample8 <- tbl_df(create_sample(obs = 500, rate = 1/8, b2 = c(.5, 0, 0),
+                                sd_eps = c(.5,.5,0))) %>% mutate(opt_param = 8)
+sample16 <- tbl_df(create_sample(obs = 500, rate = 1/16, b2 = c(.5, 0, 0),
+                                sd_eps = c(.5,.5,0))) %>% mutate(opt_param = 16)
+sample32 <- tbl_df(create_sample(obs = 500, rate = 1/32, b2 = c(.5, 0, 0),
+                                sd_eps = c(.5,.5,0))) %>% mutate(opt_param = 32)
+sample64 <- tbl_df(create_sample(obs = 500, rate = 1/64, b2 = c(.5, 0, 0),
+                                sd_eps = c(.5,.5,0))) %>% mutate(opt_param = 64)
+saveRDS(bind_rows(sample2, sample4, sample8, sample16, sample32, sample64), 
+        file = "~/Dropbox/R/simcompl/application/simulated_paper/basic_sampels.Rds")
+```
+
+```{r fig.width=6, fig.height=4, out.width="600px", warning=FALSE, fig.cap=caption_scatter}
+caption_scatter <- "\\label{scatter}Scatterplot of the choices with N equal to 2, 
+                    4, 8, 16, 32, 64."
+plot <- (readRDS("~/Dropbox/R/simcompl/application/simulated_paper/basic_sampels.Rds") 
+         %>% ggplot(aes(y = x1, x = x2)) +
+           geom_point(alpha = .1) +
+           theme_tufte(base_size = 14) +
+           facet_wrap(~ opt_param) 
+)
+print(plot)
+```
+
+## Comparison of Production and Demand Approach.
+
+Given the deterministic relation between the conditional correlation approach 
+and the demand approach in equation \ref{deterministic}, we compare the demand
+approach to the production approach under varying levels of $N$. For each 
+combination of parameters, we generate 400 datasets of 200 observations, a 
+typical dataset [^short] and plot the t-static for $\beta^p_{12}$ and 
+$\beta^d_{12}$ in each dataset. The dataset are created with the following 
+parameters, $\delta_1 = \delta_2 = 1$,
+$\sigma_{\epsilon_1} = \sigma_{\epsilon_2} = .5$ , and $\sigma_{\nu} = 1$.  The 
+structural parameters $N$, $\beta_{12}$, $\gamma_1$, and $\gamma_2$. The 
+optimality parameter, $N$, is manipulated as 2, 4, 8, 16, 32, and 64. The 
+complimenarity effect is either present ($\beta_{12} = 0.5$) or the null 
+hypothesis is true ($\beta_{12} = 0$). The potentially confounding environmental
+effects, $\gamma_1$ and $\gamma_2$, are either absent 
+($\gamma_1 = \gamma_2 = 0$), positively correlated ($\gamma_1 = \gamma_2 = .5$),
+or negatively correlated ($\gamma_1 = .5$ and $\gamma_2 = -.5$).
+
+The graph shows the boxplot for the t-static for each type of test and each 
+combination of parameters. The dot presents the median t-statistic of the 400
+datasets, the gap between the whiskers represent the interquartile range, and
+the whiskers indicate the minimum and maximum t-statistic. Each boxplot can be
+compared to the zero line and the lines representing a 95% confidence interval 
+around a zero effect.
+
+```{r basic-par}
+nsim <- 400
+nobs <- 200
+g1_in <- list(c(0, 0, 0), c(0.5, 0.5, 0), c(0.5, -0.5, 0))
+sd_eps_in <- c(.5, .5, 0)
+b2_in <- list(c(0, 0, 0), c(.5, 0, 0))
+rate_in <- list(1/2, 1/4, 1/8, 1/16, 1/32, 1/64)
+```
+
+```{r, eval = FALSE}
+sims <- run_sim(family_method = "basic", rate = rate_in, b2 = b2_in, 
+                nsim = nsim, mc_cores = 4, obs = nobs, g1 = g1_in,
+                sd_eps = sd_eps_in)
+saveRDS(sims, "~/Dropbox/R/simcompl/application/simulated_paper/basic_sim.Rds")
+```
+
+\begin{figure}
+```{r fig.width=7, fig.height=7, out.width="600px", warning=FALSE}
+
+tint <- qt(.975, df = 195)
+basic_sim <- (readRDS("~/Dropbox/R/simcompl/application/simulated_paper/basic_sim.Rds")
+  %>% tbl_df %>% mutate(method = ifelse(method == "matching", "demand", "production"),
+          optim = 1/rate,
+          b2 = ifelse(b2 == "0, 0, 0", "null", "effect"),
+          g1 = ifelse(g1 == "0, 0, 0", "no",
+                                    ifelse(g1 == "0.5, 0.5, 0", "positive",
+                                           "negative"))))
+plot <- (basic_sim
+  %>% ggplot(aes(y = stat, x = b2))
+  + geom_tufteboxplot()
+  + theme_tufte(base_size = 14)
+  + facet_grid(method + g1 ~ optim)
+  + geom_hline(yintercept = tint, linetype = 3, alpha = .25)
+  + geom_hline(yintercept = 0, linetype = 4, alpha = .25)
+  + geom_hline(yintercept = -tint, linetype = 3, alpha = .25)
+  + xlab("")
+  + ylab("t-statistic")
+)
+
+print(plot)
+```
+\caption{\label{basic} t-static of the production and demand approach to test
+for complimentarities when there is a complimentarity effect ($\beta_{12} = .5$)
+or a null ($\beta_{12} = 0$). The boxplots represent the median (the dot) the
+interquartile range (the gap), and the minimum and maximum (the whiskers). $N$
+is varied between 2, 4, 8, 16, 32, and 64. The effects of the environmental 
+variable, $\mathbf{z}$, on the choices are either absent 
+($\gamma_1 = \gamma_2 = 0$), positively correlated ($\gamma_1 = \gamma_2 = .5$),
+and negatively correlated ($\gamma_1 = .5$ and $\gamma_2 = -.5$).}
+\end{figure}
+
+Row 1-3 in Figure \ref{basic} show that the demand approach rarely rejects the 
+null hypothesis when there is a no complementarity, independent of the effect of
+the $\mathbf{z}$ and the optimality $N$. The t-statistic almost always lies in 
+the confidence interval around 0. The closer to optimality, the more likely the
+demand approach will reject the null when there is a real complementarity
+effect as shown by the boxplots moving out of the confidence interval.
+
+Row 4-6 represent the results for the production approach and show that 
+the positively (negatively) correlated effects of $\mathbf{z}$, positively 
+(negatively) biases the estimates of the production approach. In addition, 
+the boxplots for the null and the real effect largely overlap which shows that
+the production approach does not distinguish well between a real effect and a 
+null effect. This difficulty increases in samples with higher optimality. 
+Remarkably, even with the most favourable parameters ($N$ = 2, $\gamma_j = 0$),
+the production approach does not distinguish well between a real effect and a 
+null effect. 
+
+To investigate the performance in more detail, we report the type I and type II
+errors based on the simulations in Table \ref{basic-error}. The type I error is
+the percentage of datasets with no complimentarity where the t-statistic of
+$\beta^d_{12}$ is higher than 1.97 or lower than -1.97. The type II error is the
+percentage of datasets with a real effect where the t-statistic falls between
+-1.97 and 1.97.
+
+```{r, results="asis", warning=FALSE}
+require(xtable, quietly = TRUE)
+table_basic <- (
+  group_by(basic_sim, method, g1, b2, optim) %>%
+    summarise(percentage = sum(abs(stat) > tint)/nsim) %>%
+    ungroup() %>%
+    mutate(percentage = ifelse(b2 == "effect", 1 - percentage, percentage),
+           error = ifelse(b2 == "effect", "type II", "type I")) %>%
+    rename(complementarity = b2, environmental = g1) %>%
+    spread(optim, percentage)
+)
+
+print(xtable(table_basic, 
+             type = "pdf",
+             label = "basic-error",
+             caption = "Type I and II error rates for different levels of 
+             optimality: 2, 4, 8, 16, 32, 64"),
+      include.rownames = FALSE,
+      sanitize.text.function = force,
+      comment = FALSE
+      )
+```
+
+The error rates reinforce the main message that the demand approach is more 
+stable across different effects of $\mathbf{z}$, has lower type I error rates, 
+and generally lower type II error rates. The type I error rates from the 
+production approach are generally around or below .05 except when 
+$\gamma_1 = .5$ and $\gamma_2 = -.5$, especially with higher levels of 
+optimality. TODO [^simultaneity]
+
+## Improvements to the production approach
+
+In this section, we investigate whether the production approach can be
+improved by incorporating the moderating effects of $\mathbf{z}$ and decreasing 
+returns $\mathbf{x_1^2}$ and $\mathbf{x_2^2}$. The inclusion of observable 
+moderation effects largely rectifies the bias under the null effect. The 
+boxplot centers around zero when the moderation effects are included in the 
+production regression.
+
+```{r eval=FALSE}
+family_method_in = list("interaction_traditional", "interaction_augmented", 
+                 "interaction_moderation", "interaction_moderationaugmented",
+                 "interaction_control")
+sims <- run_sim(family_method = family_method_in, rate = rate_in, b2 = b2_in, 
+                nsim = nsim, mc_cores = 4, obs = nobs, g1 = g1_in,
+                sd_eps = sd_eps_in)
+saveRDS(sims, "~/Dropbox/R/simcompl/application/simulated_paper/impr_sim.Rds")
+```
+
+\begin{figure}
+```{r fig.width=7, fig.height=7, out.width="600px"}
+impr_sim <- (readRDS("~/Dropbox/R/simcompl/application/simulated_paper/impr_sim.Rds")
+  %>% tbl_df %>% mutate(
+    quadratic = factor(ifelse(grepl("augmented", method), "quadratic", "-"),
+                       levels = c("quadratic", "-")),
+    moderation = factor(ifelse(grepl("moderation", method), "moderation", "-"),
+                       levels = c("moderation", "-")),
+    control = factor(ifelse(grepl("control", method), "control", "-"),
+                       levels = c("control", "-")),
+    optim = 1/rate,
+    b2 = ifelse(b2 == "0, 0, 0", "null", "effect"),
+    g1 = ifelse(g1 == "0, 0, 0", "no", ifelse(g1 == "0.5, 0.5, 0", "positive",
+                                              "negative"))))
+
+plot <- (filter(impr_sim, g1 != "no")
+  %>% ggplot(aes(y = stat, x = b2))
+  + geom_tufteboxplot()
+  + theme_tufte(base_size = 14)
+  + facet_grid(quadratic + moderation + control + g1 ~ optim)
+  + geom_hline(yintercept = tint, linetype = 3, alpha = .25)
+  + geom_hline(yintercept = 0, linetype = 4, alpha = .25)
+  + geom_hline(yintercept = -tint, linetype = 3, alpha = .25)
+  + xlab("")
+  + ylab("t-statistic")
+)
+
+print(plot)
+```
+\caption{\label{improvement}t-static of the production function approach with
+and without the inclusion of moderation effects of $\mathbf{z}$ and quadratic
+effects $\mathbf{x_1^2}$ and $\mathbf{x_2^2}$ to test for complimentarities when
+there is a complimentarity effect ($\beta_{12} = .5$) or a null ($\beta_{12} =
+0$). The boxplots represent the median (the dot) the interquartile range (the
+gap), and the minimum and maximum (the whiskers). $N$ is varied between 2, 4, 8,
+16, 32, and 64. The effects of the environmental variable, $\mathbf{z}$, on the
+choices are either positively correlated ($\gamma_1 = \gamma_2 = .5$) or
+negatively correlated ($\gamma_1 = .5$ and $\gamma_2 = -.5$).}
+\end{figure}
+
+The inclusion of the quadratic effects strengthens the power of the production 
+test for lower levels of the optimality parameter, $N$. For lower levels of $N$,
+the boxplots are partly outside the 5% confidence interval around 0. To further
+investigate the type I and type II error rates, we report them in Table
+\ref{impr-error}. When both moderation effects of $\mathbf{z}$ on $\mathbf{x_1}$
+and $\mathbf{x_2}$ and the quadratic effects, $\mathbf{x_1^2}$ and 
+$\mathbf{x_2^2}$, are included, the production approach yields better but
+slightly overstated type I errors compared to the nominal 5%. The type II error
+remains very dependent on the optimality parameter, $N$. That is, above moderate
+levels of optimality in the datasets, the production approach has less power to 
+detect a real complementarity of $\beta_{12} = .5$.
+
+```{r results="asis"}
+table_impr <- (
+  group_by(impr_sim, moderation, quadratic, g1, b2, optim) %>%
+    summarise(percentage = sum(abs(stat) > tint)/nsim) %>%
+    ungroup() %>%
+    filter(g1 != "no") %>%
+    mutate(percentage = ifelse(b2 == "effect", 1 - percentage, percentage),
+           error = ifelse(b2 == "effect", "type II", "type I"),
+           moderation = ifelse(moderation == "-", "-", "included"),
+           quadratic = ifelse(quadratic == "-", "-", "included")) %>%
+    rename(complement = b2, gamma = g1) %>%
+    spread(optim, percentage)
+)
+
+print(xtable(table_impr, 
+             type = "pdf",
+             label = "impr-error",
+             caption = "Type I and II error rates for different levels of 
+             optimality: 2, 4, 8, 16, 32, 64"),
+      include.rownames = FALSE,
+      sanitize.text.function = force,
+      comment = FALSE
+      )
+```
+
+## Demand Approach and Productivity
+
+One of the drawbacks of the demand approach is that it does not generate a
+direct estimate of the effect of the choices on productivity. One approach is to 
+realise that not all firms choose the optimal levels for $x_{1i}$ and $x_{2i}$ 
+as derived from the $quation \ref{optimal}. Positive and negative deviations 
+from the optimal levels [^deviations] can be estimated as residuals from the
+demand regressions. The larger the deviations from the optimal choices, the 
+lower the productivity is expected to be. (TODO REFERENCES) Figure \ref{residual}
+reports the results for the regression of the estimated deviation of 
+$\mathbf{x_1}$ controlling for the deviation of $\mathbf{x_2}$ on $\mathbf{y}$. 
+The figure shows that the t-statics have very similar distributions in the 
+presence and the absence of complementarity between the two choices. 
+Unfortunately, only for lower levels of optimality are deviations from 
+optimality reliably, negatively correlated with productivity. Only when $N$ is 
+low, are the boxplots largely below the confidence interval around 0.
+
+One possible reason for the limited value of the residuals approach is that 
+when the dataset is closer to optimality, simultaneity biases the estimate of
+$\beta^d_{12}$ and therefore the residuals. Figure \ref{residual-coeff} reports
+the distribution of the estimated coefficient, $\beta^d_{12}$ for different 
+levels of optimality. Based on the Equation \ref{optimal}, the estimate should
+equal $\frac{\beta_{12}}{\delta_1} = .5$. Figure \ref{residual-coeff} compares
+the boxplots to this benchmark. When the moderation effects of $\mathbf{z}$ are
+not positively correlated, the coefficients of the real complimentarity move 
+closer to the benchmark. There is a downward bias in the estimates when the 
+moderation effects are postively correlated [^selection-positive]. By and large,
+there is little indication that increases in optimality lead to more biased 
+estimates of the production effects of deviations of optimality. 
+
+```{r demand-productivity, eval=FALSE}
+sims <- run_sim(family_method = "match_residual", rate = rate_in, b2 = b2_in, 
+                nsim = nsim, mc_cores = 4, obs = nobs, g1 = g1_in,
+                sd_eps = sd_eps_in)
+saveRDS(sims, 
+        "~/Dropbox/R/simcompl/application/simulated_paper/demand_productivity.Rds")
+```
+
+\begin{figure}
+```{r fig.width=7, fig.height=3, out.width="600px"}
+prod_sim <- (readRDS(
+  "~/Dropbox/R/simcompl/application/simulated_paper/demand_productivity.Rds")
+  %>% tbl_df %>% mutate(
+    optim = 1/rate,
+    b2 = ifelse(b2 == "0, 0, 0", "null", "effect"),
+    g1 = ifelse(g1 == "0, 0, 0", "no", ifelse(g1 == "0.5, 0.5, 0", "positive",
+                                              "negative"))))
+
+plot <- (filter(prod_sim, method == "matching_residual_2nd_1")
+  %>% ggplot(aes(y = stat, x = b2))
+  + geom_tufteboxplot()
+  + theme_tufte(base_size = 14)
+  + facet_grid(g1 ~ optim)
+  + geom_hline(yintercept = tint, linetype = 3, alpha = .25)
+  + geom_hline(yintercept = 0, linetype = 4, alpha = .25)
+  + geom_hline(yintercept = -tint, linetype = 3, alpha = .25)
+  + xlab("")
+  + ylab("t-statistic")
+)
+
+print(plot)
+```
+\caption{\label{residual} t-statistic of the regression of the absolute residual
+form the demand regression for $\mathbf{x_1}$, controlling for the absolute
+residual $\mathbf{x_2}$ on $y$. The boxplots represent the median (the dot) the
+interquartile range (the gap), and the minimum and maximum (the whiskers). $N$
+is varied between 2, 4, 8, 16, 32, and 64. The effects of the environmental
+variable, $\mathbf{z}$, on the choices are either not correlated 
+($\gamma_1 = \gamma_2 = 0$), positively correlated ($\gamma_1 = \gamma_2 = .5$)
+or negatively correlated ($\gamma_1 = .5$ and $\gamma_2 = -.5$).}
+\end{figure}
+
+\begin{figure}
+```{r fig.width=7, fig.height=3, out.width="600px"}
+
+plot <- (filter(prod_sim, method == "matching_residual")
+  %>% ggplot(aes(y = coefficient, x = b2))
+  + geom_tufteboxplot()
+  + theme_tufte(base_size = 14)
+  + facet_grid(g1 ~ optim)
+  + geom_hline(yintercept = .5, linetype = 3, alpha = .25)
+  + geom_hline(yintercept = 0, linetype = 4, alpha = .25)
+  + xlab("")
+)
+
+print(plot)
+```
+\caption{\label{residual-coeff} coefficient of the complimentarity, $\beta^d_{12}$,
+for the demand approach. The boxplots represent the median (the dot) the
+interquartile range (the gap), and the minimum and maximum (the whiskers). $N$
+is varied between 2, 4, 8, 16, 32, and 64. The effects of the environmental
+variable, $\mathbf{z}$, on the choices are either not correlated 
+($\gamma_1 = \gamma_2 = 0$), positively correlated ($\gamma_1 = \gamma_2 = .5$)
+or negatively correlated ($\gamma_1 = .5$ and $\gamma_2 = -.5$).}
+\end{figure}
+
+Other possible reasons 
+
+```{r demand-epsilon, eval=FALSE}
+sims <- run_sim(family_method = "match_residual", rate = rate_in, b2 = c(.5, 0, 0), 
+                nsim = nsim, mc_cores = 4, obs = nobs, g1 = c(0, 0, 0),
+                sd_eps = list(c(.5, .5, 0), c(1, 1, 0), c(2, 2, 0), c(4, 4, 0)))
+saveRDS(sims, 
+        "~/Dropbox/R/simcompl/application/simulated_paper/demand_epsilon.Rds")
+```
+
+```{r fig.width=7, fig.height=3, out.width="600px"}
+
+eps_sim <- (readRDS(
+  "~/Dropbox/R/simcompl/application/simulated_paper/demand_epsilon.Rds")
+  %>% tbl_df %>% mutate(
+    optim = 1/rate,
+    variability = ifelse(sd_eps == "0.5, 0.5, 0", .5,
+                         ifelse(sd_eps == "1, 1, 0", 1, 
+                                ifelse(sd_eps == "2, 2, 0", 2, 4))))
+  )
+
+plot <- (filter(eps_sim, method == "matching_residual")
+  %>% ggplot(aes(y = coefficient, x = as.factor(optim)))
+  + geom_tufteboxplot()
+  + theme_tufte(base_size = 14)
+  + facet_grid(variability ~ . )
+  + geom_hline(yintercept = .5, linetype = 3, alpha = .25)
+  + geom_hline(yintercept = 0, linetype = 4, alpha = .25)
+  + xlab("")
+)
+
+print(plot)
+```
+
+# Discussion
+
+- The production approach is not robust but can be made acceptable by 
+  incorporating moderation and decreasing returns.
+- Importance of assessing assumptions. Under current structural model:
+  - The demand approach is robust/stable even a relatively low levels of 
+    optimality. However, the residual approach is not consistent TODO.
+  - The fuzzy set approach will work best with strong optimality and strong
+    complementarities/low decreasing returns.
+
+# Further opportunities
+
+- System of equations approach in @Athey1998
+  - Correlation among unobserved factors i.e. cor($\mathbf{\epsilon_1}$},
+    $\mathbf{\epsilon_2}$) $\neq 0$. This is called the fundamental identification
+    problem on p19 in @Athey1998 . 
+  
+
+\newpage
+
+# Appendix  
+
+## Three Choices
+
+A lot of bookkeeping, basically.
+
+\begin{align*}
+(\delta_1 \delta_2 \delta_3 - 2 \beta_{12} \beta_{13} \beta_{23} - 
+ \delta_1 \beta^2_{23} - \delta_2 \beta^2_{13} - \delta_3 \beta^2_{12}) \mathbf{x_1}
+    =& (\delta_2 \delta_3 - \beta^2_{23})(\beta_1 + \gamma_1 \mathbf{z} 
+    + \mathbf{\epsilon_1}) \\
+    +& (\beta_{12} \delta_3 + \beta_{13} \beta_{23})(\beta_2 + \gamma_2 \mathbf{z} 
+    + \mathbf{\epsilon_2}) \\
+    +& (\beta_{13} \delta_2 + \beta_{12} \beta_{23})(\beta_3 + \gamma_3 \mathbf{z} 
+    + \mathbf{\epsilon_3}) \\
+ (\delta_1 \delta_2 \delta_3 - 2 \beta_{12} \beta_{13} \beta_{23} - 
+ \delta_1 \beta^2_{23} - \delta_2 \beta^2_{13} - \delta_3 \beta^2_{12}) \mathbf{x_2}
+    =& (\beta_{12} \delta_3 +  \beta_{13} \beta_{23})(\beta_1 + \gamma_1 \mathbf{z} 
+    + \mathbf{\epsilon_1}) \\
+    +& (\delta_1 \delta_3 - \beta^2_{13})(\beta_2 + \gamma_2 \mathbf{z} 
+    + \mathbf{\epsilon_2}) \\
+    +& (\beta_{23} \delta_1 + \beta_{12} \beta_{13})(\beta_3 + \gamma_3 \mathbf{z} 
+    + \mathbf{\epsilon_3}) \\
+ (\delta_1 \delta_2 \delta_3 - 2 \beta_{12} \beta_{13} \beta_{23} - 
+ \delta_1 \beta^2_{23} - \delta_2 \beta^2_{13} - \delta_3 \beta^2_{12}) \mathbf{x_3}
+    =& (\beta_{13} \delta_2  + \beta_{12} \beta_{23})(\beta_1 + \gamma_1 \mathbf{z} 
+    + \mathbf{\epsilon_1}) \\
+    +& (\beta_{23} \delta_1 + \beta_{12} \beta_{13})(\beta_2 + \gamma_2 \mathbf{z} 
+    + \mathbf{\epsilon_2}) \\
+    +& (\delta_1 \delta_2 - \beta_{12}^2)(\beta_3 + \gamma_3 \mathbf{z} 
+    + \mathbf{\epsilon_3})
+\end{align*}
+
+\begin{align*}
+co&v(x_1 | z, x_2 | z) \\ &= \frac{
+     (\delta_1 \delta_2 - \beta^2_{23})(\beta_{12} \delta_3 + \beta_{13} \beta_{23})}{
+     (\delta_1 \delta_2 \delta_3 - 2 \beta_{12} \beta_{13} \beta_{23} - 
+     \delta_1 \beta^2_{23} - \delta_2 \beta^2_{13} - \delta_3 \beta^2_{12})^2 
+   } var(\epsilon_1) \\ &+ \frac{
+   (\delta_1 \delta_3 - \beta^2_{13})(\beta_{12} \delta_3 + \beta_{13} \beta_{23})}{
+     (\delta_1 \delta_2 \delta_3 - 2 \beta_{12} \beta_{13} \beta_{23} - 
+     \delta_1 \beta^2_{23} - \delta_2 \beta^2_{13} - \delta_3 \beta^2_{12})^2 
+   } var(\epsilon_2) \\ &+ \frac{
+     (\beta_{13} \delta_2 + \beta_{12} \beta_{23})
+     (\beta_{23} \delta_1 + \beta_{12} \beta_{13}) 
+   }{
+     (\delta_1 \delta_2 \delta_3 - 2 \beta_{12} \beta_{13} \beta_{23} - 
+     \delta_1 \beta^2_{23} - \delta_2 \beta^2_{13} - \delta_3 \beta^2_{12})^2 
+   } var(\epsilon_3) \\ 
+    &= \beta_{12} \frac{
+     (\delta_3 + \frac{\beta_{13} \beta_{23}}{\beta_{12}})
+       ((\delta_1 \delta_2 - \beta^2_{12})var(\epsilon_1) +
+       (\delta_1 \delta_3 - \beta^2_{12})var(\epsilon_2)) +
+     \beta_{12} (\frac{\beta_{13}}{\beta_{12}} \delta_2 + \beta_{23})
+                (\frac{\beta_{23}}{\beta_{12}} \delta_1 + \beta_{13})
+                var(\epsilon_3)
+    }{
+     (\delta_1 \delta_2 \delta_3 - 2 \beta_{12} \beta_{13} \beta_{23} - 
+     \delta_1 \beta^2_{23} - \delta_2 \beta^2_{13} - \delta_3 \beta^2_{12})^2 
+    }
+\end{align*}
+
+If we assume that $\beta_{13} = \beta_{23} = 0$, the conditional covariance is 
+the same as with just two choices. When only one of the choices of interest, 
+$x_{1i}$ and $x_{2i}$, is interdependent with the third choice, e.g.
+$\beta_{13} = 0$, the covariance equals
+
+\begin{align*}
+cov(x_1 | z, x_2 | z) &= \beta_{12} \frac{
+     \delta_3 ((\delta_1 \delta_2 - \beta^2_{12})var(\epsilon_1) +
+       (\delta_1 \delta_3 - \beta^2_{12}) var(\epsilon_2)) +
+     \delta_1 \beta_{23}^2 var(\epsilon_3)
+    }{
+     (\delta_1 \delta_2 \delta_3 - \delta_1 \beta^2_{23} - \delta_3 \beta^2_{12})^2 
+    }
+\end{align*}
+
+If the optimal solution is no corner solution (see below), the conditional 
+covariance of $\mathbf{x_1}$ and $\mathbf{x_2}$ will have the same sign as
+$\beta_{12}$ when one of the two choices is independent of the third choice.
+
+## Condition
+
+\begin{align*}
+0 &\leq \delta_1 \delta_2 \delta_3 - 2 \beta_{12} \beta_{13} \beta_{23} - 
+   \delta_1 \beta^2_{23} - \delta_2 \beta^2_{13} - \delta_3 \beta^2_{12} \\
+1 &\geq 2 \frac{\beta_{12} \beta_{13} \beta_{23}}{\delta_1 \delta_2 \delta_3} 
+  + \frac{\beta^2_{23}}{\delta_2 \delta_3} 
+  + \frac{\beta^2_{13}}{\delta_1 \delta_3} 
+  + \frac{\beta^2_{12}}{\delta_1 \delta_2} 
+\end{align*}
+
+If we assume $\beta = \beta_{12} = \beta_{13} = \beta_{23} \neq 0$ and 
+$\delta = \delta_1 = \delta_2 = \delta_3 > 0$, then the condition simplifies to
+
+\begin{align*}
+0 &\geq 2 \frac{\beta^3}{\delta^3} + 3 \frac{\beta^2}{\delta^2} - 1 \\
+0 &\geq (\frac{\beta}{\delta} + 1)^2 (2 \frac{\beta}{\delta} - 1) \\
+\frac{\beta}{\delta} \neq -1 &\land \frac{\beta}{\delta} \leq .5
+\end{align*}
+
+The condition implies basically that the complementarities should be even
+smaller than with one complementarity. With three subsitution relations, the 
+condition (almost) always hold. The intuition is that the substitution works as
+negative feedback, and complementarity as positive feedback.
+
+Another interesting application is with two interdependencies of the same size
+($\beta$) and one ($-\beta$).
+
+\begin{align*}
+  0 &\leq \delta^3 + 2 \beta^3 - 3 \delta \beta^2 \\
+  0 &\leq 1 + 2 \frac{\beta^3}{\delta^3} - 3 \frac{\beta^2}{\delta^2} \\
+  0 &\leq (\frac{\beta}{\delta} - 1)^2 (2 \frac{\beta}{\delta} + 1) \\
+  -.5 &< \frac{\beta}{\delta} \land \frac{\beta}{\delta} \neq 1 \\
+\end{align*}
+
+Corner solutions are avoided with two small substitutes and one small 
+complimentarity, or with two complimentarities and one similarly sized 
+substitute. 
+
+# References
+
+[^short]: I think.
+
+[^simultaneity]: I wonder whether this has anything to do with the simultaneity
+bias. Not directly in the estimate but in the standard errors. The effect of 
+optimality is not super stable. It might be because 400 simulations is not 
+enough to be precise enough.
+
+[^deviations]: Implicitly, the demand function approach assumes that positive
+and negative deviations have equal effects. If positive deviations have a 
+different effect than negative deviations, the optimal levels would be different
+form the ones in Equation \ref{optimal}
+
+[^selection-positive]: I am not sure about the exact reason. It could be that 
+there is less selection pressure to take the complimentarity into account 
+because of the positive interaction between $\mathbf{x_j}$ and $\mathbf{z}$. 
+It is also possible that the effects of $\mathbf{z}$ and the complimentarity 
+are strongly correlated. However, multicollinearity would typically inflate the 
+estimate.
+
+
+
+
+
+
+
+

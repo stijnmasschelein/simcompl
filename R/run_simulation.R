@@ -167,6 +167,7 @@ run_sim <- function(obs = 200,
     run_single_sim <- function(x, ...){
       # All variables are from above
       # The advantage is that all variabls are already calculated I guess
+      result_run <- data.frame()
       dat <- create_sample(b1 = unlist(params$b1), b2 = unlist(params$b2),
                           d = unlist(params$d), sd = unlist(params$sd),
                           g1 = unlist(params$g1), g2 = unlist(params$g2),
@@ -177,45 +178,22 @@ run_sim <- function(obs = 200,
                                    method = methods_in[[fm]])
         new_result <- format_reg(reg_list)
         for (i in 1:nrow(new_result)){
-          result <- rbind(result, cbind(new_result[i,], params_in,
+          result_run <- rbind(result_run, cbind(new_result[i,], params_in,
                                         ## Adapt this
                                         list(sim_id = x)))
         }
       }
-      return(result)
+      return(result_run)
     }
 
     result_list <- parallel::mclapply(1:nsim,
                                       run_single_sim,
                                       mc.cores = mc_cores)
 
-    result <- do.call(rbind, result_list)
-    rm(result_list)
-
-#     for (s in 1:nsim){
-#       dat <- create_sample(
-#         b1 = b1_in, b2 = b2_in, d = d_in, sd = sd_in, g1 = g1_in, g2 = g2_in,
-#         sd_eps = sd_eps_in, obs = obs_in, rate = rate_in
-#       )
-#       for (fm in 1:length(familys_in)){
-#         reg_list <- run_regression(dat, familys_in[[fm]],
-#                                    method = methods_in[[fm]])
-#         new_result <- format_reg(reg_list)
-#         for (i in 1:nrow(new_result)){
-#           result <- rbind(result, cbind(new_result[i,], params_in,
-#                                         list(sim_id = s)))
-#         }
-#       }
-#       if (show_progress == TRUE){
-#         setTxtProgressBar(pb, s)
-#       }
-#     }
-#     if (show_progress == TRUE){
-#     close(pb)
-#     }
+    result <- rbind(result, do.call(rbind, result_list))
   }
-
-  # vars <- c("sd", "N", "survival_rate")
-  # result[vars] <- lapply(result[vars], as.numeric)
   return(result)
 }
+
+
+

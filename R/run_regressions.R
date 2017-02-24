@@ -9,10 +9,25 @@ nr_columns <- 4
 #' @seealso interaction_reg run_regression format_reg
 #' @return A list with the regression object and the name of the method
 
-match_reg <- function(dat){
+match_reg <- function(dat, method = "traditional"){
   stopifnot(ncol(dat) >= nr_columns)
-  reg <- lm(x1 ~ x2 + z, data = dat)
-  return(list(reg = reg, method = "matching"))
+  method_options <- c("traditional", "residual")
+  if (!(method %in% method_options)){
+    method_options_str <- paste(method_options, collapse = ", ")
+    stop("method has no valid input. It should be one of the following: ",
+         method_options_str, ".")
+  }else{
+    reg <- lm(x1 ~ x2 + z, data = dat)
+    if(method == "residual"){
+      reg2 <- lm(x2 ~ x1 + z, data = dat)
+      res1 <- abs(residuals(reg))
+      res2 <- abs(residuals(reg2))
+      reg_payoff <- lm(dat$y ~ res1 + res2)
+      return(list(reg = reg, reg2 = reg_payoff, method = "matching_residual"))
+    }else{
+      return(list(reg = reg, method = "matching"))
+    }
+  }
 }
 
 #' Perform the traditional single equation regression approach under the
@@ -34,7 +49,7 @@ interaction_reg <- function(dat, method = "traditional"){
   stopifnot(ncol(dat) >= nr_columns)
 
   method_options <- c("traditional", "augmented", "moderation",
-                      "moderationaugmented")
+                      "moderationaugmented", "control")
   if (!(method %in% method_options)){
     method_options_str <- paste(method_options, collapse = ", ")
     stop("method has no valid input. It should be one of the following: ",
@@ -45,7 +60,8 @@ interaction_reg <- function(dat, method = "traditional"){
                 augmented = lm(y ~ x1*x2 + I(x1^2) + I(x2^2), data = dat),
                 moderation = lm(y ~ x1*x2 + x1*z + x2*z, data = dat),
                 moderationaugmented = lm(y ~ x1*x2 + x1*z + x2*z +
-                                            I(x1^2) + I(x2^2), data = dat))
+                                            I(x1^2) + I(x2^2), data = dat),
+                control = lm(y ~ x1*x2 + z, data = dat))
   return(list(reg = reg, method = paste("interaction", method, sep = "_")))
   }
 }
@@ -111,7 +127,7 @@ run_regression <- function(dat, family = "match", method = "traditional"){
        family_options_str, ".")
   } else {
     reg_list <- switch(family,
-                       match = match_reg(dat),
+                       match = match_reg(dat, method),
                        interaction = interaction_reg(dat, method = method),
                        sur = sur_reg(dat),
                        conditional = cond_reg(dat))
@@ -160,18 +176,38 @@ format_reg <- function(list_reg){
   }
     else {
     reg <- list_reg$reg
-    method <- list_reg$method
-    family <- strsplit(method, split = "_")[[1]][1]
+    approach <- list_reg$method
+    family <- strsplit(approach, split = "_")[[1]][1]
+    method <- strsplit(approach, split = "_")[[1]][2]
     summ <- summary(reg)
     coefstring <- switch(family,
                    interaction = "x1:x2",
                    matching = "x2")
-    results <- data.frame(method = method,
+    results <- data.frame(
+                 method = approach,
                  coefficient = reg$coefficients[coefstring],
                  stat = summ$coefficients[coefstring, "t value"],
                  pvalue = summ$coefficients[coefstring, "Pr(>|t|)"],
                  r2 = summ$r.squared,
                  stringsAsFactors = FALSE)
+    if (!is.na(method)){
+      if (method == "residual"){
+        reg2 <- list_reg$reg2
+        summ2 <- summary(reg2)
+        coefstring2 <- c("res1", "res2")
+        results <- rbind(results,
+                         data.frame(
+                           method = c(paste0(approach, "_2nd_1"),
+                                      paste0(approach, "_2nd_2")),
+                           coefficient = reg2$coefficients[coefstring2],
+                           stat = summ2$coefficients[coefstring2, "t value"],
+                           pvalue = summ2$coefficients[coefstring2, "Pr(>|t|)"],
+                           r2 = rep(summ$r.squared, 2),
+                           stringsAsFactors = FALSE
+                           )
+                         )
+      }
+    }
   }
   row.names(results) <- NULL
   return(results)

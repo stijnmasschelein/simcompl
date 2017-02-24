@@ -1,0 +1,33 @@
+---
+title: "Statistical tests for Complementarity"
+author: "Stijn Masschelein"
+date: "`r Sys.Date()`"
+output: 
+  html_document: 
+    number_sections: yes
+bibliography: "~/Dropbox/Teksten/bibtex/complement.bib"
+---
+
+# simulate data
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+require(simcompl)
+require(dplyr)
+require(rstan)
+N <- 100
+simdat <- create_sample(obs = N, rate = .25, g1 = c(.5, .5, 0))
+```
+
+```{r}
+niter <- 400
+struct_fit <- stan("stan_application.stan", data=list(N = nrow(simdat), 
+                                                      y = simdat$y, 
+                                                      x1 = simdat$x1,
+                                                      x2 = simdat$x2,
+                                                      z = simdat$z), 
+                   iter = niter, refresh = niter/3, cores = 4)
+```

@@ -1,0 +1,595 @@
+---
+title: "Performance Effects of Interdependencies"
+author: "Stijn Masschelein"
+date: "19/12/2016"
+output:
+  ioslides_presentation:
+    fig_height: 7
+    fig_width: 5
+    keep_md: yes
+    transition: faster
+    widescreen: yes
+  beamer_presentation: default
+  slidy_presentation: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, dev.args = list(bg = 'transparent'))
+```
+
+# Interdepencies
+<div class=notes>
+Let's first have a look of a couple of examples of what interdepencies are
+</div>
+
+## An example | Delegation and incentives {.flexbox .vcenter}
+
+```{r out.width="300px"}
+knitr::include_graphics("figures/delegation_incentives_1.png")
+knitr::include_graphics("figures/delegation_incentives_2.png")
+knitr::include_graphics("figures/delegation_incentives_3.png")
+knitr::include_graphics("figures/delegation_incentives_4.png")
+knitr::include_graphics("figures/delegation_incentives_5.png")
+```
+
+<div class=notes>
+The basic idea is that giving more autonomy to managers opens the firm up to
+potential conflicts of interest hence the need for incentives. On the other
+hand, when managers try to maximize their performance (according to an incentive
+contract), they will do better if they have more freedom to develop their
+strategy.
+</div>
+
+## An example | Levers of control {.flexbox .vcenter}
+
+```{r out.width="400px"}
+knitr::include_graphics("figures/loc1.png")
+knitr::include_graphics("figures/loc2.png")
+```
+
+<div class=notes>
+Similary, the levers of control literature argues there is a balance necessary 
+between multiple.
+
+Side note: balance means not usefull/even harmfull alone but helpful in 
+combination.
+</div>
+
+## An other example | Relational and formal contract {.flexbox .vcenter}
+
+![](figures/control_level.png)
+
+<div class=notes>
+In Sharon's first study she investigates whether relational contracts based on 
+good faith and reputation work as well as formal contract. One of the interesting
+findings is that participants in the experiment who can choose how much to control
+the other, either control a lot or not at all. It looks like formal control and
+relational contracting does not work together. A substitution relation. 
+</div>
+
+## A financial accounting / auditing example {.flexbox .vcenter}
+
+```{r out.width="500px"}
+knitr::include_graphics("figures/balletal.png")
+```
+
+<div class=notes>
+Not only in management accounting. Basically, every time you think a firm is
+taking into account the affect of one choice on the other. This paper is
+intuitive: firms with better mandatory reports, are committing to good reporting
+so that they are believed when voluntary disclosing information. Auditing helps
+as a commitment device. 
+</div>
+
+## Practical example | Target setting at the Water Corporation {.flexbox .vcenter}
+```{r out.width="700px"}
+knitr::include_graphics("figures/watercorp1.png")
+knitr::include_graphics("figures/watercorp2.png")
+```
+
+<div class=notes>
+This is a project I got involved in in WA. The Water Corporation, an independent
+company, but with stringent governmental oversight manages the water pipes in 
+WA. Because the infrastructure is getting old, new investments are needed. They
+want to get an idea of which cost centers are having trouble and which ones are 
+not doing their job.
+
+Target setting for each cost center. Environmental differences capture 50% of 
+the difference in leakages. Effect of actions (inspection, maintenance, 
+replacements) are difficult to capture statistically because they are 
+interdependent. 
+</div>
+
+## Funny example {.flexbox .vcenter}
+
+```{r out.width="800px"}
+knitr::include_graphics("http://imgs.xkcd.com/comics/self_description.png")
+```
+
+The contents of any one panel are dependent on the contents of every panel
+including itself. The graph of panel dependencies is complete and bidirectional,
+and each node has a loop. The mouseover text has two hundred and forty-two
+characters
+
+<div class=notes>
+For me this illustrates, how with only three panels the complexity of all these
+interdependencies becomes difficult to keep track off. 
+
+This is why I need some mathematics and a theoretical model to keep my head 
+straight. 
+</div>
+
+# Theoretical framework
+## Model
+
+### Production function
+
+$$ y_i = \beta_0 + (\beta_1 + \gamma_1 z_i + \epsilon_{1i}) x_{1i} 
+                 + (\beta_2 + \gamma_2 z_i + \epsilon_{2i}) x_{2i} 
+                 + \beta_{12} x_{1i} x_{2i} \\ 
+                 - .5 \delta_1 x_{1i} - .5 \delta_2 x_{2i} + \nu_i $$
+$$ \epsilon_{1}, \epsilon_{2}, \nu \sim i.i.d $$
+
+### Optimal choices
+
+$$ \delta_1 x_{1i} = \beta_1 + \gamma_1 z_i + \beta_{12} x_{2i} + \epsilon_{1i} $$
+$$ \delta_2 x_{2i} = \beta_2 + \gamma_2 z_i + \beta_{12} x_{1i} + \epsilon_{2i} $$
+
+<div class=notes>
+The idea start from this rather extensive production function. We are interested
+in how the choices $x_1$ and $x_2$ (eg incentives and delegation) affect the 
+performance $y$.
+
+The effect of each choice depends on a main effect, the environment $z$, and
+unobserved factors $\epsilon$. 
+
+The interdepency is captured in the parameter $\beta_12$. There are also 
+decreasing returns to both choices $\delta$. 
+</div>
+
+## Production function approach 
+
+<div class="notes">
+  This is the contingency fit approach and ignores
+  - moderation
+  - decreasing returns
+</div>
+
+### Underlying  model
+
+$$ y_i = \beta_0 + (\beta_1 + \gamma_1 z_i + \epsilon_{1i}) x_{1i} 
+                 + (\beta_2 + \gamma_2 z_i + \epsilon_{2i}) x_{2i} 
+                 + \beta_{12} x_{1i} x_{2i} \\ 
+                 - .5 \delta_1 x_{1i} - .5 \delta_2 x_{2i} + \nu_i $$
+$$ \epsilon_{1}, \epsilon_{2}, \nu \sim i.i.d $$
+
+### Statistical model
+
+$$ y_i = \alpha_0^p + \alpha_1^p x_{1i}  + \alpha_2^p x_{2i} 
+         + \alpha_{12}^p x_{1i} x_{2i} + \nu_i^p $$
+$$ \nu^p \sim i.i.d $$
+
+## Demand function approach
+
+<div class="notes">
+  This is the congruence fit approach which ignores
+  
+    - performance effects
+    
+    - has some statistical issues because of interaction 
+      (even under optimal conditions)
+      
+  If z = controls are the same and nothing else in the equation for the direct 
+  method than there is no difference.
+</div>
+
+### Underlying model
+
+$$ \delta_1 x_{1i} = \beta_1 + \gamma_1 z_i + \beta_{12} x_{2i} + \epsilon_{1i} $$
+$$ \delta_2 x_{2i} = \beta_2 + \gamma_2 z_i + \beta_{12} x_{1i} + \epsilon_{2i} $$
+
+### Direct method
+
+$$ x_{1i} = \alpha_1^d + \alpha_{12}^d x_{2i} + \gamma^d_1 z_i + \epsilon^d_{1i} $$
+
+### Conditional correlation
+
+$$ x_{1i} = \alpha_1^d + \gamma^d_1 z_i + \epsilon^d_{1i} 
+\ \&\ x_{2i} = \alpha_2^d + \gamma^d_2 z_i + \epsilon^d_{2i} $$
+
+## Demand function and simultaneity bias 
+
+$$
+\alpha_{12}^d =  \frac{\beta_{12}}{\delta_1}
+                 \frac{\delta_2 \sigma_1^2 + \delta_1 \sigma_2^2}
+                 {\delta_2^2 \sigma_1^2 + \beta_{12}^2 \sigma_2^2}
+$$
+
+- $\beta_{12} = 0 \implies \alpha_{12}^d = 0$
+- The sign is always correct.
+- The same results hold for conditional correlations
+
+## Fuzzy set approach
+### for two choices 
+  $$ \delta_1 \delta_2 > \beta_{12}^2 $$
+  
+### for three complements
+  $$ \delta_i = 1 \implies \beta_{ij} < .55 $$
+
+[Erkens and Van der Stede](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2296468)
+[Bedford, Malmi, and Sandelin, 2016](http://www.sciencedirect.com/science/article/pii/S0361368216300435)
+
+## Comparison between production & demand approach
+
++ Optimality assumption
++ Production approach ignores
+    - observed and unobserved moderation
+    - decreasing returns
++ Demand approach ignores 
+    - performance information
+
+<div class = notes>
+The optimality is NOT the only difference. The decreasing returns is unfortunate
+because with 0 decreasing returns we would already see cluster formation as if
+there are interdependencies when endogeneity sets in. 
+
+The loss of performance information is unfortunate that is the thing we are
+actually interested in.
+</div>
+
+    
+# Simulation study
+## Methodology
+### Simulate samples
+- A firm sees its randomly chosen environment $z$
+- The firm tests N random combinations of $(x_1, x_2)$
+- The firm keeps the combination with the maximum $y$
+- 200 firms for this presentation
+
+### Run tests
+- Production function
+- Direct demand function
+
+<div class=notes>
+With N == 1, the x's are essentially random. With N --> infinity, x's move 
+toward optimal choices. This is one way to investigate the optimality assumption.
+</div>
+
+## Generated samples and optimality {.flexbox .vcenter}
+$$\beta_{12} = .5, \delta_1 = \delta_2 = 1$$
+```{r, eval=FALSE}
+require(simcompl)
+require(dplyr)
+sample2 <- tbl_df(create_sample(obs = 1e3, rate = 1/2, b2 = c(.5, 0, 0))) %>% 
+  mutate(opt_param = 2)
+sample4 <- tbl_df(create_sample(obs = 1e3, rate = 1/4, b2 = c(.5, 0, 0))) %>% 
+  mutate(opt_param = 4)
+sample8 <- tbl_df(create_sample(obs = 1e3, rate = 1/8, b2 = c(.5, 0, 0))) %>% 
+  mutate(opt_param = 8)
+sample16 <- tbl_df(create_sample(obs = 1e3, rate = 1/16, b2 = c(.5, 0, 0))) %>% 
+  mutate(opt_param = 16)
+saveRDS(bind_rows(sample2, sample4, sample8, sample16), 
+        file = "~/Dropbox/R/simcompl/application/simulated_data/basic_sampels.Rds")
+```
+```{r, fig.width=8, fig.height=5, out.width="600px"}
+require(dplyr, quietly = TRUE, warn.conflicts = FALSE)
+require(ggplot2, quietly = TRUE)
+require(ggthemes, quietly = TRUE)
+plot <- (readRDS("~/Dropbox/R/simcompl/application/simulated_data/basic_sampels.Rds") 
+         %>% ggplot(aes(y = x1, x = x2)) +
+           geom_point(alpha = .2) +
+           theme_tufte(base_size = 18) +
+           facet_wrap(~ opt_param) 
+)
+print(plot)
+```
+
+<div class=notes>
+Describe the graphs! Start with optimality.
+</div>
+
+## Basic comparison {.flexbox .vcenter}
+$\beta_{12} = .5, \delta_1 = \delta_2 = 1$
+```{r, eval=FALSE}
+nsim <- 200
+b2_in <- list(c(0, 0, 0), c(.5, 0, 0))
+rate_in <- list(1/2, 1/4, 1/8, 1/16)
+sims <- run_sim(family_method = "basic", rate = rate_in, b2 = b2_in, nsim = nsim)
+saveRDS(sims, "~/Dropbox/R/simcompl/application/simulated_data/basic_sim.Rds")
+```
+```{r, fig.width = 8, fig.height=5, out.width="600px"}
+plot <- (readRDS("~/Dropbox/R/simcompl/application/simulated_data/basic_sim.RDS")
+  %>% tbl_df %>% mutate(method = ifelse(method == "matching", "demand", "production"),
+                        optim = 1/survival_rate,
+                        b2 = ifelse(b2 == "0, 0, 0", "no effect", "effect"))
+  %>% ggplot(aes(y = stat, x = b2))
+  + geom_tufteboxplot()
+  + theme_tufte(base_size = 18)
+  + facet_grid(method ~ optim)
+  + geom_hline(yintercept = 2, linetype = 3, alpha = .25)
+  + geom_hline(yintercept = 0, linetype = 4, alpha = .25)
+  + geom_hline(yintercept = -2, linetype = 3, alpha = .25)
+  + xlab("")
+)
+print(plot)
+```
+
+## Stronger interdependency {.flexbox .vcenter}
+```{r, eval=FALSE}
+nsim <- 200
+b2_in <- list(c(.25, 0, 0), c(.75, 0, 0))
+rate_in <- list(1/2, 1/4, 1/8, 1/16)
+sims <- run_sim(family_method = "interaction_traditional", 
+                rate = rate_in, b2 = b2_in, nsim = nsim)
+saveRDS(sims, "~/Dropbox/R/simcompl/application/simulated_data/extrab12_sim.Rds")
+```
+```{r, fig.width = 12, fig.height=7.5, out.width="800px", warning=FALSE}
+sims <- (readRDS("~/Dropbox/R/simcompl/application/simulated_data/basic_sim.RDS")
+         %>% filter(method == "interaction_traditional") %>% tbl_df()
+         %>% bind_rows(readRDS(
+           "~/Dropbox/R/simcompl/application/simulated_data/extrab12_sim.RDS"))
+         %>% mutate(optim = 1/survival_rate,
+                    b2 = ifelse(b2 == "0, 0, 0", 0,
+                                ifelse(b2 == "0.25, 0, 0", .25,
+                                       ifelse(b2 == "0.5, 0, 0", .5, .75))))
+)
+plot <- (ggplot(sims, aes(y = stat, x = as.factor(b2)))
+  + geom_tufteboxplot()
+  + theme_tufte(base_size = 18)
+  + facet_grid(~ optim)
+  + geom_hline(yintercept = 2, linetype = 3, alpha = .25)
+  + geom_hline(yintercept = 0, linetype = 4, alpha = .25)
+  + geom_hline(yintercept = -2, linetype = 3, alpha = .25)
+  + xlab("")
+)
+print(plot)
+```
+
+## Positively correlated exogenous variables{.flexbox .vcenter}
+$$\beta_{12} = .5, \delta_1 = \delta_2 = 1, 
+  \gamma_1 = \gamma_2 = .5, \sigma^{\epsilon}_1 = \sigma^{\epsilon}_2 = .5$$
+  
+```{r, eval=FALSE}
+nsim <- 200
+b2_in <- list(c(0, 0, 0), c(.5, 0, 0))
+rate_in <- list(1/2, 1/4, 1/8, 1/16)
+sd_eps_in <- c(.5, .5, 0)
+g1_in = c(.5, .5, 0)
+sims <- run_sim(family_method = "basic", rate = rate_in, b2 = b2_in, nsim = nsim,
+                sd_eps = sd_eps_in, g1 = g1_in)
+saveRDS(sims, "~/Dropbox/R/simcompl/application/simulated_data/posg1_sim.Rds")
+```
+```{r, fig.width = 8, fig.height=5, out.width="600px"}
+plot <- (readRDS("~/Dropbox/R/simcompl/application/simulated_data/posg1_sim.RDS")
+  %>% tbl_df %>% mutate(method = ifelse(method == "matching", "demand", "production"),
+                        optim = 1/survival_rate,
+                        b2 = ifelse(b2 == "0, 0, 0", "no effect", "effect"))
+  %>% ggplot(aes(y = stat, x = b2))
+  + geom_tufteboxplot()
+  + theme_tufte(base_size = 18)
+  + facet_grid(method ~ optim)
+  + geom_hline(yintercept = 2, linetype = 3, alpha = .25)
+  + geom_hline(yintercept = 0, linetype = 4, alpha = .25)
+  + geom_hline(yintercept = -2, linetype = 3, alpha = .25)
+  + xlab("")
+)
+print(plot)
+```
+
+## Negatively correlated exogenous variables{.flexbox .vcenter}
+$$\beta_{12} = .5, \delta_1 = \delta_2 = 1, 
+  \gamma_1 = .5, \gamma_2 = -.5, \sigma^{\epsilon}_1 = \sigma^{\epsilon}_2 = .5$$
+  
+```{r, eval=FALSE}
+nsim <- 200
+b2_in <- list(c(0, 0, 0), c(.5, 0, 0))
+rate_in <- list(1/2, 1/4, 1/8, 1/16)
+sd_eps_in <- c(.5, .5, 0)
+g1_in = c(.5, -.5, 0)
+sims <- run_sim(family_method = "basic", rate = rate_in, b2 = b2_in, nsim = nsim,
+                sd_eps = sd_eps_in, g1 = g1_in)
+saveRDS(sims, "~/Dropbox/R/simcompl/application/simulated_data/negg1_sim.Rds")
+```
+```{r, fig.width = 8, fig.height=5, out.width="600px"}
+plot <- (readRDS("~/Dropbox/R/simcompl/application/simulated_data/negg1_sim.RDS")
+  %>% tbl_df %>% mutate(method = ifelse(method == "matching", "demand", "production"),
+                        optim = 1/survival_rate,
+                        b2 = ifelse(b2 == "0, 0, 0", "no effect", "effect"))
+  %>% ggplot(aes(y = stat, x = b2))
+  + geom_tufteboxplot()
+  + theme_tufte(base_size = 18)
+  + facet_grid(method ~ optim)
+  + geom_hline(yintercept = 2, linetype = 3, alpha = .25)
+  + geom_hline(yintercept = 0, linetype = 4, alpha = .25)
+  + geom_hline(yintercept = -2, linetype = 3, alpha = .25)
+  + xlab("")
+)
+print(plot)
+```
+
+## Improvements on the production approach {.flexbox .vcenter}
+<div class="notes">
+Using z as a regular control might work for some weird reasons i.e. control 
+for the selection on z. Need to check.
+</div>
+$\gamma_1 = \gamma_2 = 0$
+```{r, eval=FALSE}
+nsim <- 200
+b2_in <- list(c(0, 0, 0), c(.5, 0, 0))
+rate_in <- list(1/2, 1/4, 1/8, 1/16)
+method_in = list("interaction_traditional", "interaction_augmented", 
+                 "interaction_moderation", "interaction_moderationaugmented")
+sims <- run_sim(family_method = method_in, rate = rate_in, b2 = b2_in, nsim = nsim)
+saveRDS(sims, "~/Dropbox/R/simcompl/application/simulated_data/alterint_sim.Rds")
+```
+
+```{r, fig.width = 10, fig.height=6, out.width="800px"}
+plot <- (readRDS("~/Dropbox/R/simcompl/application/simulated_data/alterint_sim.RDS")
+  %>% tbl_df %>% mutate(moderation = ifelse(grepl("moderation", method),
+                                            "moderation", "no moderation"),
+                        decreasing = ifelse(grepl("augmented", method),
+                                            "decreasing", "no decreasing"),
+                        optim = 1/survival_rate,
+                        b2 = ifelse(b2 == "0, 0, 0", "no effect", "effect"))
+  %>% ggplot(aes(y = stat, x = b2))
+  + geom_tufteboxplot()
+  + theme_tufte(base_size = 18)
+  + facet_grid(decreasing + moderation ~ optim)
+  + geom_hline(yintercept = 2, linetype = 3, alpha = .25)
+  + geom_hline(yintercept = 0, linetype = 4, alpha = .25)
+  + geom_hline(yintercept = -2, linetype = 3, alpha = .25)
+  + xlab("")
+)
+print(plot)
+```
+
+
+## Improvements on the production approach {.flexbox .vcenter}
+$\gamma_1 = .5, \gamma_2 = .5$
+
+<div class="notes">
+</div>
+
+```{r, eval=FALSE}
+nsim <- 200
+b2_in <- list(c(0, 0, 0), c(.5, 0, 0))
+rate_in <- list(1/2, 1/4, 1/8, 1/16)
+sd_eps_in <- c(.5, .5, 0)
+g1_in = c(.5, .5, 0)
+method_in = list("interaction_traditional", "interaction_augmented", 
+                 "interaction_moderation", "interaction_moderationaugmented")
+sims <- run_sim(family_method = method_in, rate = rate_in, b2 = b2_in, nsim = nsim,
+                sd_eps = sd_eps_in, g1 = g1_in)
+saveRDS(sims, "~/Dropbox/R/simcompl/application/simulated_data/alterintpos_sim.Rds")
+```
+
+```{r, fig.width=10, fig.height=6, out.width="800px"}
+plot <- (readRDS("~/Dropbox/R/simcompl/application/simulated_data/alterintpos_sim.RDS")
+  %>% tbl_df %>% mutate(moderation = ifelse(grepl("moderation", method),
+                                            "moderation", "no moderation"),
+                        decreasing = ifelse(grepl("augmented", method),
+                                            "decreasing", "no decreasing"),
+                        optim = 1/survival_rate,
+                        b2 = ifelse(b2 == "0, 0, 0", "no effect", "effect"))
+  %>% ggplot(aes(y = stat, x = b2))
+  + geom_tufteboxplot()
+  + theme_tufte(base_size = 18)
+  + facet_grid(decreasing + moderation ~ optim)
+  + geom_hline(yintercept = 2, linetype = 3, alpha = .25)
+  + geom_hline(yintercept = 0, linetype = 4, alpha = .25)
+  + geom_hline(yintercept = -2, linetype = 3, alpha = .25)
+  + xlab("")
+)
+print(plot)
+```
+
+## Performance and demand function approach {.flexbox .vcenter}
+### The interdependence coefficient is underestimated
+```{r, fig.width=8, fig.height=5, warning=FALSE, out.width="800px"}
+dat <- 
+  (readRDS("~/Dropbox/R/simcompl/application/simulated_data/basic_sim.RDS")
+     %>% filter(method == "matching")
+     %>% mutate(type = "absent")
+     %>% bind_rows(
+      readRDS("~/Dropbox/R/simcompl/application/simulated_data/posg1_sim.RDS")
+      %>% filter(method == "matching")
+      %>% mutate(type = "positive")
+      )
+     %>% bind_rows(
+      readRDS("~/Dropbox/R/simcompl/application/simulated_data/negg1_sim.RDS")
+      %>% filter(method == "matching")
+      %>% mutate(type = "negative")
+      )
+   %>% tbl_df() 
+   %>% mutate(optim = 1/survival_rate,
+              b2 = ifelse(b2 == "0, 0, 0", "no effect", "effect"))
+  ) 
+
+plot <- 
+  ( ggplot(dat, aes(y = coefficient, x = b2)) 
+    + geom_tufteboxplot()
+    + theme_tufte(base_size = 18)
+    + facet_grid(type ~ optim)
+    + geom_hline(yintercept = 0, linetype = 3, alpha = .25)
+    + geom_hline(yintercept = .5, linetype = 3, alpha = .25)
+    + xlab("")
+  )
+
+print(plot)
+```
+
+
+
+## Getting performance in the demand approach
+### (mis)matching approach
+$$ \delta_1 x_{1i} = \beta_1 + \gamma_1 z_i + \beta_{12} x_{2i} + \epsilon_{1i} \\
+   \delta_2 x_{2i} = \beta_2 + \gamma_2 z_i + \beta_{12} x_{1i} + \epsilon_{2i} $$
+
+$$ y_i = \alpha_1^m abs(\epsilon_{1i}) + \alpha_2^m abs(\epsilon_{2i}) + \nu_i^m $$
+   
+### problems   
+- Estimates depend on other parameters
+    + simultaneity bias 
+    + survival pressure
+- Mixing of optimality assumptions
+
+## Summary
+
+- Demand approach is more robust
+- The traditional production function approach is brittle
+- Richer models help somewhat
+- Link between 'irrelevant' parameters and adoption
+
+# Way forward
+## Explicit model of assumptions
+- Differences
+    + fuzzy set
+    + profit function
+    + demand function
+    + matching approach
+- [Chenhall and Moers 2005](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=977777)
+- [Gow, Larcker, and Reiss 2016](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2729565)
+
+## Adoption models
+
+- Fads and inertia 
+- Experimental research on use of management control
+- Experimental research on information search and change of control
+- Rational with incomplete information and netwerk effects
+    + [Bol and Moers 2010](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=1676327) 
+    + [Labro and Stice-Lawrence 2016](https://www.business.uq.edu.au/sites/default/files/events/files/labro-stice-lawrence-2015-04-29-as-updating.pdf)
+
+## Models of performance | [Hemmer and Labro working paper](http://www.krannert.purdue.edu/academics/Accounting/bkd_speakers/papers/Labro.pdf)
+
+### Stage 1
+- Firm chooses strategy with $\lambda$ chance of $y \sim \mathcal{N}(\mu, \sigma)$ 
+  and $1 - \lambda$ of $y \sim \mathcal{N}(-\mu, \sigma)$
+  
+### Stage 2
+- Firm changes strategy when y < 0. 
+
+### Result
+- 6 latent profit distributions governed by $\lambda$, $\mu$ and $\sigma$. 
+
+<div class=notes>
+This is basically a generative model.
+</div>
+
+## Richer models
+- Explicit 
+    + Decreasing returns
+    + Moderation effects
+- Unobserved heterogeneity [Athey and Stern NBER](http://www.nber.org/papers/w6600)
+    + Structural models
+- More (structure) in the data
+    + Panel data
+    + Groups in data (e.g. industry, country)
+- Statistical methods
+    + Method of Moments
+    + Bayesian Hierarchical Models
+
+## The End {.flexbox .vcenter}
+
+```{r out.width="350px"}
+knitr::include_graphics("http://imgs.xkcd.com/comics/physicists.png")
+```
