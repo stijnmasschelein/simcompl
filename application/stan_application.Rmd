@@ -18,16 +18,95 @@ knitr::opts_chunk$set(echo = TRUE)
 require(simcompl)
 require(dplyr)
 require(rstan)
-N <- 100
-simdat <- create_sample(obs = N, rate = .25, g1 = c(.5, .5, 0))
+N <- 200
+simdat <- create_sample(obs = N, b2 = c(.5, 0, 0), rate = .05, g1 = c(.5, .5, 0),
+                        sd_eps = c(1, 1, 0))
+data_list <- list(N = nrow(simdat), y = simdat$y, x1 = simdat$x1, 
+                  x2 = simdat$x2, z = simdat$z)
+lmprod <- lm(y ~ x1 * x2 + x1:z + x2:z + I(x1^2) + I(x2^2), data = simdat)
+lmdemand <- lm(x1 ~ x2 + z, data = simdat)
+arm::display(lmprod)
+arm::display(lmdemand)
 ```
 
-```{r}
-niter <- 400
-struct_fit <- stan("stan_application.stan", data=list(N = nrow(simdat), 
-                                                      y = simdat$y, 
-                                                      x1 = simdat$x1,
-                                                      x2 = simdat$x2,
-                                                      z = simdat$z), 
-                   iter = niter, refresh = niter/3, cores = 4)
+# Structural demand approach
+
+A two-equation approach with cross-equation restrictions seems to work pretty
+well (based on @Athey1998). It the derivation in 1.2.2 and the additional 
+constraint that $\delta_1 \delta_2 > \beta_{12}$.  A full scale simulation 
+exercise needs to be done for this to be tested in more detail.
+
+```{r run_demand, warning=FALSE, results='hide'}
+niter <- 1000
+demand_model <- stan_model(file = "stan/demand.stan")
+demand_fit <- sampling(demand_model, data = data_list, 
+                   iter = niter, refresh = niter/4, cores = 4, 
+                   control = list(adapt_delta = .9))
+demand_opt <- optimizing(demand_model, data = data_list)
+```
+```{r result_demand}
+print(demand_fit)
+```
+
+# Structural demand-production approach
+
+A three equation approach
+
+```{r run_demand_product, warning=FALSE, results='hide'}
+niter <- 1000
+full_model <- stan_model(file = "stan/full.stan")
+full_fit <- sampling(full_model, data = data_list,
+                       iter = niter, refresh = niter/4, cores = 4,
+                       control = list(adapt_delta = .9))
+```
+
+# Introduction of unobserved correlation between $\eta_1$ and $\eta_2$. 
+
+In theory this could help to control for unobserved z's and x's. 
+```{r run_demand_product, message=FALSE, results='hide'}
+data_list = list(N = nrow(simdat), x1 = simdat$x1, x2 = simdat$x2, y = simdat$y,
+                 x12 = simdat$x1 * simdat$x2, x1_2 = simdat$x1 ^ 2, 
+                 x2_2 = simdat$x2 ^ 2, z = simdat$z)
+niter <- 500
+model <- stan_model(file = "stan_application.stan")
+fit <- sampling(model, data = data_list, chains = 4,
+                       iter = niter, refresh = niter/4, cores = 4,
+                       control = list(adapt_delta = .9))
+shinystan::launch_shinystan(fit)
+
+fit_opt <- optimizing(model, data = data_list)
+```
+
+```{r simulation}
+sim_function <- function(niter = 1000, Nopt = 4, models = list()){
+  # dat0 <- simcompl::create_sample(obs = N, b2 = c(0, 0, 0), rate = .25, 
+  #                                  g1 = c(.5, .5, 0), sd_eps = c(1, 1, 0))
+  # dat0_list <- list(N = nrow(dat0), y = dat0$y, x1 = dat0$x1, 
+  #                 x2 = dat0$x2, z = dat0$z)
+  dat1 <- simcompl::create_sample(obs = N, b2 = c(0.5, 0, 0), rate = 1/Nopt, 
+                                   g1 = c(.5, .5, 0), sd_eps = c(1, 1, 0))
+  dat1_list = list(N = nrow(dat1), x1 = dat1$x1, x2 = dat1$x2, y = dat1$y,
+                 x12 = dat1$x1 * dat1$x2, x1_2 = dat1$x1 ^ 2, 
+                 x2_2 = dat1$x2 ^ 2, z = dat1$z)
+  
+  output <- matrix(nrow = 0, ncol = 6)
+  for (m in models){
+    # fit <- rstan::sampling(m, data = dat1_list, iter = niter, refresh = niter/4,
+    #                 chains = 3, cores = 3, control = list(adapt_delta = .9)) 
+    # fit_list <- rstan::extract(fit, pars = c("beta12", "beta", "delta"))
+    # fit_means <- apply(cbind(fit_list$beta, fit_list$beta12,
+    #                          fit_list$delta),
+    #                    2 , mean)
+    fit <- rstan::optimizing(m, data = dat1_list)
+    fit_means <- fit$par[c("beta[1]", "beta[2]", "beta[3]", 
+                           "beta12", "delta[1]", "delta[2]")]
+    output <- rbind(output, c(fit_means))
+  }
+  return(output)
+}
+
+exp <- replicate(100, sim_function(niter = 500, Nopt = 100,
+                                  models = list(model)))
+apply(exp, c(1,2), summary)
+
 ```

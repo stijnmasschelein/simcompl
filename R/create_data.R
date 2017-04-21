@@ -39,6 +39,7 @@ check_numeric <- function(input, len, interval = NULL) {
 
 create_sample <-
   function(obs = 200,
+           rep = 1,
            rate = .5,
            sd = 1,
            sd_eps = c(0, 0, 0),
@@ -48,7 +49,8 @@ create_sample <-
            g1 = c(0, 0, 0),
            g2 = c(0, 0, 0)
            ){
-    check_numeric(obs, 1)
+    check_numeric(obs, 1, c(0, Inf))
+    check_numeric(rep, 1, c(0, Inf))
     check_numeric(rate, 1, c(0, 1))
     check_numeric(sd, 1, c(0, Inf))
     check_numeric(sd_eps, 3, c(0, Inf))
@@ -58,6 +60,7 @@ create_sample <-
     check_numeric(g1, 3)
     check_numeric(g2, 3)
 
+    # set Nfunction
     freq <- 1/rate
     if(ceiling(freq) != floor(freq)){
       cfreq <- c(ceiling(freq), floor(freq))
@@ -69,32 +72,38 @@ create_sample <-
       Nfunction <- function(){freq}
     }
 
-    xsurv <- matrix(rep(NA, 3 * obs), ncol = 3)
-    zsurv <- rep(NA, obs)
-    ysurv <- rep(NA, obs)
+    xsurv <- matrix(rep(NA, 3 * obs * rep), ncol = 3)
+    zsurv <- rep(NA, obs * rep)
+    wsurv <- rep(NA, obs * rep)
+    ysurv <- rep(NA, obs * rep)
+    id <- rep(NA, obs * rep)
 
     for (i in 1:obs){
       N <- Nfunction()
-      eps <- c(0, rnorm(3, rep(0, 3), sd_eps))
-      z <- replicate(N, rnorm(1))
-      w <- replicate(N, rnorm(1))
-      x1 <- rnorm(N)
-      x2 <- rnorm(N)
-      x3 <- rnorm(N)
-      x_exp  <- cbind(model.matrix( ~ (x1 + x2 + x3) ^ 2), x1 ^ 2,  x2 ^ 2,
-                      x3 ^ 2, z * x1, z * x2, z * x3, w * x1, w * x2, w * x3)
-      yhat = x_exp %*% c(b1 + eps, b2, -d/2, g1, g2)
-      y = rnorm(length(yhat), yhat, sd)
-      # stupid selection mechanism
-      # can probably be improvemed by working
-      # with a probabilitstic model. Only improvement when directly modeling the
-      # censoring?
-      max_y = max(y)
-      ysurv[i] = max_y
-      xsurv[i,] = cbind(x1, x2, x3)[y == max_y, ]
-      zsurv[i] = z[y == max_y]
+      eps <- c(0, rnorm(3, rep(0, 3), sd_eps)) # 'fixed' effects
+      z <- rep(rnorm(1), N) # 'fixed' effects
+      w <- rep(rnorm(1), N) # 'fixed' effects
+      for (j in 1:rep){
+        x1 <- rnorm(N)
+        x2 <- rnorm(N)
+        x3 <- rnorm(N)
+        x_exp  <- cbind(model.matrix( ~ (x1 + x2 + x3) ^ 2), x1 ^ 2,  x2 ^ 2,
+                        x3 ^ 2, z * x1, z * x2, z * x3, w * x1, w * x2, w * x3)
+        yhat = x_exp %*% c(b1 + eps, b2, -d/2, g1, g2)
+        y = rnorm(length(yhat), yhat, sd)
+        # stupid selection mechanism
+        # can probably be improvemed by working with a probabilitstic model.
+        # Only improvement when directly modeling the censoring?
+        max_y = max(y)
+        count = rep * (i - 1) + j
+        ysurv[count] = max_y
+        xsurv[count,] = cbind(x1, x2, x3)[y == max_y, ]
+        zsurv[count] = z[y == max_y]
+        wsurv[count] = w[y == max_y]
+        id[count] = i
+      }
     }
-    dt <-  as.data.frame(cbind(ysurv, xsurv, zsurv))
-    names(dt) <- c("y", "x1", "x2", "x3", "z")
+    dt <-  as.data.frame(cbind(ysurv, xsurv, zsurv, wsurv, id))
+    names(dt) <- c("y", "x1", "x2", "x3", "z", "w", "id")
     return(dt)
   }
