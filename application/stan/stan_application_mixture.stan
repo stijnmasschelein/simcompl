@@ -16,6 +16,7 @@ transformed data{
   x12 = x1 .* x2;
 }
 parameters{
+  real<lower=0, upper=1> theta;
   real beta[3];
   real gamma[2];
   real<lower=0> deltahat;
@@ -24,6 +25,7 @@ parameters{
   real<lower=-1, upper=1> rho;
   real<lower=0> sd_nu;
   vector<lower=0>[2] sd_eta;
+  vector<lower=0>[2] sd_omega;
 }
 transformed parameters{
   real<lower=0> denom;
@@ -34,10 +36,13 @@ transformed parameters{
   delta[2] = 1/deltahat * scale;
   beta12 = scale * beta12hat;
   denom = delta[1] * delta[2] - beta12^2;
-  sd_x[1] = sqrt((delta[2] * sd_eta[1]) ^ 2 + (beta12 * sd_eta[2]) ^ 2
+  // This is how the correlation is taken into account.
+  sd_x[1] = sqrt((delta[2]^2 * (sd_eta[1]^2 + sd_omega[1]^2)) +
+                  (beta12^2 * (sd_eta[2]^2 + sd_omega[2]^2))
                  + 2 * rho * delta[2] * sd_eta[1] * beta12 * sd_eta[2])
             / denom;
-  sd_x[2] = sqrt((delta[1] * sd_eta[2]) ^ 2 + (beta12 * sd_eta[1]) ^ 2
+  sd_x[2] = sqrt((delta[1]^2 * (sd_eta[2]^2 + sd_omega[2]^2))  +
+                (beta12^2 * (sd_eta[1]^2 + sd_omega[1]^2))
                  + 2 * rho * delta[1] * sd_eta[2] * beta12 * sd_eta[1])
             / denom;
 }
@@ -54,6 +59,7 @@ model{
   scale ~ lognormal(0, 1);
   sd_nu ~ lognormal(0, 1);
   sd_eta ~ lognormal(0, 1);
+  sd_omega ~ lognormal(0, 1);
   {
     vector[N] mu[3];
     vector[N] eta[2];
@@ -64,8 +70,8 @@ model{
               + beta12 * (beta[3] + gamma[2] * z)) / denom;
     mu[2] = (delta[1] * (beta[3]  + gamma[2] * z)
               + beta12 * (beta[2] + gamma[1] * z)) / denom;
-    x1 ~ normal(mu[1], sd_x[1]);
-    x2 ~ normal(mu[2], sd_x[2]);
+    // x1 ~ normal(mu[1], sd_x[1]);
+    // x2 ~ normal(mu[2], sd_x[2]);
 
     // unobservables
     E_out[1] = x1 - mu[1];
@@ -78,7 +84,13 @@ model{
                      + (beta[3] + gamma[2] * z + eta[2]) .* x2
              + beta12 * x12
              - .5 * (delta[1] * x1_2 + delta[2] * x2_2);
-    y ~ normal(mu[3], sd_nu);
+    // y ~ normal(mu[3], sd_nu);
+    for (i in 1:N){
+      target += log_mix(theta,
+        normal_lpdf(x1[i] | mu[1][i], sd_x[1])
+        + normal_lpdf(x2[i] | mu[2][i], sd_x[2]),
+        normal_lpdf(y[i] | mu[3][i], sd_nu));
+    }
   }
 }
 generated quantities{

@@ -5,7 +5,7 @@
 \title{Perform the traditional single equation regression approach under the
 assumption that \code{x1, x2} are optimally chosen.}
 \usage{
-match_reg(dat)
+match_reg(dat, method = "traditional")
 }
 \arguments{
 \item{dat}{A simulated dataset with 5 columns.}

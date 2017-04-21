@@ -4,9 +4,9 @@
 \alias{create_sample}
 \title{Create a sample of surviving observations for simulation}
 \usage{
-create_sample(obs = 200, rate = 0.5, sd = 1, sd_eps = c(0, 0, 0),
-  b1 = c(0, 0, 0, 0), b2 = c(1, 1, 1), d = c(1, 1, 1), g1 = c(0, 0, 0),
-  g2 = c(0, 0, 0))
+create_sample(obs = 200, rep = 1, rate = 0.5, sd = 1, sd_eps = c(0, 0,
+  0), b1 = c(0, 0, 0, 0), b2 = c(1, 1, 1), d = c(1, 1, 1), g1 = c(0, 0,
+  0), g2 = c(0, 0, 0))
 }
 \arguments{
 \item{obs}{The number of observations in the dataset}
