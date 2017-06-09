@@ -32,4 +32,3 @@ Other tests: \code{\link{cond_reg}},
   \code{\link{interaction_reg}}, \code{\link{match_reg}},
   \code{\link{sur_reg}}
 }
-

@@ -22,4 +22,3 @@ Transform the regression and method list into a vector.
 \seealso{
 match_reg interaction_regression run_regression
 }
-

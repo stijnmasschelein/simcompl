@@ -283,8 +283,7 @@ knitr::opts_chunk$set(echo = FALSE)
 
 ```{r warning=FALSE}
 require(simcompl, quietly = TRUE)
-require(dplyr, quietly = TRUE, warn.conflicts = FALSE)
-require(tidyr, quietly = TRUE, warn.conflicts = FALSE)
+require(tidyverse, quietly = TRUE, warn.conflicts = FALSE)
 require(ggplot2, quietly = TRUE, warn.conflicts = FALSE)
 require(ggthemes, quietly = TRUE, warn.conflicts = FALSE)
 ```
@@ -1037,16 +1036,16 @@ y_i = \beta_0 + (\beta_1 + \gamma_1 z_i + \epsilon_{1i}) x_{1i}
 
 ```{r confsim, eval = stan_eval}
 product_model <- stan_model("stan/stan_application_productivity_ivs_2.stan")
-demand_model <- stan_model("stan/stan_application_demand_ivs_2.stan")
+demand_model <- stan_model("stan/stan_application_demand.stan")
 ```
 
 ```{r eval = TRUE}
-nobs <- 500
-nsim <- 10
+nobs <- 200
+nsim <- 25
 b2_in <- list(c(0, 0, 0), c(0, -.25, -.25), c(.5, -.25, -.25), c(.5, 0, 0),
               c(.5, .25, .25), c(0, .25, .25)) #idx1
 N1 <- length(b2_in)
-rate_in <- list(1/4, 1/32) #idx2
+rate_in <- list(1/4, 1/16, 1/64) #idx2
 N2 <- length(rate_in)
 g1_in <- c(1, 1, 0)
 sd_eps_in <- c(.5, .5, .5)
@@ -1054,114 +1053,42 @@ g2_in <- list(c(0, 0, 0), c(1, 1, 0), c(-1, 1, 0)) #idx3
 N3 <- length(g2_in)
 Ntotal <- N1 * N2 * N3
 
-
-test <- FALSE
-if (test){
-N <- 200
-rep <- 1
-sample <- simcompl::create_sample(obs = N, sd_eps = c(.5, .5, .5), 
-                        b2 = c(0.5, -.25, .25), rep = rep,
-                        rate = 1/64, g1 = c(.5, 0, 0), g2 = c(0, .5, 0))
-data_list <- list(N = N * rep, y = sample$y, x1 = sample$x1, x2 = sample$x2, 
-                    z = sample$z, w = sample$w, prior = 1)
-samd <- sampling(demand_model, data = data_list, iter = 500, warmup = 300,
-                 cores = 4, chains = 4,
-                 control = list(adapt_delta = .80))
-samf <- sampling(product_model, data = data_list, iter = 400, warmup = 300, 
-                 cores = 4, chains = 4, refresh = 100, 
-                 control = list(adapt_delta = .95))
-# sam_ad <- sampling(alt_demand, data = data_list, iter = 250, cores = 4,
-#                  chains = 4, refresh = 25)
-opt <- optimizing(demand_model, data = data_list, hessian = T,
-                  verbose = TRUE, seed = 12345)
-vbtest <- vb(product_model, data = data_list)
-summary(extract(vbtest)$beta12hat)
-
-coefficient <- opt$par
-fisher_info <- solve(-opt$hessian)
-sigma <- sqrt(diag(fisher_info))
-statistic <- coefficient/sigma
-print(c(coefficient, statistic))
-}
-
-if (test) {
-  create_data <- function(N = 100, sd_eps = c(.5, .5), rho = 0, 
-                          g1 = .5, g2 = .5, b = c(0, 0), d = c(1, 1),
-                          b12 = 0){
-    w = rnorm(N, 0, 1) 
-    z = rnorm(N, 0, 1)
-    y = rep(0, N)
-    Sigma = matrix(c(sd_eps[1]^2, rho * sd_eps[1] * sd_eps[2], 
-                     rho * sd_eps[1] * sd_eps[2], sd_eps[2]^2),
-                   nrow = 2)
-    denom = d[1] * d[2] - b12 ^ 2 
-    eta = MASS::mvrnorm(N, c(0, 0), Sigma)
-    x1 =  (d[2] * (b[1] + g1 * z + eta[,1]) + 
-             b12 * (b[2] + g2 * w + eta[,2])) / denom
-    x2 =  (d[1] * (b[2] + g2 * w + eta[,2]) + 
-             b12 * (b[1] + g1 * z + eta[,1])) / denom
-    return(list(y = y, x1 = x1, x2 = x2, z = z, w = w, eta = eta, 
-                Sigma = Sigma, denom = denom))
-  }
-  N = 200
-  data_list <- create_data(N = N, b12 = 0.5, rho = 0.25, g1 = .5)
-  data_list$prior <- 5
-  data_list$N <- N
-  samd <- sampling(demand_model, data = data_list, iter = 250, warmup = 150,
-                   cores = 4, chains = 4,
-                   control = list(adapt_delta = .8))
-  optd <- optimizing(demand_model, data = data_list, hessian = T)
-  print(samd, par = c("mu", "envir", "x"), include = F) 
-  print(c(sd(data_list$eta)))
-}
-
-
-stan_function <- function(N, b2_in, rate_in, g1_in, g2_in, sd_eps_in, model_in){
-  sample <- create_sample(obs = N, sd_eps = sd_eps_in, g1 = g1_in, 
+stan_function <- function(N, b2_in, rate_in, g1_in, g2_in, 
+                          sd_eps_in, model_in, prior_in = 1){
+  sample <- simcompl::create_sample(obs = N, sd_eps = sd_eps_in, g1 = g1_in, 
                           b2 = b2_in, rate = rate_in, g2 = g2_in)
-  data_list <- list(N = N, y = sample$y, x1 = sample$x1, x2 = sample$x2, 
-                    z = sample$z)
-  # sink("loop.txt")
-  # opt_model <- tryCatch(optimizing(model, data = data_list, hessian = T),
-  #                       error = function(e){print(e)
-  #                                           return(NULL)})
-  samf_model <- invisible(sampling(model, data = data_list, 
-                                   iter = 100, cores = 3, chains = 3, 
-                                   refresh = -1))
-  samd_model <- invisible(sampling(demand_model, data = data_list, 
-                                   iter = 100, cores = 3, chains = 3, 
-                                   refresh = -1))
-  # sink()
-  beta12 <- rstan::extract(samf_model)$beta12
-  coefficientf <- mean(beta12)
-  statisticf <- sum(I(beta12 > 0)) / length(beta12)
-  beta12 <- rstan::extract(samd_model)$beta12
-  coefficientd <- mean(beta12)
-  statisticd <- sum(I(beta12 > 0)) / length(beta12)
+  data_list <- list(N = N, y = sample$y, x1 = sample$x1, x2 = sample$x2,
+                    z = sample$z, prior = prior_in)
+  opt_model <- NULL
+  i = 0
+  while (is.null(opt_model) & i < 10){
+    i = i + 1
+    print("start")
+    opt_model <- tryCatch(optimizing(model_in, data = data_list),
+                        error = function(e){print(e) 
+                          return(NULL)})
+    print("stop")
+  }
   reg1 <- lm(x1 ~ z, data = sample)
   reg2 <- lm(x2 ~ z, data = sample)
   corr <- cor(resid(reg1), resid(reg2))
-  # coefficient <- opt_model$par["beta12hat"]
+  coefficient <- opt_model$par["beta12hat"]
+  
   # http://stats.stackexchange.com/questions/27033/in-r-given-an-output-from-optim-with-a-hessian-matrix-how-to-calculate-paramet
   # fisher_info <- solve(-opt_model$hessian)
   # sigma <- sqrt(diag(fisher_info))
   # statistic <- coefficient/sigma["beta12hat"]
-  result <- list(sd_eps = unlist(as.character(list(sd_eps_in))), 
+  
+  result <- list(sd_eps = unlist(as.character(list(sd_eps_in))),
               g1 = unlist(as.character(list(g1_in))),
               b2 = unlist(as.character(list(b2_in))),
               optim = 1/rate_in,
               g2 = unlist(as.character(list(g2_in))),
-              coefficientf = coefficientf,
-              coefficientd = coefficientd,
-              statisticf = statisticf,
-              statisticd = statisticd,
+              coefficient = coefficient,
               corr = corr)
   return(result)
 }
 
-# test <- stan_function(200, b2_in = c(.5, 0, 0), rate_in = .25, 
-#                       sd_eps_in = c(.5, .5, 0),model_in = model, 
-#                       g2_in = c(1, 1, 0))
 
 dat_list <- list()
 for (i in 1:Ntotal){
@@ -1173,28 +1100,22 @@ for (i in 1:Ntotal){
     for (s in 1:nsim){
       result[[s]] <- stan_function(N = nobs, b2_in = b2_in[[idx1]], 
                      g1_in = g1_in, sd_eps_in = sd_eps_in, 
-                     rate_in = rate_in[[idx2]], g2_in = g2_in[[idx3]])
+                     model_in = demand_model, rate_in = rate_in[[idx2]], 
+                     g2_in = g2_in[[idx3]])
     }
-    dat <- do.call("rbind", result)
+    dat <- do.call("bind_rows", result)
     dat_list[[i]] <- dat
 }
-temp_dat <- tbl_df(do.call("rbind", dat_list))
-# stan_dat <- as.data.frame(do.call("cbind", apply(temp_dat, 2, unlist)),
-#                       stringsAsFactors = FALSE) %>%
-stan_dat <- data.frame(apply(temp_dat, 2, unlist), stringsAsFactors = FALSE) %>%
-  tbl_df() %>%
-  mutate(optim = as.numeric(optim),
-         coefficientf = as.numeric(coefficientf),
-         coefficientd = as.numeric(coefficientd),
-         statisticf = as.numeric(statisticf),
-         statisticd = as.numeric(statisticd),
-         corr = as.numeric(corr))
+stan_dat <- as.data.frame(do.call("bind_rows", dat_list)) %>%
+  gather("test", "coef", coefficient, corr)
 
-plot <- (ggplot(filter(stan_dat, optim != 8), 
-                aes(y = statisticd, x = b2))
-  + geom_tufteboxplot()
+plot <- (ggplot(filter(stan_dat), 
+                aes(y = coef, x = factor(optim), colour = test))
+  # + geom_tufteboxplot()
+  + geom_point(alpha = .10) 
   + theme_tufte(base_size = 14)
-  + facet_grid(g2 ~ optim)
+  + scale_color_colorblind()
+  + facet_grid(b2 ~ g2)
   + geom_hline(yintercept = .5, linetype = 3, alpha = .25)
   + geom_hline(yintercept = 0, linetype = 4, alpha = .25)
   + xlab("")

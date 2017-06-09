@@ -75,4 +75,3 @@ Typically, this matching approach does not estimate the \eqn{\delta_1}
 parameter. All tests can be done from this function directly. The function
 returns a single dataset for every test and parameter combination.
 }
-

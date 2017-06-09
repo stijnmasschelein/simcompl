@@ -34,4 +34,3 @@ A dataset with simulated \code{y} and \code{x1}, \code{x2} for
 \description{
 Create a sample of surviving observations for simulation
 }
-

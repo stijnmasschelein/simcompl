@@ -19,7 +19,11 @@ require(simcompl)
 require(dplyr)
 require(rstan)
 N <- 200
+<<<<<<< HEAD
 simdat <- create_sample(obs = N, b2 = c(.5, 0, 0), rate = .05, g1 = c(.5, .5, 0),
+=======
+simdat <- create_sample(obs = N, b2 = c(.5, 0, 0), rate = .25, g1 = c(.5, .5, 0),
+>>>>>>> 3a52cf0bfdf21d11fae8b9626bffac1ea634e38d
                         sd_eps = c(1, 1, 0))
 data_list <- list(N = nrow(simdat), y = simdat$y, x1 = simdat$x1, 
                   x2 = simdat$x2, z = simdat$z)
@@ -73,17 +77,28 @@ fit <- sampling(model, data = data_list, chains = 4,
                        iter = niter, refresh = niter/4, cores = 4,
                        control = list(adapt_delta = .9))
 shinystan::launch_shinystan(fit)
+<<<<<<< HEAD
 
 fit_opt <- optimizing(model, data = data_list)
 ```
 
 ```{r simulation}
 sim_function <- function(niter = 1000, Nopt = 4, models = list()){
+=======
+```
+
+```{r simulation}
+sim_function <- function(niter = 1000, models = list()){
+>>>>>>> 3a52cf0bfdf21d11fae8b9626bffac1ea634e38d
   # dat0 <- simcompl::create_sample(obs = N, b2 = c(0, 0, 0), rate = .25, 
   #                                  g1 = c(.5, .5, 0), sd_eps = c(1, 1, 0))
   # dat0_list <- list(N = nrow(dat0), y = dat0$y, x1 = dat0$x1, 
   #                 x2 = dat0$x2, z = dat0$z)
+<<<<<<< HEAD
   dat1 <- simcompl::create_sample(obs = N, b2 = c(0.5, 0, 0), rate = 1/Nopt, 
+=======
+  dat1 <- simcompl::create_sample(obs = N, b2 = c(0.5, 0, 0), rate = .25, 
+>>>>>>> 3a52cf0bfdf21d11fae8b9626bffac1ea634e38d
                                    g1 = c(.5, .5, 0), sd_eps = c(1, 1, 0))
   dat1_list = list(N = nrow(dat1), x1 = dat1$x1, x2 = dat1$x2, y = dat1$y,
                  x12 = dat1$x1 * dat1$x2, x1_2 = dat1$x1 ^ 2, 
@@ -91,6 +106,7 @@ sim_function <- function(niter = 1000, Nopt = 4, models = list()){
   
   output <- matrix(nrow = 0, ncol = 6)
   for (m in models){
+<<<<<<< HEAD
     # fit <- rstan::sampling(m, data = dat1_list, iter = niter, refresh = niter/4,
     #                 chains = 3, cores = 3, control = list(adapt_delta = .9)) 
     # fit_list <- rstan::extract(fit, pars = c("beta12", "beta", "delta"))
@@ -100,12 +116,24 @@ sim_function <- function(niter = 1000, Nopt = 4, models = list()){
     fit <- rstan::optimizing(m, data = dat1_list)
     fit_means <- fit$par[c("beta[1]", "beta[2]", "beta[3]", 
                            "beta12", "delta[1]", "delta[2]")]
+=======
+    fit <- rstan::sampling(m, data = dat1_list, iter = niter, refresh = niter/4,
+                    chains = 3, cores = 3, control = list(adapt_delta = .9)) 
+    fit_list <- rstan::extract(fit, pars = c("beta12", "beta", "delta"))
+    fit_means <- apply(cbind(fit_list$beta, fit_list$beta12,
+                             fit_list$delta),
+                       2 , mean)
+>>>>>>> 3a52cf0bfdf21d11fae8b9626bffac1ea634e38d
     output <- rbind(output, c(fit_means))
   }
   return(output)
 }
 
+<<<<<<< HEAD
 exp <- replicate(100, sim_function(niter = 500, Nopt = 100,
+=======
+exp <- replicate(25, sim_function(niter = 500, 
+>>>>>>> 3a52cf0bfdf21d11fae8b9626bffac1ea634e38d
                                   models = list(model)))
 apply(exp, c(1,2), summary)
 

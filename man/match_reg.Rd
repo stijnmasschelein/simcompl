@@ -24,4 +24,3 @@ Other tests: \code{\link{cond_reg}},
   \code{\link{interaction_reg}},
   \code{\link{run_regression}}, \code{\link{sur_reg}}
 }
-

@@ -16,4 +16,3 @@ check_numeric(input, len, interval = NULL)
 \description{
 check whether an object is numeric and of a predefined length
 }
-

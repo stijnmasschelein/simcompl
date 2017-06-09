@@ -30,4 +30,3 @@ Other tests: \code{\link{cond_reg}},
   \code{\link{match_reg}}, \code{\link{run_regression}},
   \code{\link{sur_reg}}
 }
-

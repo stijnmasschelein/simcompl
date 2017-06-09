@@ -81,9 +81,9 @@ create_sample <-
     for (i in 1:obs){
       N <- Nfunction()
       eps <- c(0, rnorm(3, rep(0, 3), sd_eps)) # 'fixed' effects
-      z <- rep(rnorm(1), N) # 'fixed' effects
       w <- rep(rnorm(1), N) # 'fixed' effects
       for (j in 1:rep){
+        z <- rep(rnorm(1), N) # varies for identification
         x1 <- rnorm(N)
         x2 <- rnorm(N)
         x3 <- rnorm(N)
