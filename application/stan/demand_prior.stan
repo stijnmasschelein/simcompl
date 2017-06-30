@@ -26,12 +26,9 @@ parameters{
   vector[2] beta;
   real<lower=0> deltahat;
   vector<lower=0>[2] sd_eta;
-  // real<lower=-1, upper=1> rho_br;
-  vector[2] gamma;
-  // vector[2] br_raw;
   real<lower=0> lambda;
-  // real<lower=0> sd_br;
   real<lower=0, upper=1>pseudoR2;
+  vector[2] gamma;
   vector[2] u_raw;
 }
 transformed parameters{
@@ -41,13 +38,19 @@ transformed parameters{
   real<lower=-1, upper=1> rho;
   real beta12;
   vector<lower=-1, upper=1>[2] u;
-  // vector[2] br;
-  // br[1] = sd_br * br_raw[1];
-  // br[2] = sd_br * br_raw[2];
+  // real gammarho;
 
   u = u_raw / sqrt(dot_self(u_raw));
-  beta12hat = sqrt(pseudoR2) * u[1];
+  beta12hat = (1 - sqrt(1 - (pseudoR2 * u[1] ^ 2)))
+               / (sqrt(pseudoR2) * u[1]);
   rho = sqrt(pseudoR2) * u[2];
+
+  // {
+  //  gammarho = sqrt(pseudoR2) * u[3];
+  //  gamma[1] = gamma1;
+  //  gamma[2] = gammarho * gamma1 * gamma2;
+  // }
+
 
   delta[1] = deltahat * scale;
   delta[2] = 1/deltahat * scale;
@@ -78,8 +81,6 @@ model{
 
   //priors
   beta ~ normal(0, prior);
-  gamma ~ normal(0, prior);
-  // br_raw ~ normal(0, 1);
   deltahat ~ normal(0, lambda);
   // scale ~ lognormal(0, 1);
   sd_eta[1] ~ normal(0, lambda);
@@ -87,7 +88,8 @@ model{
   lambda ~ lognormal(0, 1);
 
   u_raw ~ normal(0, 1);
-  pseudoR2 ~ beta(2/2.0, (1 - .25) / .25 * 2/2.0);
+  pseudoR2 ~ beta(3/2.0, (1 - .25) / .25 * 3/2.0);
+  gamma ~ normal(0, prior);
 
   // sd_br ~ normal(0, .6);
 
@@ -105,3 +107,4 @@ model{
 }
 generated quantities{
 }
+
