@@ -1,9 +1,38 @@
+functions{
+  real beta_calc (real partial, real ratio){
+    real result;
+    real result1;
+    real result2;
+    real partial2;
+    real ratio2;
+    partial2 = partial ^ 2;
+    ratio2 = ratio ^ 2;
+    result1 = sqrt(ratio2 + partial2 * (4 - ratio2));
+    result2 = ratio * sqrt(1 - partial2);
+    result = (result1 - result2) / (2 * partial);
+    if (is_nan(result)){
+      print(partial, ratio)
+    }
+    return(result);
+  }
+  real ratio_calc (real d1, real d2, real sd1, real sd2){
+    real result;
+    real ratio;
+    ratio = sqrt(d1 / d2) * (sd2/sd1);
+    result = ratio + 1/ratio;
+    if (is_nan(result)){
+      print(d1, d2, sd1, sd2);
+    }
+    return(result);
+  }
+}
 data{
   int<lower=1> N;
   vector[N] x1;
   vector[N] x2;
   vector[N] z;
   real prior;
+  real<lower=0, upper=1> R2;
   // vector<lower=0>[2] sd_br;
 }
 transformed data{
@@ -13,10 +42,12 @@ transformed data{
   vector[2] x[N];
 
   real<lower=0> scale;
+  int<lower=2> ncor;
   x1_2 = x1 .* x1;
   x2_2 = x2 .* x2;
   x12 = x1 .* x2;
   scale = 1;
+  ncor = 2;
   for (i in 1:N){
     x[i][1] = x1[i];
     x[i][2] = x2[i];
@@ -28,8 +59,8 @@ parameters{
   vector<lower=0>[2] sd_eta;
   real<lower=0> lambda;
   real<lower=0, upper=1>pseudoR2;
+  vector[ncor] u_raw;
   vector[2] gamma;
-  vector[2] u_raw;
 }
 transformed parameters{
   real<lower=0> denom;
@@ -37,28 +68,21 @@ transformed parameters{
   real<lower=-1, upper=1> beta12hat;
   real<lower=-1, upper=1> rho;
   real beta12;
-  vector<lower=-1, upper=1>[2] u;
-  // real gammarho;
-
-  u = u_raw / sqrt(dot_self(u_raw));
-  beta12hat = (1 - sqrt(1 - (pseudoR2 * u[1] ^ 2)))
-               / (sqrt(pseudoR2) * u[1]);
-  rho = sqrt(pseudoR2) * u[2];
-
-  // {
-  //  gammarho = sqrt(pseudoR2) * u[3];
-  //  gamma[1] = gamma1;
-  //  gamma[2] = gammarho * gamma1 * gamma2;
-  // }
-
+  vector<lower=-1, upper=1>[ncor] u;
+  real avratio;
 
   delta[1] = deltahat * scale;
   delta[2] = 1/deltahat * scale;
   // implies scale = sqrt(delta[1] * delta[2])
+  
+  avratio = ratio_calc(delta[1], delta[2], sd_eta[1], sd_eta[2]);
+  
+  u = u_raw / sqrt(dot_self(u_raw));
+  beta12hat = beta_calc(sqrt(pseudoR2) * u[1], avratio);
+  rho = sqrt(pseudoR2) * u[2];
 
   beta12 = scale * beta12hat;
   denom = delta[1] * delta[2] - beta12^2;
-
 }
 
 model{
@@ -85,10 +109,10 @@ model{
   // scale ~ lognormal(0, 1);
   sd_eta[1] ~ normal(0, lambda);
   sd_eta[2] ~ normal(0, 1/lambda);
-  lambda ~ lognormal(0, 1);
+  lambda ~ lognormal(0, 1); 
 
   u_raw ~ normal(0, 1);
-  pseudoR2 ~ beta(3/2.0, (1 - .25) / .25 * 3/2.0);
+  pseudoR2 ~ beta(ncor/2.0, (1 - R2) / R2 * ncor/2.0);
   gamma ~ normal(0, prior);
 
   // sd_br ~ normal(0, .6);
