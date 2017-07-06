@@ -47,7 +47,7 @@ transformed data{
   x2_2 = x2 .* x2;
   x12 = x1 .* x2;
   scale = 1;
-  ncor = 2;
+  ncor = 3;
   for (i in 1:N){
     x[i][1] = x1[i];
     x[i][2] = x2[i];
@@ -61,8 +61,8 @@ parameters{
   vector[ncor] u_raw;
   real<lower=0> lambda;
   // real<lower=-1, upper=1> gamma1;
-  // real<lower=0> gamma2;
-  vector[2] gamma;
+  real gamma1;
+  real<lower=0> gamma2;
 }
 transformed parameters{
   real<lower=0> denom;
@@ -71,8 +71,9 @@ transformed parameters{
   real<lower=-1, upper=1> rho;
   real beta12;
   vector<lower=-1, upper=1>[ncor] u;
-  // real<lower=-1, upper=1> grho;
+  real<lower=-1, upper=1> grho;
   real avratio;
+  vector[2] gamma;
 
   delta[1] = deltahat * scale;
   delta[2] = 1/deltahat * scale;
@@ -84,9 +85,9 @@ transformed parameters{
   beta12hat = beta_calc(sqrt(pseudoR2) * u[1], avratio);
   rho = sqrt(pseudoR2) * u[2];
 
-  // grho = sqrt(pseudoR2) * u[3];
-  // gamma[1] = gamma1 * gamma2;
-  // gamma[2] = grho / gamma1 * gamma2;
+  grho = sqrt(pseudoR2) * u[3];
+  gamma[1] = gamma1;
+  gamma[2] = grho * gamma1 * gamma2;
 
   beta12 = scale * beta12hat;
   denom = delta[1] * delta[2] - beta12^2;
@@ -120,8 +121,9 @@ model{
 
   u_raw ~ normal(0, 1);
   pseudoR2 ~ beta(ncor/2.0, (1 - R2) / R2 * ncor/2.0);
-  // gamma2 ~ normal(0, prior * sqrt(gamma1^2));
-  gamma ~ normal(0, prior);
+  gamma1 ~ normal(0, prior);
+  gamma2 ~ normal(0, prior);
+  // gamma ~ normal(0, prior);
 
   // demand
   {
