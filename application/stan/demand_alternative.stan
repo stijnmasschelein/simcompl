@@ -6,9 +6,6 @@ data{
   real prior_gamma;
   real prior_lkj;
 }
-transformed data{
-  vector[2] zeros = rep_vector(0, 2);
-}
 parameters{
   corr_matrix[2] B;
   corr_matrix[2] Rho;
@@ -17,8 +14,8 @@ parameters{
   vector<lower=0>[2] sigma;
 }
 transformed parameters{
-  vector[2] scaled_delta;
-  scaled_delta = [delta, 1/delta]';
+  row_vector[2] scaled_delta;
+  scaled_delta = [delta, 1/delta];
 }
 model{
   matrix[2, 2] inv_C = inverse_spd(quad_form_diag(B, scaled_delta));
