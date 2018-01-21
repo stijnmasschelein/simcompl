@@ -3,12 +3,15 @@ data{
   matrix[N, 2] x;
   vector[N] y;
   matrix[N, 2] z;
-  real prior_scale;
   real prior_gamma;
   real prior_lkj;
 }
 transformed data{
   vector<lower=0>[2] sigma_x = [.001, .001]';
+  row_vector[2] x_array[N];
+  for (i in 1:N){
+    x_array[i] = x[i, 1:2];
+  }
 }
 parameters{
   vector[2] beta0;
@@ -32,17 +35,21 @@ model{
                          // + unit * diag_pre_multiply(sigma, L_rho');
                          // + unit * diag_matrix(sigma);
   matrix[N, 2] Mu = Mu_temp * inv_DBD / lambda;
+  // simplification possible?
+  matrix[N, 2] E = lambda * x * DBD - Mu_temp;
   vector[N] muy = z * beta0 + scale
-                  * rows_dot_product(Mu_temp - .5 * lambda * x * DBD, x);
+                  * rows_dot_product(Mu_temp + E - .5 * lambda * x * DBD, x);
   matrix[2, 2] L_x = cholesky_decompose(
                       crossprod(
-                        diag_pre_multiply(sigma, L_rho') * inv_DBD / lambda));
+                        diag_pre_multiply(sigma, L_rho) * inv_DBD / lambda));
+  row_vector[2] Mu_array[N];
   // to_vector(unit) ~ normal(0, 1);
   // x[1:N, 1] ~ normal(Mu[1:N, 1], sigma_x[1]);
   // x[1:N, 2] ~ normal(Mu[1:N, 2], sigma_x[2]);
   for (i in 1:N){
-    x[i, 1:2] ~ multi_normal_cholesky(Mu[i, 1:2], L_x);
+    Mu_array[i] = Mu[i, 1:2];
   }
+  x_array ~ multi_normal_cholesky(Mu_array, L_x);
   y ~ normal(muy, sigma_nu);
 
   B ~ lkj_corr(prior_lkj);
@@ -52,7 +59,6 @@ model{
   delta ~ normal(0, 1);
   sigma ~ normal(0, 1);
   sigma_nu ~ normal(0, 1);
-  // sigma_x ~ normal(0, prior_scale);
   lambda ~ normal(0, 1);
   scale ~ normal(0, 1);
 }

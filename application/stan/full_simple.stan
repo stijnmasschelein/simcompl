@@ -83,8 +83,8 @@ model{
                + beta12hat * (beta[1] + gamma[1] * z[i]));
       x[i] ~ multi_normal_cholesky(mu/denom, L_x);
 
-      eta[1] = delta[1] * x1[i] - beta12hat * delta[2] * x2[i] - mu[1];
-      eta[2] = delta[2] * x2[i] - beta12hat * delta[2] * x1[i] - mu[2];
+      eta[1] = delta[1] * x1[i] - beta12 * delta[2] * x2[i] - mu[1];
+      eta[2] = delta[2] * x2[i] - beta12 * delta[2] * x1[i] - mu[2];
       muy[i] = beta[3] +
               scale_eqn * ((beta[1] + gamma[1] * z[i] + eta[1]) .* x1[i]
               + (beta[2] + gamma[2] * z[i] + eta[2]) .* x2[i]
