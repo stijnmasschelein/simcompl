@@ -1,0 +1,1335 @@
+---
+title: "Statistical Tests for Accounting Systems"
+author: 
+- Stijn Masschelein^[University of Western Australia]
+- Frank Moers^[Maastricht University]
+date: "28/07/2017"
+output:
+  pdf_document:
+    keep_tex: yes
+  word_document: default
+  html_document: default
+fontsize: 12pt
+header-includes:
+- \setlength{\parindent}{2em}
+- \usepackage{setspace}
+- \setstretch{1.2}
+classoption: a4paper
+bibliography: complement.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+folder = "~/Dropbox/R/simcompl/application/paper/"
+runsim = FALSE
+wordcountaddin:::text_stats(paste0(folder, "statistical_tests.Rmd"))
+```
+# Abstract
+
+Following the theoretical innovations of complementarity theory, management 
+control studies have investigated potential interdepencies between management
+control practices. In this paper, we compare the two dominant statistical 
+approaches in the management control literature to test for the presence of 
+interdepencies. While prior literature focuses on the differences in the
+assumption of optimality between the demand function and performance function 
+approach, we make all ancillary assumptions explicit. Our stimulation results
+reveal that the demand function approach is more robust to variation in 
+optimality than the performance function approach. We use these results to 
+formulate guidance for future research into interdependencies between 
+management control practices.
+
+\pagebreak
+
+# Introduction
+
+Complementarity theory posits that when management control practices are
+interdepent, they can be seen as a coherent managent control system
+[@Milgrom1995; @Grabner2013].  Different streams of literature have investigated
+such interdependencies between different management control practices.
+For instance, agency theory argues that incentive design and delegation of
+decision rights are complements. The management accounting literature
+has established that at least under certain conditions, delegation of more
+decision rights to managers complements incentive systems [@Moers2006;
+@Indjejikian2012; @Bouwens2007]. Drawing on the original work by Simons
+[-@Simons1995; -@Simons2000], the levers of control literature has investigated
+potential complementarities between the four levers [@Widener2007]. Lastly, the
+budgeting literature has long argued that the effectiveness of budget
+participation depends on the the extent to which the budget is used to evaluate
+employees [@Brownell1991; @Dunk1993]
+
+This paper compares the two main approaches to empirically test for an
+interdepency between two practices: the performance function approach and the
+demand function approach [@Grabner2013]. The main difference between the two
+approaches is the assumption about the optimality of choices. The demand
+approach assumes that firms simultaneously choose the practices in accordance to
+their interdepencies and the firm's environment. Under this assumption,
+controlling for environmental factors, complementary practices are expected to
+be positively correlated with each other. In equilibrium, all firms adopt the
+best possible combination of practices for their environment and firms with
+different combinations perform equally well. The performance function approach
+assumes that there are a sufficient number of firms that deviate from those
+optimal choices which allows researchers to detect performance differences.
+Under this assumption, the interaction between the two practices is expected to
+be positively correlated with performance [@Athey1998; @Grabner2013]. This
+distinction is similar to distinction between contingency fit and congruence fit
+in the contingency literature [@VandeVen1985; @Gerdin2004].
+
+We theoretically derive the demand function and profit function specification
+and show the potential statistical problems that arise with either approach.
+First, the demand function approach is potentially misspecified when the
+assumption of optimal choices is not met. Further, this approach requires an
+additional assumption that the interdependency cannot be too strong. Finally, the
+estimation of the demand function is vulnerable to simultaneity bias. The
+production function approach is potentially misspecified and has less power when
+the practices are closer to optimal. Furthermore, we show how the commonly used
+specifications to estimate the performance function suffer from ommitted
+correlated variable bias.
+
+Because those problems vary with the level of optimality, this study compares
+the robustness of both approaches to variations in the level of optimality in a
+simulation study. The results show that the demand approach has appropriate type
+I error rates while maintaining power to detect a real complementary effect even
+at low levels of optimality. In contrast, the theoretically derived performance
+function approach suffers from slightly elevated type I error rates and loses
+power to detect true interdependencies. In addition, we compare the performance
+function as it is typically implemented in the literature to the theoretically
+derived performance function specification. The former approach exhibits
+inflated type I error rates while having little power to detect a real
+interdependency at all but the lowest levels of optimality in all simulations.
+
+This study provides three recommendations for studies that explicitly or
+implicitly test for interdependencies between managerial choices. First of all,
+firms are not required to perfectly design the management control system to
+prefer the demand approach over the performance approach. When performance data
+is available, it is still advisable to estimate the demand functions before
+estimating the performance functions [@Aral2012; @Cassiman2006]. Second, when
+prior theory and data indicates that the individual practices are contingent on
+environmental factors, studies should appropriately control for these factors.
+In the demand approach controlling for environmental factors entails including
+the control variables as separate independent variables. In the performance
+approach, controlling for contingency effects requires including the interaction
+of the environmental factors with the management control practices. Of the 6
+published studies using the performance function approach following @Grabner2013,
+only @Bedford2016 appropriately controls for contingency factors. Third, this
+study highlights the importance of carefully laying out the theoretical
+and statistical assumptions of a model [@Chenhall2007]. Studies on
+interdependencies in management accounting defend their statistical approach on
+grounds of the optimality of the management practices. The results of the
+simulation show that ommitted correlated variables, such as environmental
+factors, should be as much a concern as the assumption of optimality.
+
+The remainder of this paper is structured as follows. First, we derive the
+specifications for the demand function and production function estimation.
+Second, we compare the robustness of the different specifications in a
+simulation study. Last, we summarise the simulation results, provide further
+guidance for researchers who estimate interdependencies, and lay out how future
+research can address the problems with the specifications investigated in this
+study.
+
+<!-- > Which model to use is both a theoretical (assumption of agents as perfectly or -->
+<!-- > boundedly rational) and an empirical (market imperfections, exogenous shocks,  -->
+<!-- > experimentation, etc) issue because the likelihood of finding evidence of the  -->
+<!-- > former depends on the latter and vice versa (Grabner and Moers, 2013; Gerdin -->
+<!-- > and Greve, 2004). (in Johansson, 2016) -->
+
+
+# Model and formal analysis
+
+In this section, we present a simple theoretical model that incapsulates the
+essential elements of both complementarity theory and contingency theory.
+Following complementarity theory, the performance of management control
+practices can depend on each other. Following contingency theory, the
+performance effects of the practices depend on the environment. The theoretical
+model helps to make the assumptions in the two statistical approaches explicit.
+We keep the model and derivations deliberately simple: we assume that a firm,
+$i$, chooses the level of two management control practices $x_{1i}$ and
+$x_{2i}$. The effectiveness of these choices depends on the observable
+environmental factor $z_i$ and the unobserved factors $\epsilon_{1i}$ and
+$\epsilon_{2i}$.
+
+\begin{equation} \label{eq:structural}
+y_i = \beta_0 + (\beta_1 + \gamma_1 z_i + \epsilon_{1i}) x_{1i}
+                 + (\beta_2 + \gamma_2 z_i + \epsilon_{2i}) x_{2i}
+                 + \beta_{12} x_{1i} x_{2i}
+                 - .5 \delta_1 x^2_{1i} - .5 \delta_2 x^2_{2i} + \nu_i
+\end{equation}
+
+$$
+\mathbf{\epsilon_{1}}, \mathbf{\epsilon_{2}}, \mathbf{\nu} \sim i.i.d
+$$
+
+Following prior research, the firm's performance function is given by equation
+\eqref{eq:structural} [@Gentzkow2007; @Kretschmer2012]. Two parts of the profit
+function needs some further explanation. The parameters $\delta_1$ and
+$\delta_2$ represent the second derivative of the performance effects and imply
+decreasing returns to respectively $\mathbf{x_1}$ and $\mathbf{x_2}$. We will
+assume $\delta_1, \delta_2 > 0$. Lastly, the unoberved factors
+$\mathbf{\epsilon_{1}}$, $\mathbf{\epsilon_{2}}$, $\mathbf{\nu}$ are
+assumed to be independent from each other. @Athey1998 discuss the implications
+of relaxing those assumptions which goes beyond the scope of this paper.
+
+The key parameter in the model is the complementarity between $x_{1i}$ and
+$x_{2i}$, $\frac{ \partial^2 y}{\partial x_1 \partial x_2} = \beta_{12}$ . When
+$\beta_{12} > 0$, $\mathbf{x_1}$ and $\mathbf{x_2}$ are complements and when
+$\beta_{12} < 0$, they are substitutes [@Milgrom1995]. In the next sections, we
+will explain how different statistical approaches estimate this parameter and
+which further assumptions they require.
+
+## The Performance Function Approach.
+
+The performance function approach estimates the performance function directly.
+With cross-sectional data, the closest approximation to the structural equation
+is the following regression model.
+
+$$
+\mathbf{y} = \beta^{p1}_0 + \beta^{p1}_1 \mathbf{x_1} + \beta^{p1}_2 \mathbf{x_2}
+  + \beta^{p1}_{12} \mathbf{x_1} \mathbf{x_2} + \gamma^{p1} \mathbf{z} +
+  \gamma^{p1}_{1} \mathbf{z} \mathbf{x_1} +
+  \gamma^{p1}_{2} \mathbf{z} \mathbf{x_2} -
+  \delta^{p1}_1 \mathbf{x_1}^2 - \delta^{p1}_2 \mathbf{x_2}^2  +
+  \mathbf{\nu}^{p1}
+$$
+
+The specification captures all features of the structural model in equation
+\eqref{eq:structural} with the exception of the unobservable heterogeneity in
+the performance effects of the management choices ($\mathbf{\epsilon_1}$ and
+$\mathbf{\epsilon_2}$). Cross-sectional data does not permit estimating the
+unobservable heterogeneity. In this specification, $\beta_{12}^{p1}$ tests for
+the interdependency between the management accounting practices. We are not
+aware of any accounting studies using this specification which we label the
+*performance 1* specification.
+
+@Bedford2016 most closely follow the above specification as they control for
+contingency factors and drop the quadratic terms in the specification. In
+effect, this specification assumes constant performance effects of the practices
+or $\delta_1 = \delta_2 = 0$. We call this the *performance 2* specification.
+
+$$
+\mathbf{y} = \beta^{p2}_0 + \beta^{p2}_1 \mathbf{x_1} + \beta^{p2}_2 \mathbf{x_2}
+  + \beta^{p2}_{12} \mathbf{x_1} \mathbf{x_2} + \gamma^{p2} \mathbf{z} +
+  \gamma^{p2}_{1} \mathbf{z} \mathbf{x_1} +
+  \gamma^{p2}_{2} \mathbf{z} \mathbf{x_2} +
+  \mathbf{\nu}^{p2}
+$$
+
+The bulk of the literature follows the third performance function specification
+which also drops the controls for the contingency factors or assume that
+$\gamma_1 = \gamma_2 = 0$. These additional restrictions introduce potential
+correlated omitted variable problems by leaving out the quadratic terms and
+the interactions between the practices and the environmental factor. We call
+this specification *performance 3*.
+
+$$
+\mathbf{y} = \beta^{p3}_0 + \beta^{p3}_1 \mathbf{x_1} + \beta^{p3}_2 \mathbf{x_2}
+  + \beta^{p3}_{12} \mathbf{x_1} \mathbf{x_2} + \gamma^{p3} \mathbf{z} +
+  \mathbf{\nu}^{p3}
+$$
+
+Further in this paper, we investigate how the omitted variable problem affect
+the different specifications in a simulation study. The aim of the current
+section is to highlight the additional, implicit assumptions in the most common
+specifications used to test for interdependencies with the performance function
+approach. The most discussed difference with the demand function approach in the
+literature is the assumption of optimality. The current section highlights that
+the most common performance function specification implicitly puts extra
+restrictions on the performance function. The next section discusses the
+consequences of assuming that firms optimaly choose the practices.
+
+## The Demand Function Approach
+
+### Derivation of Demand Function
+
+The demand function approach assumes that firms maximize profit by choosing
+the appropriate level for each management control practice. The first-order
+condition for a practice, $j$, in firm, $i$, can be written according to
+equation \eqref{eq:demand1}.
+
+\begin{equation}\label{eq:demand1}
+\delta_j x^*_{ji} = \beta_j + \gamma_j z_i + \epsilon_{ji} + \beta_{12} x^*_{ki}
+\end{equation}
+$$
+j,k \in \{1,2\}, j \neq k
+$$
+
+It is instructive to write the optimal solution, $x^*_{ji}$ as a function of the
+exogenous factors, $z_i$, $\epsilon_{ji}$, and $\epsilon_{ki}$. The formulation
+in equation \eqref{eq:demand2} highlights how in equilibrium each practice is
+determined by the exogenous factors influencing itself and the exogenous factors
+influencing the other practice. The factors specific to the practice in question
+are more important when the second derivative performance effect for the other
+practice is lower and less important when the interdependency is higher.
+
+\begin{equation}\label{eq:demand2}
+(\delta_j \delta_k - \beta_{12}^2) x^*_{ji}
+    =  \delta_k (\beta_j + \gamma_j z_i + \epsilon_{ji}) +
+       \beta_{12} (\beta_k + \gamma_k z_i + \epsilon_{ki})
+\end{equation}
+
+This formulation also highlights the importance of the second-order condition
+for profit maximization, $\delta_1 \delta_2 > \beta_{12}^2$. The intuition
+behind this condition is that when the decreasing returns are small, the
+effects of the interdependency dominates the optimal solution. When the
+second-order condition does not hold, two complementary practices are both
+expected to be at either $+\infty$ or $-\infty$ and one of two substitutes is
+$+\infty$ while the other is $-\infty$. That is, without large enough decreasing
+returns, management control practices are optimally used to their full extent or
+not at all. In the main analysis of this paper, we will assume that the
+second-order condition holds. As a robustness check, we will investigate the
+effect of violating this condition.
+
+In addition to the assumption about optimality, the current section identified a
+second difference between the traditional performance function approach and the
+demand function approach. The demand approach implicitly assumes decreasing
+returns to the management control practices while the performance specifications
+used in the literature assume constant performance effects.
+
+### Statistical methods
+
+There are two specifications to test for complementarity using the demand
+functions: a regular regression and conditional correlation. In the following
+section, we show how those two approaches are equivalent for the structural
+model in equation \eqref{eq:structural} and we discuss potential problems with
+the demand function approach.
+
+The regression specification approximates the demand function in equation
+\eqref{eq:demand1} with the following statistical model where $\beta^d_{12}$ is
+the parameter that estimates the complementarity effect. Compared to equation
+\eqref{eq:demand2}, the empirical specification cannot estimate $\delta_1$
+separately and as a result, the demand specification does not estimate the
+complementarity effect directly but estimates,
+$\beta^d_{12} = \frac{\beta_{12}}{\delta_1}$. Moreover, under the assumption of
+optimal management control choices, $\mathbf{x_1}$ and $\mathbf{x_2}$ are jointly
+determined and this specification suffers from simultaneity bias [@Chenhall2007].
+
+$$
+\mathbf{x_1} = \beta_1^d + \gamma_1^d \mathbf{z} + \beta_{12}^d \mathbf{x_k}
+  + \mathbf{\epsilon^d_1}
+$$
+
+The conditional correlation specification estimates the correlation between the
+management controls, $\mathbf{x_1}$ and $\mathbf{x_2}$, controlling for the
+observable exogenous factor, $\mathbf{z}$.
+
+\begin{align*}
+\mathbf{x_1} &= \beta_1^c + \gamma_1^c \mathbf{z} + \mathbf{\epsilon^c_1} \\
+\mathbf{x_2} &= \beta_2^c + \gamma_2^c \mathbf{z} + \mathbf{\epsilon^c_2} \\
+\rho^c &= cor(\mathbf{\epsilon^c_1}, \mathbf{\epsilon^c_1}),
+\end{align*}
+
+It is easy to show that $\rho^c$ and $\beta^d_{12}$ always have the same sign.
+
+\begin{align}\label{eq:coefficient}
+\rho^c &= cor(x_1|z, x_2|z) =
+          \frac{cor(\mathbf{x_1},\mathbf{x_2}|\mathbf{z})}
+               {\sqrt{1 - cor^2(\mathbf{x_1}, \mathbf{z})}} \nonumber \\
+\beta^d_{12} &= \frac{sd(\mathbf{x_1})}{sd(\mathbf{x_2)}}
+                \frac{cor(\mathbf{x_1, x_2})
+                      - cor(\mathbf{x_1, z}) cor(\mathbf{x_1, z})}
+                {1 - cor^2(\mathbf{x_2, z})} \nonumber \\
+             &= \frac{sd(\mathbf{x_1})}{sd(\mathbf{x_2)}}
+                \frac{cor(\mathbf{x_1, x_2|z})}
+                {\sqrt{1 - cor^2(\mathbf{x_2, z})}} \nonumber \\
+             &= \frac{sd(\mathbf{x_1})}{sd(\mathbf{x_2)}}
+                \sqrt{\frac{1 - cor^2(\mathbf{x_1, z})}
+                           {1 - cor^2(\mathbf{x_2, z})}} \rho^c
+\end{align}
+
+Under the assumption that firms choose the optimal level for the management
+controls, we can derive the partical correlation as follows from the reduced
+form structural demand function in equation \eqref{eq:demand2}.
+
+\begin{align}\label{eq:conditional}
+\rho^{c*} &= cor(\mathbf{x_1 | z, x_2 | z}) \nonumber \\
+       &= \frac{cov(\mathbf{x_1 | z, x_2 | z})}
+          {sd(\mathbf{x_1 | z}) sd(\mathbf{x_2 | z})} \nonumber \\
+       &= \beta_{12} \frac{
+         \delta_2 \sigma^2_{\epsilon_1} + \delta_1 \sigma^2_{\epsilon_2}
+       }{
+         \sqrt{
+           (\delta_2^2 \sigma^2_{\epsilon_1} + \beta_{12}^2 \sigma^2_{\epsilon_2})
+           (\delta_1^2 \sigma^2_{\epsilon_2} + \beta_{12}^2 \sigma^2_{\epsilon_1})
+         }
+       } \nonumber \\
+       &= \frac{ \beta v}
+       {
+       \sqrt{(1 - \beta^2)^2 + (\beta v)^2}
+       }
+\end{align}
+with
+\begin{align*}
+\beta &= \frac{\beta_{12}}{\sqrt{\delta_1 \delta_2}} \\
+v &= \frac{\delta_1 \sigma^2_{\epsilon_2} + \delta_2 \sigma^2_{\epsilon_2}}
+    {
+    \sqrt{\delta_1 \delta_2} \sigma_{\epsilon_1} \sigma_{\epsilon_2}
+    }
+    = \sqrt{\frac{\delta_1 }{\delta_2}}\frac{\sigma_{\epsilon_2}}
+                                            {\sigma_{\epsilon_1}} +
+    \sqrt{\frac{\delta_2 }{\delta_1}}\frac{\sigma_{\epsilon_1}}
+                                            {\sigma_{\epsilon_2}}
+\end{align*}
+
+The above derivation shows that the conditional correlation is a non-linear
+function of two parameters. The non-linearity in $\beta$ represents the
+simultaneity bias in the demand function approach. $\beta$ is an indicator of
+the interdependency scaled by the decreasing returns. If the second-order
+condition holds, $\beta$ varies from -1 to 1. $v$ represents the asymmetry of
+the variation in the heterogeneity of the contingency effects scaled by the
+second derivative of the performance effects. With symmetry,
+$\delta_1 \sigma^2_{\epsilon_2} = \delta_2 \sigma^2_{\epsilon_1}$, $v=2$,
+while $v \to \infty$ with increasing asymmetry.
+
+One important take-a-way of this excercise is that $\rho_c = \beta^d_{12} = 0$,
+when $\beta_{12} = \beta = 0$. Despite the simultaneity bias, the demand
+function and conditional correlation correctly identify the null hypothesis of
+no interdependency between the management control choices. In addition, $\rho_c$
+and $\beta^d_{12}$ always have the same sign as $\beta$ and $\beta_{12}$ which
+means that both specifications can correctly identify the sign of the
+interdependency [@Arora1996]. The disadvantage of the demand function is that we
+cannot directly estimate the true effect size of the interdependency.
+
+# Simulation Study
+
+We investigate the differences between both approaches with a simulation study.
+To that end, we simulate datasets of 300 firms [^nrobservations] based on
+equation $\eqref{eq:structural}$ for each firm. More specifically, we generate
+$x_{1i}$, $x_{2i}$ as uniform between -5 and 5, and $z_i$ as univariate standard
+normal distributions. The unobservable factors, $\epsilon_{1i}$,
+$\epsilon_{2i}$, and $\nu_i$ are generated as normally distributed with standard
+deviation $\sigma_{\epsilon_1}$, $\sigma_{\epsilon_2}$, and $\sigma_{\nu}$. The
+parameters of interest, $\beta$, $\gamma$, $\delta$, and $\sigma$, are varied to
+investigate different parameters spaces.
+
+[^nrobservations]: We choose the number of observations based on the median
+number of observations in the survey literature on complementarity in management
+control systems.
+
+Finally, we vary the level of optimality as follows. First, for each firm
+$i$ the exogenous variable, $z_i$, and the unobserved factors $\epsilon_{1i}$
+and $\epsilon_{2i}$ are drawn. Next, $N$ combinations of $x_{1i}$, $x_{2i}$, and
+$\nu_i$ are simulated per the distributions above. The performance, $y_i$, is
+calculated for each of these combinations and the combination with $max(y_i)$ of
+the $N$ observations is retained in the simulated dataset. In other words, the
+combination that best fits the environment, $z_i$, and the unobserved
+environmental factors $\epsilon_{1i}$ and $\epsilon_{1i}$, is retained in the
+simulated dataset. With a higher $N$, firm $i$ is more likely to have a
+combination of practices $x_{1i}$ and $x_{2i}$ close to the optimal choice for
+its environment $z_i$.
+
+## Optimality
+
+To illustrate the effect of varying the optimality parameter, $N$, we present a
+scatterplot of the choices, $\mathbf{x_1}$ and $\mathbf{x_2}$, for different
+levels of $N$ in Figure $\ref{scatter}$. The figure shows that with smaller $N$,
+$\mathbf{x_1}$ and $\mathbf{x_2}$ are weakly correlated, while they are
+strongly correlated with larger $N$ which indicates the expected relation for
+optimal choices. In other words, with $N=1$ the simulated dataset is consistent
+with randomly chosen $\mathbf{x_1}$ and $\mathbf{x_2}$. With $N \to \infty$, the
+choices are closer to the optimal choices in equation $\eqref{eq:demand2}$
+
+```{r warning=FALSE, echo = FALSE}
+# devtools::install() #for the latest version of simcompl
+library(simcompl, quietly = TRUE)
+suppressMessages(library(tidyverse, quietly = TRUE, warn.conflicts = FALSE))
+library(ggplot2, quietly = TRUE, warn.conflicts = FALSE)
+library(ggthemes, quietly = TRUE, warn.conflicts = FALSE)
+```
+
+```{r, eval = runsim}
+sample2 <- tbl_df(create_sample(obs = 300, rate = 1/2, b2 = c(.5, 0, 0),
+                  sd_eps = c(.5,.5,0), g1 = c(.5, 0, 0))) %>% mutate(opt_param = 2)
+sample4 <- tbl_df(create_sample(obs = 300, rate = 1/4, b2 = c(.5, 0, 0),
+                  sd_eps = c(.5,.5,0), g1 = c(.5, 0, 0))) %>% mutate(opt_param = 4)
+sample8 <- tbl_df(create_sample(obs = 300, rate = 1/8, b2 = c(.5, 0, 0),
+                  sd_eps = c(.5,.5,0), g1 = c(.5, 0, 0))) %>% mutate(opt_param = 8)
+sample16 <- tbl_df(create_sample(obs = 300, rate = 1/16, b2 = c(.5, 0, 0),
+                  sd_eps = c(.5,.5,0), g1 = c(.5, 0, 0))) %>% mutate(opt_param = 16)
+sample32 <- tbl_df(create_sample(obs = 300, rate = 1/32, b2 = c(.5, 0, 0),
+                  sd_eps = c(.5,.5,0), g1 = c(.5, 0, 0))) %>% mutate(opt_param = 32)
+sample64 <- tbl_df(create_sample(obs = 300, rate = 1/64, b2 = c(.5, 0, 0),
+                  sd_eps = c(.5,.5,0), g1 = c(.5, 0, 0))) %>% mutate(opt_param = 64)
+sample128 <- tbl_df(create_sample(obs = 300, rate = 1/128, b2 = c(.5, 0, 0),
+                  sd_eps = c(.5,.5,0), g1 = c(.5, 0, 0))) %>% mutate(opt_param = 128)
+sample256 <- tbl_df(create_sample(obs = 300, rate = 1/256, b2 = c(.5, 0, 0),
+                  sd_eps = c(.5,.5,0), g1 = c(.5, 0, 0))) %>% mutate(opt_param = 256)
+saveRDS(bind_rows(sample2, sample4, sample8, sample16, sample32, sample64),
+        file = "~/Dropbox/R/simcompl/application/simulated_paper/basic_sampels.Rds")
+```
+
+\begin{figure}
+```{r scatter, fig.width=6, fig.height=3, out.width="600px", warning=FALSE}
+plot <- (readRDS("~/Dropbox/R/simcompl/application/simulated_paper/basic_sampels.Rds")
+         %>% ggplot(aes(y = x1, x = x2)) +
+           geom_point(alpha = .1) +
+           theme_tufte(base_size = 14) +
+           facet_wrap(~ opt_param)
+)
+print(plot)
+```
+\caption{\label{scatter} Scatter plot of the choices $\mathbf{x_1}$ and
+$\mathbf{x_2}$ for different levels (2, 4, 8, 16, 32, 64) of the optimality
+parameter, $N$. The complementarity effect is fixed at $\beta_{12} = .5$ for all
+samples. The decreasing returns are set as $\delta_1 = \delta_2 = 1$. The effect
+of the environmental variable only affects one of the choices ($\gamma_1 = .5,
+\gamma_2 = 0$). Lastly, the unobserved variation parameters are set at
+$\sigma_{\epsilon_1} = \sigma_{\epsilon_2} = .5$ and $\sigma_{\nu} = 1.$ }
+\end{figure}
+
+## Performance and Demand Function Approach
+
+In the next section, we will compare the type I error rate and power of the
+different statistical approaches when varying the optimality parameter, $N$.
+Because the accounting literature is concerned with testing the hypothesis that
+there is (no) complementarity between two management control practices, a focus
+on error rates and power is appropriate. For brevity, we omit the results for
+the conditional correlation specification as they are indistinguishable from the
+demand function specification.
+
+For each combination of parameters, we generate 1000 datasets of 300
+observations, a typical dataset in the literature and plot the t-static for
+$\beta^p_{12}$ and $\beta^d_{12}$ in each dataset. The datasets are created with
+the following fixed parameters, $\delta_1 = \delta_2 = 1$,
+$\sigma_{\epsilon_1} = \sigma_{\epsilon_2} = .5$ , and $\sigma_{\nu} = 1$. The parameters of interest, $N$, $\beta_{12}$, $\gamma_1$, and $\gamma_2$ are
+varied across datasets. The optimality parameter, $N$, is manipulated as 2, 4,
+8, 16, 32, and 64. The complimenarity effect is either present
+($\beta_{12} = 0.5$) or the null hypothesis is true ($\beta_{12} = 0$). The
+potentially confounding environmental factor, $\gamma_1$ and $\gamma_2$, is
+either only affecting one choice ($\gamma_1 = .5, \gamma_2 = 0$), or its effects
+are positively correlated ($\gamma_1 = \gamma_2 = .5$), or negatively correlated
+($\gamma_1 = .5$ and $\gamma_2 = -.5$).
+
+Figure \ref{basic} shows the boxplot for the t-static for each type of test and
+each combination of parameters. The dot represents the median t-statistic of the
+400 datasets, the gap between the whiskers represent the interquartile range,
+and the whiskers indicate the minimum and maximum t-statistic. Each boxplot can
+be compared to the zero line and the lines representing a 95% confidence
+interval around a null effect.
+
+```{r basic-par}
+nsim <- 1000
+nobs <- 300
+g1_in <- list(c(0.5, 0, 0), c(0.5, 0.5, 0), c(0.5, -0.5, 0))
+sd_eps_in <- c(.5, .5, 0)
+b2_in <- list(c(0, 0, 0), c(.5, 0, 0))
+rate_in <- list(1/2, 1/4, 1/8, 1/16, 1/32, 1/64)
+method <- list("match", "interaction_control", "interaction_moderation",
+               "interaction_moderationaugmented")
+```
+
+```{r, eval = runsim}
+sims <- run_sim(family_method = method, rate = rate_in, b2 = b2_in,
+                nsim = nsim, mc_cores = 4, obs = nobs, g1 = g1_in,
+                sd_eps = sd_eps_in)
+saveRDS(sims, "~/Dropbox/R/simcompl/application/simulated_paper/basic_sim.Rds")
+```
+
+\begin{figure}
+```{r fig.width=7, fig.height=3, out.width="600px", warning=FALSE}
+
+tint <- qt(.975, df = nobs - 5)
+basic_sim <- (readRDS("~/Dropbox/R/simcompl/application/simulated_paper/basic_sim.Rds")
+  %>% tbl_df %>% mutate(
+    method = recode(method,"matching" = "demand",
+                       interaction_control = "performance~3",
+                       interaction_moderation = "performance~2",
+                       interaction_moderationaugmented = "performance~1"),
+    optim = paste0("N == ", 1/rate),
+    b2 = ifelse(b2 == "0, 0, 0", "null", "effect"),
+    g1 = recode(g1,
+                `0.5, 0, 0` = "0",
+                `0.5, 0.5, 0` = "0.5",
+                `0.5, -0.5, 0` = "-0.5")
+    )
+  )
+
+# reorder some stuff
+rates = unique(basic_sim$rate)
+optims = paste0("N == ", sort(1/rates))
+basic_sim$optim = factor(basic_sim$optim, levels = optims)
+basic_sim$b2 = factor(basic_sim$b2, levels = c("null", "effect"))
+basic_sim$g1 = factor(basic_sim$g1,
+                      levels = as.character(sort(as.numeric(
+                               as.character(unique(basic_sim$g1))))))
+
+plot <- (basic_sim
+  %>% ggplot(aes(y = stat, x = g1))
+  + geom_tufteboxplot()
+  + theme_tufte(base_size = 10)
+  + facet_grid(method ~ b2 + optim,
+               labeller = label_parsed)
+  + geom_hline(yintercept = tint, linetype = 3, alpha = .25)
+  + geom_hline(yintercept = 0, linetype = 4, alpha = .25)
+  + geom_hline(yintercept = -tint, linetype = 3, alpha = .25)
+  + labs(x = expression(gamma[2]), y = "t-statistic")
+  + theme(strip.text.y = element_text(angle = 0))
+)
+
+print(plot)
+```
+\caption{\label{basic} t-static of the performance and demand approach to test
+for complementarities when there is a complementarity effect ($\beta_{12} = .5$)
+or a null ($\beta_{12} = 0$). The boxplots represent the median (the dot) the
+interquartile range (the gap), and the minimum and maximum (the whiskers). $N$
+is varied between 2, 4, 8, 16, 32, and 64. The effect of the environmental
+variable, $\mathbf{z}$, on the second choice is either absent
+($\gamma_1 = .5,  \gamma_2 = 0$), positive ($\gamma_1 = \gamma_2 = .5$),
+or negative ($\gamma_1 = .5$ and $\gamma_2 = -.5$).}
+\end{figure}
+
+Figure \ref{basic} shows that the demand approach and the theoretically derived
+*performance 1* approach have on average a t-static close to 0 in the absence of an
+interdependency. The figure also reveals the basic trade-off between the
+demand approach and the performance approach: with low levels of optimality the
+performance function is more likely to detect a true complementarity effect
+while the demand function is more likely to detect a true complementarity
+effect with high levels of optimality [@Grabner2013; @Aral2012]. Interestingly,
+even at relatively low levels of optimality, $N = 4$, the demand approach has
+similar power to the performance 1 approach. That is, if firms avoid the worst
+possible combinations (see Figure \ref{scatter}), the demand approach has the
+power to detect a true effect with the current parameters.
+
+The *performance 2* and *3* specification fare worse compared to the theoretically
+appropriate specifications. Both drop the quadratic effects to
+control for decreasing returns to the control choices. In addition,
+*performance 3*, does not control for the interactions $\mathbf{x_1z}$ and
+$\mathbf{x_2z}$. The latter omission has effects the estimate for the
+complementarity even with a null effect. Figure \ref{basic} shows that when
+$\gamma_2 \neq 0$, the median t-statistic diverges from 0 and the divergence
+increases with the level of optimality. The intuition behind this result is that
+with higher levels of optimality and when $\gamma_1 \gamma_2 \neq 0$, the
+evironmental factor is correlated with the management controls and hence the the
+interactions, $\mathbf{x_1z}$ and $\mathbf{x_2z}$, are correlated with the
+interaction $\mathbf{x_1 x_2}$. Omitting the interactions between the
+environmental factors and the management accounting choices, biases the
+estimates of the interdependency, $\beta_{12}^{p3} \mathbf{x_1 x_2}$.
+
+The most dramatic effects of the omitted correlated variables can be observed
+when a true interdependency exists. When the optimality parameter exceeds 4,
+the *performance 2* and *performance 3* specification are unlikely to detect the
+true effect, $\beta_{12} = .5$, and are under some circumstances likely to report a
+substitution effect. The latter results shows that the performance approaches
+currently used in the management accounting literature are inappropriate to test
+for interdependencies with most parameter combinations in this simulation.
+
+```{r, results="asis", warning=FALSE}
+require(xtable, quietly = TRUE)
+table_basic <- (
+  group_by(basic_sim, method, g1, b2, 1/rate) %>%
+    summarise(`type 1` = round(sum(abs(stat) > tint)/nsim, 2),
+              power = round(sum(stat > tint)/nsim, 2)) %>%
+    ungroup() %>%
+    mutate(percentage = ifelse(b2 == "effect", power, `type 1`),
+           type = ifelse(b2 == "effect", "power", "type I"),
+           g1 = as.numeric(as.character(g1))) %>%
+    select(-c(`type 1`, power, b2)) %>%
+    rename(`$\\gamma_2$` = g1) %>%
+    spread(`1/rate`, percentage) %>%
+    arrange(desc(type), method, `$\\gamma_2$`)
+)
+
+print(xtable(table_basic,
+             type = "pdf",
+             label = "basic-error",
+             caption = "Type I error rates and power for the demand and
+performance function approaches at different levels optimality: 2, 4, 8,
+16, 32, 64. The parameters are the same as in Figure \\ref{basic}."),
+      size = "\\footnotesize",
+      include.rownames = FALSE,
+      sanitize.text.function = force,
+      comment = FALSE
+      )
+```
+
+To investigate the performance of the demand and performance specifications in
+more detail, we report type I error rate and power based on the simulations in
+Table \ref{basic-error}. The type I error is the percentage of datasets with no
+complementarity where the t-statistic of $\beta^d_{12}$ is higher than $1.97$ or
+lower than $-1.97$. The power is the percentage of datasets with a real effect
+where the t-statistic exceeds $1.97$. An important caveat is that the power of a
+study will also be influenced by measurement error, random variation and the
+number of observations in the study. In the simulations, we assumed no
+measurement error, fixed the parameters that control random variation,
+$\sigma_{\epsilon_1}$, $\sigma_{\epsilon_2}$, and $\sigma_{\nu}$, and the number
+of observations per dataset. As a result, the numbers in Table
+\ref{basic-error} should be intepreted with caution.
+
+Under the parameters in the simulation study, the demand approach has type I
+error rates slightly below the nominal value of $0.05$. The theoretically
+appropriate *performance 1* specification tends to have slightly elevated error
+rates. The most worrying results are for the *performance 2* and *3* specification.
+Dropping the quadratic effects increases the error rates in the *performance 2*
+specification to around $.15$, three times the nominal error rate. The most
+common specification in the literature, *performance 3*, has even higher type I
+error rates that increase with higher levels of optimality and when the
+effectiveness of both management controls varies with the environmental factor.
+In conclusion, with the parameters in the simulation study only the *demand*
+specification rejects the null hypothesis at the predetermined rate. While the
+theoretically derived *performance 1* specification has slightly elevated error
+rates, the other two performance approaches are vulnerable to false positives.
+
+The results for the power of the different specifications shows that with the
+parameters in the simulation, the trade-off between the demand approach and the
+performance approach is neglible when using the correct specification. Both the
+*demand* and the *performance 1* specification are able to detect a true
+interdependency with almost certainty except for the highest level of
+optimality, $N = 64$. However, the reduced specifications *performance 2* and
+*3* are not able to detect the true interdependency for most of the
+parameter space under investigation. They are more likely to report a
+significant negative interdependency than the true positive interdependency.
+
+One way to interpret this result is to think about how a reader should react
+when observing a study with a significant positive interaction
+$\mathbf{x_1 x_2}$. To demonstrate the problems with the *performance 2* and *3*
+specification, 2e provide one dramatic example for $N = 4$ and
+$\gamma_2 = -.05$. If we assume that a priori, we are indifferent between a null
+effect and a true interdependency of $\beta_{12} = 0.5$, and we observe one study
+that reports a significant positive interaction $\mathbf{x_{1} x_{2}}$, the
+study is more likely to be from a sample where the null holds than from a sample
+where there is a true interdependency.
+
+## Parameter Variations
+
+In this section, we explore the robustness of the above conclusions to
+variations in the structural parameters. Given the large number of possible
+variations, we restrict ourselves to a number theoretically driven comparisons.
+
+### Unobserved performance effects
+
+We first investigate whether increases in the variance of performance,
+$\sigma_{\nu}$, change the conclusions. The first effect of increasing this
+variance is that it decreases the importance of the management controls for
+performance which decreases the power of the performance approach. The second
+effect follows from the first. When the management controls are less important,
+the optimality selection effects are less pronounced which in turn decreases the
+power of the demand approach and the ommitted correlated variable bias in the
+*performance 2* and *performance 3* specification.
+
+To investigate the role of $\sigma_{\nu}$, we vary the parameter between 1, 2,
+and 4 while keeping most of the other parameters the same as in Figure
+\ref{basic-error}. For clarity of exposition, we limit the number of optimality
+variations ($N = 2, 8, 32$) and the number f variations of the moderating effect
+of $\mathbf{x_2 z}$ ($\gamma_2 = -.5, .5$).
+
+The results in Figure \ref{noise} and Table \ref{noise-error} are not
+qualitatively different in the absence of an interdependency when increasing the
+variance in the unobserved drivers of performance. The *demand* and
+*performance 1* specification appear largely unbiased and have false positive
+rates below or close to the nominal rates. The *performance 2* and
+*performance 3* specification exhibit the same problem as before, elevated false
+positive rates and bias as the result of omitted correlated variables. The
+increase in unobserved performance variation does lessen the impact of the bias.
+
+More importantly, in the presence of an interdependency, the increase in
+performance variance hardly effects the performance of the *demand*
+specification. For every simulated dataset with a real interdependency the
+*demand* specification, correctly identifies this interdependency although the
+t-statistics decrease with higher performance variance. The drop-off in
+the t-statistic is steeper for the *performance 1* specification to the extent
+that power drops to around $60\%$ when $N = 4$ and $\sigma_{\nu} = 4$. In
+summary, these results indicate that the major impact of increasing the
+performance variance is to decrease the power of the performance specifications
+and only to a lesser extent decrease the effect of the optimality parameter.
+
+```{r noise-par}
+nsim <- 1000
+nobs <- 300
+g1_in <- list(c(0.5, 0.5, 0), c(0.5, -0.5, 0))
+sd_eps_in <- c(.5, .5, 0)
+sd_in <- list(1, 2, 4)
+b2_in <- list(c(0, 0, 0), c(.5, 0, 0))
+rate_in <- list(1/2, 1/8, 1/32)
+method <- list("match", "interaction_control", "interaction_moderation",
+               "interaction_moderationaugmented")
+```
+
+```{r noise-sim, eval = runsim}
+simsnoise <- run_sim(family_method = method, rate = rate_in, b2 = b2_in,
+                nsim = nsim, mc_cores = 4, obs = nobs, g1 = g1_in,
+                sd_eps = sd_eps_in, sd = sd_in)
+saveRDS(simsnoise, "~/Dropbox/R/simcompl/application/simulated_paper/noise_sims.Rds")
+ggplot()
+```
+
+\begin{figure}
+```{r fig.width=7, fig.height=3, out.width="600px", warning=FALSE}
+noise_sim <- (readRDS("~/Dropbox/R/simcompl/application/simulated_paper/noise_sims.Rds")
+  %>% tbl_df %>% mutate(
+    method = recode(method,"matching" = "demand",
+                       interaction_control = "performance~3",
+                       interaction_moderation = "performance~2",
+                       interaction_moderationaugmented = "performance~1"),
+    optim = paste0("N == ", 1/rate),
+    b2 = ifelse(b2 == "0, 0, 0", "null", "effect"),
+    sd = paste0("sigma[nu] == ", sd),
+    g1 = recode(g1,
+                `0.5, 0, 0` = "0",
+                `0.5, 0.5, 0` = "+.5",
+                `0.5, -0.5, 0` = "-.5")
+    )
+  )
+
+# reorder some stuff
+rates = unique(noise_sim$rate)
+optims = paste0("N == ", sort(1/rates))
+noise_sim$optim = factor(noise_sim$optim, levels = optims)
+noise_sim$b2 = factor(noise_sim$b2, levels = c("null", "effect"))
+noise_sim$g1 = factor(noise_sim$g1, levels = c("-.5", "+.5"))
+
+plot <- (noise_sim
+  %>% ggplot(aes(y = stat, x = g1))
+  + geom_tufteboxplot()
+  + theme_tufte(base_size = 9)
+  + facet_grid(method ~ b2 + optim + sd,
+               labeller = label_parsed)
+  + geom_hline(yintercept = tint, linetype = 3, alpha = .25)
+  + geom_hline(yintercept = 0, linetype = 4, alpha = .25)
+  + geom_hline(yintercept = -tint, linetype = 3, alpha = .25)
+  + labs(x = expression(gamma[2]), y = "t-statistic")
+  + theme(strip.text.y = element_text(angle = 0))
+)
+
+print(plot)
+```
+\caption{\label{noise} t-static of the performance and demand approach to test
+for complementarities when there is a complementarity effect ($\beta_{12} = .5$)
+or a null ($\beta_{12} = 0$). The boxplots represent the median (the dot) the
+interquartile range (the gap), and the minimum and maximum (the whiskers). $N$
+is varied between 2, 8, 32. The effect of the environmental
+variable, $\mathbf{z}$, on the second choice is either positive
+($\gamma_1 = \gamma_2 = .5$), or
+negative ($\gamma_1 = .5$ and $\gamma_2 = -.5$).}
+\end{figure}
+
+```{r, results="asis", warning=FALSE}
+table_noise <- (
+  group_by(noise_sim, method, g1, b2, sd, 1/rate) %>%
+    summarise(`type 1` = round(sum(abs(stat) > tint)/nsim, 2),
+              power = round(sum(stat > tint)/nsim, 2)) %>%
+    ungroup() %>%
+    mutate(percentage = ifelse(b2 == "effect", power, `type 1`),
+           type = ifelse(b2 == "effect", "power", "type I"),
+           g1 = as.numeric(as.character(g1)),
+           sd = recode(sd,
+                       `sigma[nu] == 1` = 1,
+                       `sigma[nu] == 2` = 2,
+                       `sigma[nu] == 4` = 4
+           )) %>%
+    select(-c(`type 1`, power, b2)) %>%
+    filter(sd == 4) %>%
+    rename(`$\\gamma_2$` = g1,
+           `$\\sigma_{\\nu}$` = sd) %>%
+    spread(`1/rate`, percentage) %>%
+    arrange(desc(type), method, `$\\gamma_2$`)
+)
+
+print(xtable(table_noise,
+             type = "pdf",
+             label = "noise-error",
+             caption = "Type I error rates and power for the demand and
+performance function approaches at different levels optimality: 2, 8, 32 The
+parameters are the same as in Figure \\ref{noise}. For brevity, we only report the
+results for $\\sigma_{\\nu} = 4$"),
+      size = "\\footnotesize",
+      include.rownames = FALSE,
+      sanitize.text.function = force,
+      comment = FALSE
+      )
+```
+
+### Second derivative effects
+
+In this section, we vary the size of the second derivative parameters,
+$\delta_1$ = $\delta_2$, that control the extent to which performance effects of
+management practics are decreasing with more use. We keep the parameters the
+same for both management control practices but they become smaller in size. In
+the next section, we investigate the effect of making the returns decrease
+asymmetrically.
+
+There are two consequences of lowering the value of second
+derivative performance effects. *Performance 2* and *performance 3* do not
+control for the effects of decreasing returns and thus the bias from omitting
+the quadratic terms should be smaller. However, decreasing $\delta_1 = \delta_2$
+also increases the effect of optimality, that is it increases the conditional
+correlation between the management control practices. From equation
+\eqref{eq:conditional}, we know that
+with $N \to \infty$ the conditional correlation, $\rho^c$, depends on two
+parameters, $\beta$ and $v$. While $v$ is only affected by the ratio
+$\frac{\delta_1}{\delta_2}$,
+$\beta = \frac{\beta_{12}}{\sqrt{\delta_1 \delta_2}}$ is determined by the size
+of the complementarity and de product of the decreasing return effects.
+
+In Figure \ref{basic} and \ref{noise}, we used $\delta_1 = \delta_2 = 1$. In
+this section, we investigate two other values 0.5 and 0.
+$\delta_1 = \delta = .5$ is the largest value for which  the parameters
+violates the second-order optimality condition
+$\beta_{12} < \sqrt{\delta_1 \delta_2}$. The extreme case is when
+$\delta_1 = \delta_2 = 0$ which may impede the performance of the *demand*
+specification even further.
+
+```{r scatter-delta}
+sample2 <- tbl_df(create_sample(obs = 300, rate = 1/2, b2 = c(.5, 0, 0),
+                  sd_eps = c(.5,.5,0), g1 = c(.5, 0, 0))) %>% mutate(opt_param = 2)
+sample4 <- tbl_df(create_sample(obs = 300, rate = 1/4, b2 = c(.5, 0, 0),
+                  sd_eps = c(.5,.5,0), g1 = c(.5, 0, 0))) %>% mutate(opt_param = 4)
+sample8 <- tbl_df(create_sample(obs = 300, rate = 1/8, b2 = c(.5, 0, 0),
+                  sd_eps = c(.5,.5,0), g1 = c(.5, 0, 0))) %>% mutate(opt_param = 8)
+sample16 <- tbl_df(create_sample(obs = 300, rate = 1/16, b2 = c(.5, 0, 0),
+                  sd_eps = c(.5,.5,0), g1 = c(.5, 0, 0))) %>% mutate(opt_param = 16)
+sample32 <- tbl_df(create_sample(obs = 300, rate = 1/32, b2 = c(.5, 0, 0),
+                  sd_eps = c(.5,.5,0), g1 = c(.5, 0, 0))) %>% mutate(opt_param = 32)
+sample64 <- tbl_df(create_sample(obs = 300, rate = 1/64, b2 = c(.5, 0, 0),
+                  sd_eps = c(.5,.5,0), g1 = c(.5, 0, 0))) %>% mutate(opt_param = 64)
+sample128 <- tbl_df(create_sample(obs = 300, rate = 1/128, b2 = c(.5, 0, 0),
+                  sd_eps = c(.5,.5,0), g1 = c(.5, 0, 0))) %>% mutate(opt_param = 128)
+sample256 <- tbl_df(create_sample(obs = 300, rate = 1/256, b2 = c(.5, 0, 0),
+                  sd_eps = c(.5,.5,0), g1 = c(.5, 0, 0))) %>% mutate(opt_param = 256)
+saveRDS(bind_rows(sample2, sample4, sample8, sample16, sample32, sample64),
+        file = "~/Dropbox/R/simcompl/application/simulated_paper/basic_sampels.Rds")
+```
+\begin{figure}
+```{r scatterplot-delta, fig.width=6, fig.height=3, out.width="600px", warning=FALSE}
+if (runsim){
+  create_delta_sample <- function(opt_in, b2_in, d_in){
+   dplyr::tbl_df(simcompl::create_sample(
+     obs = 300, rate = 1/opt_in, b2 = b2_in, sd_eps = c(.5, .5, 0),
+     g1 = c(.5, 0, 0), d = d_in)) %>% mutate(opt = opt_in,
+                                             b2 = b2_in[1],
+                                             d = d_in[1])
+  }
+  b2 = list(c(0.5, 0, 0), c(0, 0, 0))
+  N1 = length(b2)
+  d = list(c(0, 0, 0), c(.5, .5, 0), c(1, 1, 0))
+  N2 = length(d)
+  opt = list(2, 8, 32)
+  N3 = length(opt)
+  N = N1*N2*N3
+
+  sample_delta = tbl_df(data.frame())
+  for (i in 1:N){
+    N1in = 1 + (i - 1) %/% (N2*N3)
+    N2in = 1 + (i - (N1in - 1) * N2 * N3 - 1) %/% N3
+    N3in = 1 + (i - 1) %% N3
+    sample_delta = bind_rows(sample_delta,
+                             create_delta_sample(b2_in = b2[[N1in]],
+                                                 d_in = d[[N2in]],
+                                                 opt_in = opt[[N3in]]))
+  }
+  saveRDS(sample_delta,
+          file = "~/Dropbox/R/simcompl/application/simulated_paper/delta_sampels.Rds")
+}
+plot <- (readRDS(file =
+          "~/Dropbox/R/simcompl/application/simulated_paper/delta_sampels.Rds")
+         %>% tbl_df()
+         %>% mutate(opt_2 = paste0("N == ", opt),
+                    d_2 = paste0("delta[j] == ", d),
+                    b2_2 = ifelse(b2 == 0, "null", "effect"))
+         %>% ggplot(aes(y = x1, x = x2)) +
+           geom_point(alpha = .1) +
+           theme_tufte(base_size = 14) +
+           facet_grid(d_2 ~ reorder(b2_2, b2) + reorder(opt_2, opt),
+                      labeller = label_parsed) +
+           scale_x_continuous(breaks = scales::pretty_breaks(n = 5))
+)
+print(plot)
+```
+\caption{\label{scatter-delta} Scatter plot of the choices $\mathbf{x_1}$ and
+$\mathbf{x_2}$ for different levels (2, 8, 32) of the optimality parameter, $N$
+with a null interdependency ($\beta_{12} = 0$) or a true effect
+($\beta_{12} = 0$). The decreasing returns are set as
+$\delta_1 = \delta_2 = 0, 0.5$, and $1$. The effect of the environmental variable
+only affects one of the choices ($\gamma_1 = .5, \gamma_2 = 0$). Lastly, the
+unobserved variation parameters are set at
+$\sigma_{\epsilon_1} = \sigma_{\epsilon_2} = .5$ and $\sigma_{\nu} = 1.$ }
+\end{figure}
+
+To visualise those effects on a simulated sample, we first generate a dataset for
+three levels of optimality and three values of $\delta_1 = \delta_2$ and plot
+the values for $\mathbf{x_1}$ and $\mathbf{x_2}$ in a scatterplot. Figure
+\ref{scatter-delta} shows when returns are not decreasing, the choices,
+$\mathbf{x_1}$ and $\mathbf{x_2}$ are pushed towards the boundary values
+especially when there is a complimentarity and with higher levels of optimality.
+At the intermediate level, $\delta_1 = \delta_2 = 0.5$, the choices cluster
+around the origin with the null effect, while they are pushed toward the
+boundaries with a true interdependency. The large variations between the
+scatterplots show how visual inspection can help researchers to check whether
+the underlying assumption of their statistical test are met. A pattern to look
+for is whether the values for the choices are at the boundaries of the
+measurement scale (small $\delta_j$) or not (larger $\delta_j$).
+
+In Figure \ref{delta} and Table \ref{delta-error}, we report the performance
+of the different specifications to detect an interdependency. Especially, at
+lower levels of optimality, the *demand* approach suffers from elevated false
+positives when the returns to the choices are constant. Under these conditions,
+the *performance 1* specification is more appropriate to protect the null
+hypothesis. Nevertheless, the power of the *demand approach* is generally better
+for all but the lowest level of optimality. Furthermore, the *performance 1*
+approach suffers steeper decreases in power as the result of increases in
+optimality with smaller $\delta_1 = \delta_2$.
+
+```{r delta-par}
+nsim <- 1000
+nobs <- 300
+g1_in <- list(c(0.5, 0.5, 0), c(0.5, -0.5, 0))
+sd_eps_in <- c(.5, .5, 0)
+d_in <- list(c(0, 0, 0), c(.5, .5, 0))
+b2_in <- list(c(0, 0, 0), c(.5, 0, 0))
+rate_in <- list(1/2, 1/8, 1/32)
+method <- list("match", "interaction_control", "interaction_moderation",
+               "interaction_moderationaugmented")
+```
+
+```{r delta-sim, eval = runsim}
+simsdelta <- run_sim(family_method = method, rate = rate_in, b2 = b2_in,
+                nsim = nsim, mc_cores = 4, obs = nobs, g1 = g1_in,
+                sd_eps = sd_eps_in, d = d_in)
+saveRDS(simsdelta, "~/Dropbox/R/simcompl/application/simulated_paper/delta_sims.Rds")
+```
+
+\begin{figure}
+```{r fig.width=7, fig.height=3, out.width="600px", warning=FALSE}
+delta_sim <- (readRDS("~/Dropbox/R/simcompl/application/simulated_paper/delta_sims.Rds")
+  %>% tbl_df %>% mutate(
+    method = recode(method,"matching" = "demand",
+                       interaction_control = "performance~3",
+                       interaction_moderation = "performance~2",
+                       interaction_moderationaugmented = "performance~1"),
+    optim = paste0("N == ", 1/rate),
+    b2 = ifelse(b2 == "0, 0, 0", "null", "effect"),
+    sd = paste0("sigma[nu] == ", sd),
+    g1 = recode(g1,
+                `0.5, 0, 0` = "0",
+                `0.5, 0.5, 0` = "+.5",
+                `0.5, -0.5, 0` = "-.5")
+    ) %>%
+    bind_rows(filter(noise_sim, sd == "sigma[nu] == 1")) %>%
+    mutate(d = recode(d,
+               `0, 0, 0` = "delta[j] == 0",
+               `0.5, 0.5, 0` = "delta[j] == 0.5",
+               `1, 1, 1` = "delta[j] == 1"))
+  )
+
+# reorder some stuff
+rates = unique(delta_sim$rate)
+optims = paste0("N == ", sort(1/rates))
+delta_sim$optim = factor(delta_sim$optim, levels = optims)
+delta_sim$b2 = factor(delta_sim$b2, levels = c("null", "effect"))
+delta_sim$g1 = factor(delta_sim$g1, levels = c("-.5", "+.5"))
+
+plot <- (delta_sim
+  %>% ggplot(aes(y = stat, x = g1))
+  + geom_tufteboxplot()
+  + theme_tufte(base_size = 9)
+  + facet_grid(method ~ b2 + d + optim,
+               labeller = label_parsed)
+  + geom_hline(yintercept = tint, linetype = 3, alpha = .25)
+  + geom_hline(yintercept = 0, linetype = 4, alpha = .25)
+  + geom_hline(yintercept = -tint, linetype = 3, alpha = .25)
+  + labs(x = expression(gamma[2]), y = "t-statistic")
+  + theme(strip.text.y = element_text(angle = 0))
+)
+
+print(plot)
+```
+\caption{\label{delta} t-static of the performance and demand approach to test
+for complementarities when there is a complementarity effect ($\beta_{12} = .5$)
+or a null ($\beta_{12} = 0$). The boxplots represent the median (the dot) the
+interquartile range (the gap), and the minimum and maximum (the whiskers). $N$
+is varied between 2, 8, 32. The effect of the environmental
+variable, $\mathbf{z}$, on the second choice is either positive
+($\gamma_1 = \gamma_2 = .5$), or
+negative ($\gamma_1 = .5$ and $\gamma_2 = -.5$). The decreasing returns varied
+at $\delta_1 = \delta_2 = 0, .5, 1$}
+\end{figure}
+
+```{r delta-table, results="asis", warning=FALSE}
+table_delta <- (
+  group_by(delta_sim, method, g1, b2, d, 1/rate) %>%
+    summarise(`type 1` = round(sum(abs(stat) > tint)/nsim, 2),
+              power = round(sum(stat > tint)/nsim, 2)) %>%
+    ungroup() %>%
+    mutate(percentage = ifelse(b2 == "effect", power, `type 1`),
+           type = ifelse(b2 == "effect", "power", "type I"),
+           g1 = as.numeric(as.character(g1)),
+           d = recode(d,
+                       `delta[j] == 0` = 0,
+                       `delta[j] == 0.5` = .5,
+                       `delta[j] == 1` = 1
+           ))%>%
+    select(-c(`type 1`, power, b2)) %>%
+    rename(`$\\gamma_2$` = g1,
+           `$\\delta_{j}$` = d) %>%
+    spread(`1/rate`, percentage) %>%
+    arrange(desc(type), method, `$\\delta_{j}$`)
+)
+
+print(xtable(filter(table_delta, type == "type I",
+                    method %in% c("demand", "performance~1")),
+             type = "pdf",
+             label = "delta-error",
+             caption = "Type I error rates for the demand and
+performance 1 approaches at different levels optimality: 2, 8, 32 The
+parameters are the same as in Figure \\ref{noise}. For brevity, we only report the
+results for $\\sigma_{\\nu} = 4$"),
+      size = "\\footnotesize",
+      include.rownames = FALSE,
+      sanitize.text.function = force,
+      comment = FALSE
+      )
+```
+
+### Asymmetric decreasing returns
+
+The last variation we investigate are changes in the ratio
+$\frac{\delta_1}{\delta_2}$ while keeping $\delta_1 \delta_2 = 1$. This means
+that performance effects are decreasing faster for one practice than for the
+other. The ratio effects the conditional correlation only through the parameter,
+$v$ (see equation \eqref{eq:conditional}). When $\delta_1$ and $\delta_2$ are
+more different, $v$ increases, and $|\rho^{*c}|$ gets closer to $1$. In addition,
+as can be seen from \eqref{eq:demand2}, the standard deviation of $\mathbf{x_1}$
+($\mathbf{x_2}$) increases when $\delta_2$ ($\delta_1$) increases and vice versa.
+Both effects, can be seen in Figure \ref{scatter-delta} for the following values
+of $\delta_1 = \delta_2^{-1}$: $1/3$, $1$, and $3$ [^conditional].
+
+[^conditional]: Equation \eqref{eq:coefficient} shows that the standard
+deviations of $\mathbf{x_1}$ and $\mathbf{x_2}$ also effect the regression
+estimate $\beta_{12}^d$. As a result, the conditional correlation and the
+regression demand specification could be expected to yield different results.
+The simulation results show that the differences in the t-statistic are merely
+due to numerical differences. As before, for brevity we only report the results
+for the *demand* regression approach.
+
+\begin{figure}
+```{r scatterplot-delta2, fig.width=6, fig.height=3, out.width="600px", warning=FALSE}
+if (runsim){
+  b2 = list(c(0.5, 0, 0), c(0, 0, 0))
+  N1 = length(b2)
+  d = list(c(1, 1, 0), c(1/3, 3, 0), c(3, 1/3, 0))
+  N2 = length(d)
+  opt = list(2, 8, 32)
+  N3 = length(opt)
+  N = N1*N2*N3
+
+  sample_delta2 = tbl_df(data.frame())
+  for (i in 1:N){
+    N1in = 1 + (i - 1) %/% (N2*N3)
+    N2in = 1 + (i - (N1in - 1) * N2 * N3 - 1) %/% N3
+    N3in = 1 + (i - 1) %% N3
+    sample_delta2 = bind_rows(sample_delta2,
+                             create_delta_sample(b2_in = b2[[N1in]],
+                                                 d_in = d[[N2in]],
+                                                 opt_in = opt[[N3in]]))
+  }
+  saveRDS(sample_delta2,
+          file = "~/Dropbox/R/simcompl/application/simulated_paper/delta2_sampels.Rds")
+}
+
+plot <- (readRDS(file =
+          "~/Dropbox/R/simcompl/application/simulated_paper/delta2_sampels.Rds")
+         %>% tbl_df()
+         %>% mutate(opt_2 = paste0("N == ", opt),
+                    d_2 = paste0("delta[1] == ",
+                                 MASS::fractions(d)),
+                    b2_2 = ifelse(b2 == 0, "null", "effect"))
+         %>% ggplot(aes(y = x1, x = x2)) +
+           geom_point(alpha = .1) +
+           theme_tufte(base_size = 14) +
+           facet_grid(reorder(d_2, d) ~ reorder(b2_2, b2) + reorder(opt_2, opt),
+                      labeller = label_parsed) +
+           scale_x_continuous(breaks = scales::pretty_breaks(n = 5))
+)
+print(plot)
+```
+\caption{\label{scatter-delta2} Scatter plot of the choices $\mathbf{x_1}$ and
+$\mathbf{x_2}$ for different levels (2, 8, 32) of the optimality parameter, $N$
+with a null interdependency ($\beta_{12} = 0$) or a true effect
+($\beta_{12} = 0$). The decreasing return parameters are set as
+$\delta_1 = \delta_2^{-1} = 1/3$,$1$, and $3$. The effect of the environmental
+variable only affects one of the choices ($\gamma_1 = .5, \gamma_2 = 0$).
+Lastly, the unobserved variation parameters are set at
+$\sigma_{\epsilon_1} = \sigma_{\epsilon_2} = .5$ and $\sigma_{\nu} = 1.$ }
+\end{figure}
+
+The simulation results in Figure \ref{delta2} show that the effects of
+asymmetrically decreasing returns is relatively small. The general trends for
+both error rates and power remain the same. The *demand* approach has superior
+error rates and, except for low levels of optimality, most power to detect a
+real effect. The *performance 2* and *performance 3* specifications perform
+badly. Nevertheless, asymmetrically decreasing returns decrease the power of the
+*demand* specification and increase the power of the *performance 1*
+specification, especially with lower levels of optimality.
+
+```{r delta-asym-par}
+nsim <- 1000
+nobs <- 300
+g1_in <- list(c(0.5, 0.5, 0), c(0.5, -0.5, 0))
+sd_eps_in <- c(.5, .5, 0)
+d_in <- list(c(1/3, 3, 0), c(1, 1, 0), c(3, 1/3, 0))
+b2_in <- list(c(0, 0, 0), c(.5, 0, 0))
+rate_in <- list(1/2, 1/8, 1/32)
+method <- list("match", "conditional", "interaction_control",
+               "interaction_moderation", "interaction_moderationaugmented")
+```
+
+```{r delta-asym-sim, eval = runsim}
+simsdelta2 <- run_sim(family_method = method, rate = rate_in, b2 = b2_in,
+                nsim = nsim, mc_cores = 4, obs = nobs, g1 = g1_in,
+                sd_eps = sd_eps_in, d = d_in)
+saveRDS(simsdelta2,
+        "~/Dropbox/R/simcompl/application/simulated_paper/delta2_sims.Rds")
+```
+
+\begin{figure}
+```{r fig.width=7, fig.height=3, out.width="600px", warning=FALSE}
+delta2_sim <- (readRDS("~/Dropbox/R/simcompl/application/simulated_paper/delta2_sims.Rds")
+  %>% tbl_df %>% mutate(
+    method = recode(method,
+                    matching = "demand",
+                    conditional = "correlation",
+                    interaction_control = "performance~3",
+                    interaction_moderation = "performance~2",
+                    interaction_moderationaugmented = "performance~1"),
+    optim = paste0("N == ", 1/rate),
+    b2 = ifelse(b2 == "0, 0, 0", "null", "effect"),
+    sd = paste0("sigma[nu] == ", sd),
+    g1 = recode(g1,
+                `0.5, 0, 0` = "0",
+                `0.5, 0.5, 0` = "+.5",
+                `0.5, -0.5, 0` = "-.5")
+    ) %>%
+    mutate(d =
+      recode(d,
+             `0.333333333333333, 3, 0` = "delta[1] == 1/3",
+             `3, 0.333333333333333, 0` = "delta[1] == 3",
+             `1, 1, 0` = "delta[1] == 1")
+  ) %>%
+    filter(method != "correlation")
+  )
+
+# reorder some stuff
+rates = unique(delta2_sim$rate)
+optims = paste0("N == ", sort(1/rates))
+delta2_sim$optim = factor(delta2_sim$optim, levels = optims)
+delta2_sim$b2 = factor(delta2_sim$b2, levels = c("null", "effect"))
+delta2_sim$g1 = factor(delta2_sim$g1, levels = c("-.5", "+.5"))
+
+plot <- (delta2_sim
+  %>% ggplot(aes(y = stat, x = g1))
+  + geom_tufteboxplot()
+  + theme_tufte(base_size = 8)
+  + facet_grid(method ~ b2 + optim + d,
+               labeller = label_parsed)
+  + geom_hline(yintercept = tint, linetype = 3, alpha = .25)
+  + geom_hline(yintercept = 0, linetype = 4, alpha = .25)
+  + geom_hline(yintercept = -tint, linetype = 3, alpha = .25)
+  + labs(x = expression(gamma[2]), y = "t-statistic")
+  + theme(strip.text.y = element_text(angle = 0))
+)
+
+print(plot)
+```
+\caption{\label{delta2} t-static of the production and demand approach to test
+for complementarities when there is a complementarity effect ($\beta_{12} = .5$)
+or a null ($\beta_{12} = 0$). The boxplots represent the median (the dot) the
+interquartile range (the gap), and the minimum and maximum (the whiskers). $N$
+is varied between 2, 8, 32. The effect of the environmental
+variable, $\mathbf{z}$, on the second choice is either positive
+($\gamma_1 = \gamma_2 = .5$), or
+negative ($\gamma_1 = .5$ and $\gamma_2 = -.5$). The decreasing returns varied
+at $\delta_1 = \delta_2^{-1} = 1/3, 1$ and $3$}
+\end{figure}
+
+```{r test-corr, eval = FALSE}
+nsim <- 5
+nobs <- 300
+g1_in <- list(c(1, 0, 0))
+sd_eps_in <- c(.5, .5, 0)
+d_in <- list(c(1/3, 3, 0), c(1, 1, 0), c(3, 1/3, 0))
+b2_in <- list(c(0, 0, 0), c(.5, 0, 0))
+rate_in <- list(1/2, 1/8, 1/32)
+method <- list("match", "conditional")
+sims <- run_sim(family_method = method, rate = rate_in, b2 = b2_in,
+                nsim = nsim, mc_cores = 4, obs = nobs, g1 = g1_in,
+                sd_eps = sd_eps_in, d = d_in)
+sims <- tbl_df(sims)
+group_by(sims, g1, d, b2, rate, method) %>%
+  summarise(stat = mean(stat))
+```
+
+<!-- # Further work -->
+<!-- - Deviations looks like a good candidate to me. -->
+
+# Summary and discussion
+
+This study builds on earlier studies that introduce complimentarity theory
+[@Milgrom1995; @Grabner2013], to provide guidance on how to test for
+the presence of interdependencies in management control systems. The results of
+the simulation study show that in most common scenarios the assumptions of
+optimality should not be the main driver in deciding between the demand function
+specification or the performance specification. In fact, unless the researchers
+can make the case that a large number of firms will have a highly dysfunctional
+management control design, the demand specification should be the preferred
+statistical method. A straight-forward check on the optimality assumption is to
+investigate the correlation between the practices and the environmental
+variables. Non-trivial levels of optimality will induce correlations with the
+environmental factors when there are contingency effects. Nevertheless, it is
+important to note that the absence of any correlations does not imply the
+absence of high levels of optimality as multiple contingency effects can cancel
+each other out[^demand-warning].
+
+[^demand-warning]: An other clarification about the superiority of the demand
+specification is that it does not imply that the demand function approach
+provides evidence for high levels of optimality. A significant interdependency
+effect in the demand specification only implies that firms on average avoid the
+worst possible management control systems, not that they have on average the
+optimal control system.
+
+When performance data is availabe, the performance function can be estimated
+as an additional test in combination with the demand specification. The
+performance function approach can be expected to yield acceptable estimates when
+there is enough performance variation between firms. However, the results of
+this study show the importance of adequately controlling for environmental
+factors and potential non-linear performance effects. As far as we know, the
+current accounting literature does not fully address these correlated omitted
+variable problems which lead to substantial increases in type I error rates and
+a loss of power.
+
+The most important weakness of the demand function approach is that it assumes
+that the performance benefits of management control practices are decreasing
+with more extensive use. If this second-order condition does not hold, the
+demand approach will have elevated levels of false positives. We suggest that
+researchers verify the distribution of the management choices to check whether
+the second-order condition holds. If one of the management choices has more
+observations at the extremes of the measurement scale than at the center, the
+second-order condition might be violated and the results of both the demand
+and production function approach should be intepreted with care.
+
+This study has several limitations. Both approaches under investigations have
+their shortcomings. Our preferred approach, the demand specification, does not
+allow to directly estimate the performance effect of the interdependency. More
+sophisticated models are needed to reliably estimate this performance effect.
+The economics literature has proposed and used a multiple equation model
+that combines both demand and performance functions
+[@Athey1998; @Gentzkow2007; @Kretschmer2012; @Miravete2006]. Further research can
+investigate the appropriateness of these statistical models for the management
+control setting. An additional advantage of the models is that they
+can incorporate the effect of unobserved contingency factors and unobserved
+interdependent practices. A further discussion of these issues goes beyond the
+scope of this study.
+
+Another limitation of the current study is that the level of optimality is
+implemented with a naive algorithm that lacks external validity. Better
+theoretical models of how firms choose management accounting practices can
+improve upon our understanding of the distribution of management accounting
+practices and their interdependencies. The approach of Hemmer and Labro
+[-@Hemmer2008; -@Hemmer2015] is one potential avenue to further explore. They
+model the firm's choices as decisions under incomplete information with Bayesian
+updating when more information becomes available. In these models,
+firms can end up with ex-post sub-optimal management control systems because
+they lack the appropriate information to choose the optimal system. The
+parameter governing the lack of information can replace our optimality
+parameter, $N$. Further innovations in these models can allow researchers to
+directly estimate the extent to which firms lack information and choose
+sub-optimal management control practices.
+
+\pagebreak
+
+# References

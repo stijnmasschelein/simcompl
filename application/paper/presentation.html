@@ -1,0 +1,554 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="Stijn Masschelein (University of Western Australia)" />
+  <meta name="author" content="Isabella Grabner (Maastricht University)" />
+  <meta name="author" content="Frank Moers (Maastricht University)" />
+  <meta name="date" content="2017-04-08" />
+  <meta name="font-size-adjustment" content="2"/>
+  <title>Statistical Tests for Accounting Systems</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <link href="presentation_files/slidy-2/styles/slidy.css" rel="stylesheet" />
+  <script src="presentation_files/slidy-2/scripts/slidy.js"></script>
+</head>
+<body>
+<div class="slide titlepage">
+  <h1 class="title">Statistical Tests for Accounting Systems</h1>
+  <p class="author">
+Stijn Masschelein (University of Western Australia)<br/>Isabella Grabner (Maastricht University)<br/>Frank Moers (Maastricht University)
+  </p>
+  <p class="date">04/08/2017</p>
+</div>
+<div id="introduction" class="titleslide slide section level1"><h1>Introduction</h1></div><div id="motivation" class="slide section level2">
+<h1>Motivation</h1>
+<div class="figure">
+<img src="/Users/stijn/Dropbox/R/simcompl/application/figures/smbc.png" alt="http://smbc-comics.com/index.php?id=2845" />
+<p class="caption"><a href="http://smbc-comics.com/index.php?id=2845" class="uri">http://smbc-comics.com/index.php?id=2845</a></p>
+</div>
+</div><div id="theories" class="slide section level2">
+<h1>Theories</h1>
+<h3 id="contingency-theory-van-de-ven-and-drazin-1985-gerdin-and-greve-2004">Contingency theory (Van de Ven and Drazin, 1985; Gerdin and Greve, 2004)</h3>
+<ul>
+<li>Management control depends on the environment</li>
+</ul>
+<h3 id="complementarity-theory-milgrom-and-roberts-1995-grabner-and-moers-2013">Complementarity theory (Milgrom and Roberts, 1995; Grabner and Moers, 2013)</h3>
+<ul>
+<li>Management control practices depend on each other</li>
+</ul>
+</div><div id="examples-of-interdependencies" class="slide section level2">
+<h1>Examples of interdependencies</h1>
+<ul>
+<li>Decision rights and incentives</li>
+<li>Budget participation and budget evaluation</li>
+<li>Levers of control</li>
+</ul>
+</div><div id="auditingfinancial-accounting-example" class="slide section level2">
+<h1>Auditing/Financial accounting example</h1>
+<blockquote>
+<p>We examine the “confirmation” hypothesis that <strong>audited</strong> financial reporting and <strong>disclosure</strong> of managers’ private information are complements, because independent verification of outcomes disciplines and hence enhances disclosure credibility.</p>
+</blockquote>
+<p>Ball, Jayaraman, Shivakumar (2012) in JAE</p>
+</div><div id="finance-example" class="slide section level2">
+<h1>Finance example</h1>
+<blockquote>
+<p>If increasing the level of one form of compensation raises the marginal return to increases in another form of pay, then the two types of rewards are said to exhibit ‘complementarity’. For example, if bonding a manager to the firm through <strong>restricted stock</strong> reduces his willingnes to take desirable risks (such as risk associated with positive net present value investments), then there are incremental gains to the firm from granting <strong>options</strong> concurrently with restricted stock […]</p>
+</blockquote>
+<p>Kole (1997) in JFE</p>
+</div><div id="statistical-approaches" class="slide section level2">
+<h1>Statistical approaches</h1>
+<h3 id="data">Data</h3>
+<ul>
+<li>Cross-sectional</li>
+<li>N = 300</li>
+</ul>
+<h3 id="demand-function">Demand function</h3>
+<p>incentive = f(delegation, environment)</p>
+<h3 id="performance-function">Performance function</h3>
+<p>performance = f(incentive x delegation, …)</p>
+</div>
+<div id="formal-analysis" class="titleslide slide section level1"><h1>Formal analysis</h1></div><div id="structural-model" class="slide section level2">
+<h1>Structural model</h1>
+<h3 id="observed-factors">Observed factors</h3>
+<p><span class="math inline">\(y_i\)</span> = performance of firm i</p>
+<p><span class="math inline">\(x_{ji}\)</span> = management control practice j of firm i</p>
+<p><span class="math inline">\(z_i\)</span> = environment of firm i</p>
+<h3 id="unobserved-factors">Unobserved factors</h3>
+<p><span class="math inline">\(\epsilon_{ji}\)</span> = firm specific variation in the effect of practice j</p>
+<p><span class="math inline">\(\nu_{i}\)</span> = firm specific variation in performance</p>
+<h3 id="structural-model-1">Structural model</h3>
+<p><span class="math display">\[
+y_i = \beta_0 + (\beta_1 + \gamma_1 z_i + \epsilon_{1i}) x_{1i} 
+                 + (\beta_2 + \gamma_2 z_i + \epsilon_{2i}) x_{2i} 
+                 + \beta_{12} x_{1i} x_{2i}
+                 - .5 \delta_1 x^2_{1i} - .5 \delta_2 x^2_{2i} + \nu_i
+\]</span></p>
+</div><div id="optimal-choices" class="slide section level2">
+<h1>Optimal choices</h1>
+<h3 id="first-order-condition">First-order condition</h3>
+<p><span class="math display">\[
+\delta_1 x^*_{1i} = \beta_1 + \gamma_1 z_i + \epsilon_{1i} + \beta_{12} x^*_{2i}
+\]</span> <span class="math display">\[
+(\delta_1 \delta_2 - \beta_{12}^2) x^*_{1i}
+    =  \delta_2 (\beta_1 + \gamma_1 z_i + \epsilon_{1i}) +
+       \beta_{12} (\beta_2 + \gamma_2 z_i + \epsilon_{2i})
+\]</span></p>
+<h3 id="second-order-condition">Second-order condition</h3>
+<p><span class="math display">\[\delta_1 \delta_2 &gt; \beta^2_{12}\]</span></p>
+</div><div id="demand-specifications" class="slide section level2">
+<h1>Demand specifications</h1>
+<h3 id="demand">Demand</h3>
+<p><span class="math display">\[
+\mathbf{x_1} = \beta_1^d + \gamma_1^d \mathbf{z} + \beta_{12}^d \mathbf{x_k} 
+  + \mathbf{\epsilon^d_1}
+\]</span></p>
+<h3 id="conditional-correlation">Conditional correlation</h3>
+<p><span class="math display">\[
+\mathbf{x_1} = \beta_1^c + \gamma_1^c \mathbf{z} + \mathbf{\epsilon^c_1}
+\]</span></p>
+<p><span class="math display">\[
+\mathbf{x_2} = \beta_2^c + \gamma_2^c \mathbf{z} + \mathbf{\epsilon^c_2}
+\]</span> <span class="math display">\[
+\rho^c = cor(\mathbf{\epsilon^c_1}, \mathbf{\epsilon^c_1})
+\]</span></p>
+</div><div id="performance-specifications" class="slide section level2">
+<h1>Performance specifications</h1>
+<h3 id="performance-1">Performance 1</h3>
+<p><span class="math display">\[
+\mathbf{y} = \beta^{p1}_0 + \beta^{p1}_1 \mathbf{x_1} + \beta^{p1}_2 \mathbf{x_2} 
+  + \beta^{p1}_{12} \mathbf{x_1} \mathbf{x_2} + \gamma^{p1} \mathbf{z} +
+  \gamma^{p1}_{1} \mathbf{z} \mathbf{x_1} + 
+  \gamma^{p1}_{2} \mathbf{z} \mathbf{x_2} -
+  \delta^{p1}_1 \mathbf{x_1}^2 - \delta^{p1}_2 \mathbf{x_2}^2  +
+  \mathbf{\nu}^{p1}
+\]</span></p>
+<h3 id="performance-2">Performance 2</h3>
+<p><span class="math display">\[
+\mathbf{y} = \beta^{p2}_0 + \beta^{p2}_1 \mathbf{x_1} + \beta^{p2}_2 \mathbf{x_2} 
+  + \beta^{p2}_{12} \mathbf{x_1} \mathbf{x_2} + \gamma^{p2} \mathbf{z} +
+  \gamma^{p2}_{1} \mathbf{z} \mathbf{x_1} + 
+  \gamma^{p2}_{2} \mathbf{z} \mathbf{x_2} +
+  \mathbf{\nu}^{p2}
+\]</span></p>
+<h3 id="performance-3">Performance 3</h3>
+<p><span class="math display">\[
+\mathbf{y} = \beta^{p3}_0 + \beta^{p3}_1 \mathbf{x_1} + \beta^{p3}_2 \mathbf{x_2} 
+  + \beta^{p3}_{12} \mathbf{x_1} \mathbf{x_2} + \gamma^{p3} \mathbf{z} +
+  \mathbf{\nu}^{p3}
+\]</span></p>
+</div><div id="assumptions" class="slide section level2">
+<h1>Assumptions</h1>
+<h3 id="demand-function-1">Demand function</h3>
+<ul>
+<li>Optimality assumed</li>
+<li>Restricted interdependency</li>
+<li>Simultaneity bias</li>
+</ul>
+<h3 id="performance-function-1">Performance function</h3>
+<ul>
+<li>No optimality assumed</li>
+<li>Omitted correlated variables
+<ul>
+<li><span class="math inline">\(\delta_1 = \delta_2 = 0\)</span></li>
+<li><span class="math inline">\(\gamma_1 = \gamma_2 = 0\)</span></li>
+</ul></li>
+</ul>
+</div>
+<div id="simulation" class="titleslide slide section level1"><h1>Simulation</h1></div><div id="method" class="slide section level2">
+<h1>Method</h1>
+<h3 id="simulate-1000-samples">Simulate 1000 samples</h3>
+<ul>
+<li>1 sample = 300 firms</li>
+<li>A firm sees its randomly chosen environment <span class="math inline">\(z_i\)</span>, <span class="math inline">\(\epsilon_{1i}\)</span>, <span class="math inline">\(\epsilon_{2i}\)</span></li>
+<li>The firm tests <span class="math inline">\(N\)</span> random combinations of the choices, <span class="math inline">\((x_{1i}, x_{2i})\)</span></li>
+<li>The firm keeps the combination with the maximum <span class="math inline">\(y_i\)</span></li>
+</ul>
+<blockquote>
+<p>N is the size of the information set for each firm.</p>
+</blockquote>
+</div><div id="method-1" class="slide section level2">
+<h1>Method</h1>
+<h3 id="fixed-parameters">Fixed parameters</h3>
+<ul>
+<li><span class="math inline">\(\delta_1 = \delta_2 = 1\)</span></li>
+<li><span class="math inline">\(\beta_0 = \beta_1 = \beta_2 = 0\)</span></li>
+<li><span class="math inline">\(\gamma_1 = .5\)</span></li>
+<li><span class="math inline">\(\sigma_{\epsilon_1} = \sigma_{\epsilon_2} = .5\)</span></li>
+<li><span class="math inline">\(\sigma_{\nu} = 1\)</span></li>
+</ul>
+</div><div id="optimality-parameter-n" class="slide section level2">
+<h1>Optimality parameter <span class="math inline">\(N\)</span></h1>
+<p><img src="presentation_files/figure-slidy/scatter-1.png" width="900px" /></p>
+</div><div id="comparison-of-specifications" class="slide section level2">
+<h1>Comparison of specifications</h1>
+<p><img src="presentation_files/figure-slidy/unnamed-chunk-1-1.png" width="1000px" /></p>
+</div><div id="type-i-error-of-specifications" class="slide section level2">
+<h1>Type I error of specifications</h1>
+<table>
+<thead>
+<tr class="header">
+<th align="left">method</th>
+<th align="right"><span class="math inline">\(\gamma_2\)</span></th>
+<th align="left">type</th>
+<th align="right">2</th>
+<th align="right">4</th>
+<th align="right">8</th>
+<th align="right">16</th>
+<th align="right">32</th>
+<th align="right">64</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">demand</td>
+<td align="right">-0.5</td>
+<td align="left">type I</td>
+<td align="right">0.04</td>
+<td align="right">0.03</td>
+<td align="right">0.03</td>
+<td align="right">0.03</td>
+<td align="right">0.04</td>
+<td align="right">0.04</td>
+</tr>
+<tr class="even">
+<td align="left">demand</td>
+<td align="right">0.0</td>
+<td align="left">type I</td>
+<td align="right">0.04</td>
+<td align="right">0.04</td>
+<td align="right">0.04</td>
+<td align="right">0.04</td>
+<td align="right">0.04</td>
+<td align="right">0.04</td>
+</tr>
+<tr class="odd">
+<td align="left">demand</td>
+<td align="right">0.5</td>
+<td align="left">type I</td>
+<td align="right">0.04</td>
+<td align="right">0.04</td>
+<td align="right">0.04</td>
+<td align="right">0.04</td>
+<td align="right">0.05</td>
+<td align="right">0.04</td>
+</tr>
+<tr class="even">
+<td align="left">performance~1</td>
+<td align="right">-0.5</td>
+<td align="left">type I</td>
+<td align="right">0.06</td>
+<td align="right">0.04</td>
+<td align="right">0.05</td>
+<td align="right">0.07</td>
+<td align="right">0.07</td>
+<td align="right">0.08</td>
+</tr>
+<tr class="odd">
+<td align="left">performance~1</td>
+<td align="right">0.0</td>
+<td align="left">type I</td>
+<td align="right">0.06</td>
+<td align="right">0.05</td>
+<td align="right">0.04</td>
+<td align="right">0.07</td>
+<td align="right">0.07</td>
+<td align="right">0.07</td>
+</tr>
+<tr class="even">
+<td align="left">performance~1</td>
+<td align="right">0.5</td>
+<td align="left">type I</td>
+<td align="right">0.07</td>
+<td align="right">0.05</td>
+<td align="right">0.06</td>
+<td align="right">0.06</td>
+<td align="right">0.08</td>
+<td align="right">0.08</td>
+</tr>
+<tr class="odd">
+<td align="left">performance~2</td>
+<td align="right">-0.5</td>
+<td align="left">type I</td>
+<td align="right">0.16</td>
+<td align="right">0.16</td>
+<td align="right">0.17</td>
+<td align="right">0.15</td>
+<td align="right">0.12</td>
+<td align="right">0.11</td>
+</tr>
+<tr class="even">
+<td align="left">performance~2</td>
+<td align="right">0.0</td>
+<td align="left">type I</td>
+<td align="right">0.16</td>
+<td align="right">0.16</td>
+<td align="right">0.18</td>
+<td align="right">0.15</td>
+<td align="right">0.14</td>
+<td align="right">0.08</td>
+</tr>
+<tr class="odd">
+<td align="left">performance~2</td>
+<td align="right">0.5</td>
+<td align="left">type I</td>
+<td align="right">0.17</td>
+<td align="right">0.16</td>
+<td align="right">0.17</td>
+<td align="right">0.14</td>
+<td align="right">0.15</td>
+<td align="right">0.12</td>
+</tr>
+<tr class="even">
+<td align="left">performance~3</td>
+<td align="right">-0.5</td>
+<td align="left">type I</td>
+<td align="right">0.19</td>
+<td align="right">0.18</td>
+<td align="right">0.20</td>
+<td align="right">0.25</td>
+<td align="right">0.43</td>
+<td align="right">0.70</td>
+</tr>
+<tr class="odd">
+<td align="left">performance~3</td>
+<td align="right">0.0</td>
+<td align="left">type I</td>
+<td align="right">0.15</td>
+<td align="right">0.15</td>
+<td align="right">0.17</td>
+<td align="right">0.15</td>
+<td align="right">0.14</td>
+<td align="right">0.09</td>
+</tr>
+<tr class="even">
+<td align="left">performance~3</td>
+<td align="right">0.5</td>
+<td align="left">type I</td>
+<td align="right">0.20</td>
+<td align="right">0.18</td>
+<td align="right">0.19</td>
+<td align="right">0.22</td>
+<td align="right">0.42</td>
+<td align="right">0.67</td>
+</tr>
+</tbody>
+</table>
+</div><div id="parameter-variations" class="slide section level2">
+<h1>Parameter variations</h1>
+<h3 id="increased-variation-in-performance">Increased variation in performance</h3>
+<ul>
+<li>Decreases the effect of optimality, <span class="math inline">\(N\)</span></li>
+<li>Less power in performance specification</li>
+</ul>
+<h3 id="smaller-second-derivative">Smaller second derivative</h3>
+<ul>
+<li>Violates the condition <span class="math inline">\(\beta_{12}^2 &lt; \delta_1 \delta_2\)</span>.</li>
+<li>Constant performance effect is the assumption of the performance 2 and performance 3 specifications.</li>
+</ul>
+</div><div id="increased-variation-in-performance-1" class="slide section level2">
+<h1>Increased variation in performance</h1>
+<p><img src="presentation_files/figure-slidy/unnamed-chunk-3-1.png" width="1000px" /></p>
+</div><div id="samples-with-smaller-second-derivative" class="slide section level2">
+<h1>Samples with smaller second derivative</h1>
+<p><img src="presentation_files/figure-slidy/scatterplot-delta-1.png" width="900px" /></p>
+</div><div id="specifications-with-smaller-second-derivative" class="slide section level2">
+<h1>Specifications with smaller second derivative</h1>
+<p><img src="presentation_files/figure-slidy/unnamed-chunk-4-1.png" width="1000px" /></p>
+</div><div id="type-i-error-with-smaller-second-derivative" class="slide section level2">
+<h1>Type I error with smaller second derivative</h1>
+<table>
+<thead>
+<tr class="header">
+<th align="left">method</th>
+<th align="right"><span class="math inline">\(\gamma_2\)</span></th>
+<th align="right"><span class="math inline">\(\delta_{j}\)</span></th>
+<th align="left">type</th>
+<th align="right">2</th>
+<th align="right">8</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">demand</td>
+<td align="right">-0.5</td>
+<td align="right">0.0</td>
+<td align="left">type I</td>
+<td align="right">0.14</td>
+<td align="right">0.17</td>
+</tr>
+<tr class="even">
+<td align="left">demand</td>
+<td align="right">0.5</td>
+<td align="right">0.0</td>
+<td align="left">type I</td>
+<td align="right">0.14</td>
+<td align="right">0.15</td>
+</tr>
+<tr class="odd">
+<td align="left">demand</td>
+<td align="right">-0.5</td>
+<td align="right">0.5</td>
+<td align="left">type I</td>
+<td align="right">0.05</td>
+<td align="right">0.04</td>
+</tr>
+<tr class="even">
+<td align="left">demand</td>
+<td align="right">0.5</td>
+<td align="right">0.5</td>
+<td align="left">type I</td>
+<td align="right">0.04</td>
+<td align="right">0.03</td>
+</tr>
+<tr class="odd">
+<td align="left">demand</td>
+<td align="right">-0.5</td>
+<td align="right">1.0</td>
+<td align="left">type I</td>
+<td align="right">0.05</td>
+<td align="right">0.04</td>
+</tr>
+<tr class="even">
+<td align="left">demand</td>
+<td align="right">0.5</td>
+<td align="right">1.0</td>
+<td align="left">type I</td>
+<td align="right">0.04</td>
+<td align="right">0.03</td>
+</tr>
+<tr class="odd">
+<td align="left">performance~1</td>
+<td align="right">-0.5</td>
+<td align="right">0.0</td>
+<td align="left">type I</td>
+<td align="right">0.11</td>
+<td align="right">0.11</td>
+</tr>
+<tr class="even">
+<td align="left">performance~1</td>
+<td align="right">0.5</td>
+<td align="right">0.0</td>
+<td align="left">type I</td>
+<td align="right">0.11</td>
+<td align="right">0.11</td>
+</tr>
+<tr class="odd">
+<td align="left">performance~1</td>
+<td align="right">-0.5</td>
+<td align="right">0.5</td>
+<td align="left">type I</td>
+<td align="right">0.12</td>
+<td align="right">0.12</td>
+</tr>
+<tr class="even">
+<td align="left">performance~1</td>
+<td align="right">0.5</td>
+<td align="right">0.5</td>
+<td align="left">type I</td>
+<td align="right">0.14</td>
+<td align="right">0.12</td>
+</tr>
+<tr class="odd">
+<td align="left">performance~1</td>
+<td align="right">-0.5</td>
+<td align="right">1.0</td>
+<td align="left">type I</td>
+<td align="right">0.06</td>
+<td align="right">0.06</td>
+</tr>
+<tr class="even">
+<td align="left">performance~1</td>
+<td align="right">0.5</td>
+<td align="right">1.0</td>
+<td align="left">type I</td>
+<td align="right">0.07</td>
+<td align="right">0.05</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="discussion" class="titleslide slide section level1"><h1>Discussion</h1></div><div id="advice" class="slide section level2">
+<h1>Advice</h1>
+<h3 id="importance-of-matching-implicit-theoretical-assumptions-and-statistical-specification">Importance of matching (implicit) theoretical assumptions and statistical specification</h3>
+<ul>
+<li><span class="math inline">\(\delta_1 \delta_2 &gt; \beta_{12}^2\)</span> versus <span class="math inline">\(\delta_1 = \delta_2 = 0\)</span></li>
+<li>Omitted correlated variables.</li>
+</ul>
+<h3 id="appropriately-controlling-for-environmental-factors">Appropriately controlling for environmental factors</h3>
+<h3 id="demand-specification-but-check">Demand specification but check:</h3>
+<ul>
+<li>Correlation between practice and environmental variables</li>
+<li>Distribution of practices</li>
+</ul>
+</div><div id="optimality" class="slide section level2">
+<h1>Optimality</h1>
+<h3 id="wrong-question">Wrong question</h3>
+<blockquote>
+<p>Are the practices on average in equilibrium?</p>
+</blockquote>
+<h3 id="right-question">Right question</h3>
+<blockquote>
+<p>Do firms avoid the worst (combination) of practices?</p>
+</blockquote>
+<h3 id="clarification">Clarification</h3>
+<p>“Use the demand specification” != “Firms are on average doing the right thing”</p>
+</div><div id="way-forward" class="slide section level2">
+<h1>Way forward</h1>
+<h3 id="multiple-equations">Multiple equations</h3>
+<ul>
+<li>Combining the demand equations and profit equation</li>
+</ul>
+<h3 id="adoption-of-practices">Adoption of practices</h3>
+<ul>
+<li>Qualitative research</li>
+<li>Experimental research</li>
+<li>Rational adoption models with incomplete information (Hemmer and Labro, 2008; 2015)</li>
+<li>Network effects of adoption (Bol and Moers, 2010)</li>
+</ul>
+</div>
+<div id="appendix" class="titleslide slide section level1"><h1>Appendix</h1></div><div id="conditional-correlation-1" class="slide section level2">
+<h1>Conditional correlation</h1>
+<p><span class="math display">\[
+\rho^c = \frac{ \beta v}
+       {
+       \sqrt{(1 - \beta^2)^2 + (\beta v)^2}
+       }
+\]</span> <span class="math display">\[
+\beta = \frac{\beta_{12}}{\sqrt{\delta_1 \delta_2}}
+\]</span> <span class="math display">\[
+v = \sqrt{\frac{\delta_1 }{\delta_2}}\frac{\sigma_{\epsilon_2}}
+                                            {\sigma_{\epsilon_1}} + 
+    \sqrt{\frac{\delta_2 }{\delta_1}}\frac{\sigma_{\epsilon_1}}
+                                            {\sigma_{\epsilon_2}}
+\]</span> <span class="math display">\[
+\beta^d_{12} = \frac{sd(\mathbf{x_1})}{sd(\mathbf{x_2)}}
+                \sqrt{\frac{1 - cor^2(\mathbf{x_1, z})}
+                           {1 - cor^2(\mathbf{x_2, z})}} \rho^c
+\]</span></p>
+</div><div id="samples-with-asymmetric-second-derivatives" class="slide section level2">
+<h1>Samples with Asymmetric Second Derivatives</h1>
+<p><img src="presentation_files/figure-slidy/scatterplot-delta2-1.png" width="900px" /></p>
+</div><div id="specifications-with-asymmetric-second-derivatives" class="slide section level2">
+<h1>Specifications with Asymmetric Second Derivatives</h1>
+<p><img src="presentation_files/figure-slidy/unnamed-chunk-5-1.png" width="1000px" /></p>
+</div><div id="histogram-of-performance" class="slide section level2">
+<h1>Histogram of performance</h1>
+<p><img src="presentation_files/figure-slidy/hist-performance-1.png" width="900px" /></p>
+</div>
+
+  <!-- dynamically load mathjax for compatibility with self-contained -->
+  <script>
+    (function () {
+      var script = document.createElement("script");
+      script.type = "text/javascript";
+      script.src  = "presentation_files/mathjax-local/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+      document.getElementsByTagName("head")[0].appendChild(script);
+    })();
+  </script>
+
+</body>
+</html>

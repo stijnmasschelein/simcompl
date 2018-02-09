@@ -1,0 +1,580 @@
+---
+title: "Statistical Tests for Accounting Systems"
+author: 
+  - "Stijn Masschelein (University of Western Australia)"
+  - "Isabella Grabner (Maastricht University)"
+  - "Frank Moers (Maastricht University)"
+date: "04/08/2017"
+output:
+  slidy_presentation:
+    font_adjustment: +2
+    mathjax: local
+    self_contained: false
+    fig_height: 15
+    fig_width: 24
+    widescreen: yes
+  ioslides_presentation: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+suppressMessages(library(tidyverse, quietly = TRUE, warn.conflicts = FALSE))
+library(ggplot2, quietly = TRUE, warn.conflicts = FALSE)
+library(ggthemes, quietly = TRUE, warn.conflicts = FALSE)
+```
+# Introduction
+## Motivation
+
+![http://smbc-comics.com/index.php?id=2845](~/Dropbox/R/simcompl/application/figures/smbc.png)
+
+## Theories
+### Contingency theory (Van de Ven and Drazin, 1985; Gerdin and Greve, 2004) 
+- Management control depends on the environment
+
+### Complementarity theory (Milgrom and Roberts, 1995; Grabner and Moers, 2013)
+- Management control practices depend on each other
+  
+## Examples of interdependencies
+
+- Decision rights and incentives
+- Budget participation and budget evaluation
+- Levers of control
+
+## Auditing/Financial accounting example
+
+> We examine the "confirmation" hypothesis that **audited** financial reporting 
+> and **disclosure** of managers' private information are complements, because
+> independent verification of outcomes disciplines and hence enhances disclosure
+> credibility.
+
+Ball, Jayaraman, Shivakumar (2012) in JAE
+
+## Finance example
+
+> If increasing the level of one form of compensation raises the marginal return
+> to increases in another form of pay, then the two types of rewards are said to
+> exhibit ‘complementarity’. For example, if bonding a manager to the firm 
+> through **restricted stock** reduces his willingnes to take desirable risks 
+> (such as risk associated with positive net present value investments), 
+> then there are incremental gains to the firm from granting **options**
+> concurrently with restricted stock [...]
+
+Kole (1997) in JFE
+
+## Statistical approaches
+  
+### Data
+- Cross-sectional
+- N = 300
+
+### Demand function
+incentive = f(delegation, environment)
+
+### Performance function
+performance = f(incentive x delegation, ...)
+
+# Formal analysis
+## Structural model
+### Observed factors
+$y_i$ = performance of firm i
+
+$x_{ji}$ = management control practice j of firm i
+
+$z_i$ = environment of firm i
+
+### Unobserved factors
+$\epsilon_{ji}$ = firm specific variation in the effect of practice j 
+
+$\nu_{i}$ = firm specific variation in performance
+
+### Structural model
+$$
+y_i = \beta_0 + (\beta_1 + \gamma_1 z_i + \epsilon_{1i}) x_{1i} 
+                 + (\beta_2 + \gamma_2 z_i + \epsilon_{2i}) x_{2i} 
+                 + \beta_{12} x_{1i} x_{2i}
+                 - .5 \delta_1 x^2_{1i} - .5 \delta_2 x^2_{2i} + \nu_i
+$$
+
+## Optimal choices
+
+### First-order condition
+$$
+\delta_1 x^*_{1i} = \beta_1 + \gamma_1 z_i + \epsilon_{1i} + \beta_{12} x^*_{2i}
+$$
+$$
+(\delta_1 \delta_2 - \beta_{12}^2) x^*_{1i}
+    =  \delta_2 (\beta_1 + \gamma_1 z_i + \epsilon_{1i}) +
+       \beta_{12} (\beta_2 + \gamma_2 z_i + \epsilon_{2i})
+$$
+
+### Second-order condition
+
+$$\delta_1 \delta_2 > \beta^2_{12}$$
+
+## Demand specifications
+### Demand
+
+$$
+\mathbf{x_1} = \beta_1^d + \gamma_1^d \mathbf{z} + \beta_{12}^d \mathbf{x_k} 
+  + \mathbf{\epsilon^d_1}
+$$
+
+### Conditional correlation
+
+$$
+\mathbf{x_1} = \beta_1^c + \gamma_1^c \mathbf{z} + \mathbf{\epsilon^c_1}
+$$
+
+$$
+\mathbf{x_2} = \beta_2^c + \gamma_2^c \mathbf{z} + \mathbf{\epsilon^c_2}
+$$
+$$
+\rho^c = cor(\mathbf{\epsilon^c_1}, \mathbf{\epsilon^c_1})
+$$
+
+## Performance specifications
+### Performance 1
+$$
+\mathbf{y} = \beta^{p1}_0 + \beta^{p1}_1 \mathbf{x_1} + \beta^{p1}_2 \mathbf{x_2} 
+  + \beta^{p1}_{12} \mathbf{x_1} \mathbf{x_2} + \gamma^{p1} \mathbf{z} +
+  \gamma^{p1}_{1} \mathbf{z} \mathbf{x_1} + 
+  \gamma^{p1}_{2} \mathbf{z} \mathbf{x_2} -
+  \delta^{p1}_1 \mathbf{x_1}^2 - \delta^{p1}_2 \mathbf{x_2}^2  +
+  \mathbf{\nu}^{p1}
+$$
+
+### Performance 2
+$$
+\mathbf{y} = \beta^{p2}_0 + \beta^{p2}_1 \mathbf{x_1} + \beta^{p2}_2 \mathbf{x_2} 
+  + \beta^{p2}_{12} \mathbf{x_1} \mathbf{x_2} + \gamma^{p2} \mathbf{z} +
+  \gamma^{p2}_{1} \mathbf{z} \mathbf{x_1} + 
+  \gamma^{p2}_{2} \mathbf{z} \mathbf{x_2} +
+  \mathbf{\nu}^{p2}
+$$
+
+### Performance 3
+
+$$
+\mathbf{y} = \beta^{p3}_0 + \beta^{p3}_1 \mathbf{x_1} + \beta^{p3}_2 \mathbf{x_2} 
+  + \beta^{p3}_{12} \mathbf{x_1} \mathbf{x_2} + \gamma^{p3} \mathbf{z} +
+  \mathbf{\nu}^{p3}
+$$
+
+## Assumptions
+### Demand function
+- Optimality assumed
+- Restricted interdependency
+- Simultaneity bias 
+
+### Performance function
+- No optimality assumed
+- Omitted correlated variables
+    - $\delta_1 = \delta_2 = 0$
+    - $\gamma_1 = \gamma_2 = 0$
+
+# Simulation
+## Method
+### Simulate 1000 samples
+- 1 sample = 300 firms 
+- A firm sees its randomly chosen environment $z_i$, $\epsilon_{1i}$, 
+  $\epsilon_{2i}$
+- The firm tests $N$ random combinations of the choices, $(x_{1i}, x_{2i})$ 
+- The firm keeps the combination with the maximum $y_i$
+
+> N is the size of the information set for each firm.
+
+## Method
+### Fixed parameters
+- $\delta_1 = \delta_2 = 1$ 
+- $\beta_0 = \beta_1 = \beta_2 = 0$
+- $\gamma_1 = .5$ 
+- $\sigma_{\epsilon_1} = \sigma_{\epsilon_2} = .5$
+- $\sigma_{\nu} = 1$
+
+## Optimality parameter $N$
+
+```{r scatter, fig.width=14, fig.height=9, out.width="900px", warning=FALSE}
+plot <- (readRDS("~/Dropbox/R/simcompl/application/simulated_paper/basic_sampels.Rds")
+         %>% ggplot(aes(y = x1, x = x2)) +
+           geom_point(alpha = .33) +
+           theme_tufte(base_size = 36) +
+           facet_wrap(~ opt_param) + 
+           scale_x_continuous(breaks = scales::pretty_breaks(n = 5)) +
+           scale_y_continuous(breaks = scales::pretty_breaks(n = 5))
+)
+print(plot)
+```
+
+
+
+## Comparison of specifications
+
+```{r fig.width=16, fig.height=9, out.width="1000px", warning=FALSE}
+nobs <- 300
+tint <- qt(.975, df = nobs - 5)
+basic_sim <- (readRDS("~/Dropbox/R/simcompl/application/simulated_paper/basic_sim.Rds")
+  %>% tbl_df %>% mutate(
+    method = recode(method,"matching" = "demand",
+                       interaction_control = "performance~3",
+                       interaction_moderation = "performance~2",
+                       interaction_moderationaugmented = "performance~1"),
+    optim = paste0("N == ", 1/rate),
+    b2 = ifelse(b2 == "0, 0, 0", "null", "effect"),
+    g1 = recode(g1,
+                `0.5, 0, 0` = "0",
+                `0.5, 0.5, 0` = "0.5",
+                `0.5, -0.5, 0` = "-0.5")
+    )
+  )
+
+# reorder some stuff
+rates = unique(basic_sim$rate)
+optims = paste0("N == ", sort(1/rates))
+basic_sim$optim = factor(basic_sim$optim, levels = optims)
+basic_sim$b2 = factor(basic_sim$b2, levels = c("null", "effect"))
+basic_sim$g1 = factor(basic_sim$g1,
+                      levels = as.character(sort(as.numeric(
+                               as.character(unique(basic_sim$g1))))))
+
+plot <- (filter(basic_sim, rate %in% c(1/2, 1/8, 1/32))
+  %>% ggplot(aes(y = stat, x = g1))
+  + geom_tufteboxplot()
+  + theme_tufte(base_size = 36)
+  + facet_grid(method ~ b2 + optim,
+               labeller = label_parsed)
+  + annotate(geom = "rect", xmin = -Inf, xmax = Inf, color = "grey10",
+             fill = "grey25", ymin = -tint, ymax = tint, alpha = .1)
+  # + geom_hline(yintercept = tint, linetype = 3, alpha = .25)
+  + geom_hline(yintercept = 0, linetype = 4, alpha = .5)
+  # + geom_hline(yintercept = -tint, linetype = 3, alpha = .25)
+  + labs(x = expression(gamma[2]), y = "t-statistic")
+  + theme(strip.text.y = element_text(angle = 0))
+)
+
+print(plot)
+```
+
+## Type I error of specifications
+```{r, warning=FALSE}
+nsim = 1000
+table_basic <- (
+  group_by(basic_sim, method, g1, b2, 1/rate) %>%
+    summarise(`type 1` = round(sum(abs(stat) > tint)/nsim, 2),
+              power = round(sum(stat > tint)/nsim, 2)) %>%
+    ungroup() %>%
+    mutate(percentage = ifelse(b2 == "effect", power, `type 1`),
+           type = ifelse(b2 == "effect", "power", "type I"),
+           g1 = as.numeric(as.character(g1))) %>%
+    select(-c(`type 1`, power, b2)) %>%
+    rename(`$\\gamma_2$` = g1) %>%
+    filter(type == "type I") %>%
+    spread(`1/rate`, percentage) %>%
+    arrange(desc(type), method, `$\\gamma_2$`)
+)
+knitr::kable(table_basic, escape = FALSE)
+```
+
+
+## Parameter variations
+### Increased variation in performance
+- Decreases the effect of optimality, $N$
+- Less power in performance specification
+
+### Smaller second derivative
+- Violates the condition $\beta_{12}^2 < \delta_1 \delta_2$.
+- Constant performance effect is the assumption of the performance 2 and
+  performance 3 specifications.
+
+## Increased variation in performance
+```{r fig.width=16, fig.height=9, out.width="1000px", warning=FALSE}
+noise_sim <- (readRDS("~/Dropbox/R/simcompl/application/simulated_paper/noise_sims.Rds")
+  %>% tbl_df %>% 
+    filter(sd != 2, rate %in% c(1/2, 1/8)) %>%
+    mutate(
+    method = recode(method,"matching" = "demand",
+                       interaction_control = "performance~3",
+                       interaction_moderation = "performance~2",
+                       interaction_moderationaugmented = "performance~1"),
+    optim = paste0("N == ", 1/rate),
+    b2 = ifelse(b2 == "0, 0, 0", "null", "effect"),
+    sd = paste0("sigma[nu] == ", sd),
+    g1 = recode(g1,
+                `0.5, 0, 0` = "0",
+                `0.5, 0.5, 0` = "+.5",
+                `0.5, -0.5, 0` = "-.5")
+    )
+  )
+
+# reorder some stuff
+rates = unique(noise_sim$rate)
+optims = paste0("N == ", sort(1/rates))
+noise_sim$optim = factor(noise_sim$optim, levels = optims)
+noise_sim$b2 = factor(noise_sim$b2, levels = c("null", "effect"))
+noise_sim$g1 = factor(noise_sim$g1, levels = c("-.5", "+.5"))
+
+plot <- (noise_sim
+  %>% ggplot(aes(y = stat, x = g1))
+  + geom_tufteboxplot()
+  + theme_tufte(base_size = 36)
+  + facet_grid(method ~ b2 + optim + sd,
+               labeller = label_parsed)
+  + annotate(geom = "rect", xmin = -Inf, xmax = Inf, color = "grey10",
+             fill = "grey25", ymin = -tint, ymax = tint, alpha = .1)
+  # + geom_hline(yintercept = tint, linetype = 3, alpha = .25)
+  + geom_hline(yintercept = 0, linetype = 4, alpha = .5)
+  # + geom_hline(yintercept = -tint, linetype = 3, alpha = .25)
+  + labs(x = expression(gamma[2]), y = "t-statistic")
+  + theme(strip.text.y = element_text(angle = 0))
+)
+
+print(plot)
+```
+
+## Samples with smaller second derivative
+```{r scatterplot-delta, fig.width=16, fig.height=9, out.width="900px", warning=FALSE}
+plot <- (readRDS(file =
+          "~/Dropbox/R/simcompl/application/simulated_paper/delta_sampels.Rds")
+         %>% tbl_df()
+         %>% mutate(opt_2 = paste0("N == ", opt),
+                    d_2 = paste0("delta[j] == ", d),
+                    b2_2 = ifelse(b2 == 0, "null", "effect"))
+         %>% ggplot(aes(y = x1, x = x2)) +
+           geom_point(alpha = .5) +
+           theme_tufte(base_size = 36) +
+           facet_grid(d_2 ~ reorder(b2_2, b2) + reorder(opt_2, opt),
+                      labeller = label_parsed) +
+           scale_x_continuous(breaks = scales::pretty_breaks(n = 5)) +
+           scale_y_continuous(breaks = scales::pretty_breaks(n = 5))
+)
+print(plot)
+```
+
+## Specifications with smaller second derivative
+
+```{r fig.width=16, fig.height=9, out.width="1000px", warning=FALSE}
+delta_sim <- (readRDS("~/Dropbox/R/simcompl/application/simulated_paper/delta_sims.Rds")
+  %>% tbl_df %>% 
+    filter(rate %in% c(1/2, 1/8)) %>%
+    mutate(
+    method = recode(method,"matching" = "demand",
+                       interaction_control = "performance~3",
+                       interaction_moderation = "performance~2",
+                       interaction_moderationaugmented = "performance~1"),
+    optim = paste0("N == ", 1/rate),
+    b2 = ifelse(b2 == "0, 0, 0", "null", "effect"),
+    sd = paste0("sigma[nu] == ", sd),
+    g1 = recode(g1,
+                `0.5, 0, 0` = "0",
+                `0.5, 0.5, 0` = "+.5",
+                `0.5, -0.5, 0` = "-.5")
+    ) %>%
+    bind_rows(filter(noise_sim, sd == "sigma[nu] == 1")) %>%
+    mutate(d = recode(d,
+               `0, 0, 0` = "delta[j] == 0",
+               `0.5, 0.5, 0` = "delta[j] == 0.5",
+               `1, 1, 1` = "delta[j] == 1"))
+  )
+
+# reorder some stuff
+rates = unique(delta_sim$rate)
+optims = paste0("N == ", sort(1/rates))
+delta_sim$optim = factor(delta_sim$optim, levels = optims)
+delta_sim$b2 = factor(delta_sim$b2, levels = c("null", "effect"))
+delta_sim$g1 = factor(delta_sim$g1, levels = c("-.5", "+.5"))
+
+plot <- (delta_sim
+  %>% ggplot(aes(y = stat, x = g1))
+  + geom_tufteboxplot()
+  + theme_tufte(base_size = 27)
+  + facet_grid(method ~ b2 + d + optim,
+               labeller = label_parsed)
+  + annotate(geom = "rect", xmin = -Inf, xmax = Inf, color = "grey10",
+             fill = "grey25", ymin = -tint, ymax = tint, alpha = .1)
+  # + geom_hline(yintercept = tint, linetype = 3, alpha = .25)
+  + geom_hline(yintercept = 0, linetype = 4, alpha = .5)
+  # + geom_hline(yintercept = -tint, linetype = 3, alpha = .25)
+  + labs(x = expression(gamma[2]), y = "t-statistic")
+  + theme(strip.text.y = element_text(angle = 0))
+)
+
+print(plot)
+```
+
+## Type I error with smaller second derivative
+
+```{r delta-table, results="asis", warning=FALSE}
+table_delta <- (
+  group_by(delta_sim, method, g1, b2, d, 1/rate) %>%
+    summarise(`type 1` = round(sum(abs(stat) > tint)/nsim, 2),
+              power = round(sum(stat > tint)/nsim, 2)) %>%
+    ungroup() %>%
+    mutate(percentage = ifelse(b2 == "effect", power, `type 1`),
+           type = ifelse(b2 == "effect", "power", "type I"),
+           g1 = as.numeric(as.character(g1)),
+           d = recode(d,
+                       `delta[j] == 0` = 0,
+                       `delta[j] == 0.5` = .5,
+                       `delta[j] == 1` = 1
+           ))%>%
+    select(-c(`type 1`, power, b2)) %>%
+    filter(type == "type I",
+           method %in% c("demand", "performance~1")) %>%
+    rename(`$\\gamma_2$` = g1,
+           `$\\delta_{j}$` = d) %>%
+    spread(`1/rate`, percentage) %>%
+    arrange(desc(type), method, `$\\delta_{j}$`)
+)
+knitr::kable(table_delta, escape = FALSE)
+```
+
+# Discussion
+
+## Advice
+
+### Importance of matching (implicit) theoretical assumptions and statistical specification
+- $\delta_1 \delta_2 > \beta_{12}^2$ versus $\delta_1 = \delta_2 = 0$
+- Omitted correlated variables.
+    
+### Appropriately controlling for environmental factors 
+
+### Demand specification but check:
+- Correlation between practice and environmental variables
+- Distribution of practices 
+
+## Optimality
+
+### Wrong question
+
+> Are the practices on average in equilibrium?
+
+### Right question
+
+> Do firms avoid the worst (combination) of practices?
+
+### Clarification
+
+"Use the demand specification" != "Firms are on average doing the right thing"
+
+## Way forward
+
+### Multiple equations
+- Combining the demand equations and profit equation 
+
+### Adoption of practices
+- Qualitative research
+- Experimental research
+- Rational adoption models with incomplete information 
+  (Hemmer and Labro, 2008; 2015)
+- Network effects of adoption (Bol and Moers, 2010)
+
+# Appendix
+## Conditional correlation
+
+$$
+\rho^c = \frac{ \beta v}
+       {
+       \sqrt{(1 - \beta^2)^2 + (\beta v)^2}
+       }
+$$
+$$
+\beta = \frac{\beta_{12}}{\sqrt{\delta_1 \delta_2}}
+$$
+$$
+v = \sqrt{\frac{\delta_1 }{\delta_2}}\frac{\sigma_{\epsilon_2}}
+                                            {\sigma_{\epsilon_1}} + 
+    \sqrt{\frac{\delta_2 }{\delta_1}}\frac{\sigma_{\epsilon_1}}
+                                            {\sigma_{\epsilon_2}}
+$$
+$$
+\beta^d_{12} = \frac{sd(\mathbf{x_1})}{sd(\mathbf{x_2)}}
+                \sqrt{\frac{1 - cor^2(\mathbf{x_1, z})}
+                           {1 - cor^2(\mathbf{x_2, z})}} \rho^c
+$$
+
+## Samples with Asymmetric Second Derivatives
+```{r scatterplot-delta2, fig.width=16, fig.height=9, out.width="900px", warning=FALSE}
+plot <- (readRDS(file =
+          "~/Dropbox/R/simcompl/application/simulated_paper/delta2_sampels.Rds")
+         %>% tbl_df()
+         %>% mutate(opt_2 = paste0("N == ", opt),
+                    d_2 = paste0("delta[1] == ",
+                                 MASS::fractions(d)),
+                    b2_2 = ifelse(b2 == 0, "null", "effect"))
+         %>% ggplot(aes(y = x1, x = x2)) +
+           geom_point(alpha = .5) +
+           theme_tufte(base_size = 36) +
+           facet_grid(reorder(d_2, d) ~ reorder(b2_2, b2) + reorder(opt_2, opt),
+                      labeller = label_parsed) +
+           scale_x_continuous(breaks = scales::pretty_breaks(n = 5))
+)
+print(plot)
+```
+
+## Specifications with Asymmetric Second Derivatives
+
+```{r fig.width=14, fig.height=8, out.width="1000px", warning=FALSE}
+delta2_sim <- (readRDS("~/Dropbox/R/simcompl/application/simulated_paper/delta2_sims.Rds")
+  %>% tbl_df %>% 
+    filter(rate %in% c(1/2, 1/8)) %>%
+    mutate(
+    method = recode(method,
+                    matching = "demand",
+                    conditional = "correlation",
+                    interaction_control = "performance~3",
+                    interaction_moderation = "performance~2",
+                    interaction_moderationaugmented = "performance~1"),
+    optim = paste0("N == ", 1/rate),
+    b2 = ifelse(b2 == "0, 0, 0", "null", "effect"),
+    sd = paste0("sigma[nu] == ", sd),
+    g1 = recode(g1,
+                `0.5, 0, 0` = "0",
+                `0.5, 0.5, 0` = "+.5",
+                `0.5, -0.5, 0` = "-.5")
+    ) %>%
+    mutate(d = 
+      recode(d, 
+             `0.333333333333333, 3, 0` = "delta[1] == 1/3",
+             `3, 0.333333333333333, 0` = "delta[1] == 3",
+             `1, 1, 0` = "delta[1] == 1")
+  ) %>%
+    filter(method != "correlation")
+  )
+
+# reorder some stuff
+rates = unique(delta2_sim$rate)
+optims = paste0("N == ", sort(1/rates))
+delta2_sim$optim = factor(delta2_sim$optim, levels = optims)
+delta2_sim$b2 = factor(delta2_sim$b2, levels = c("null", "effect"))
+delta2_sim$g1 = factor(delta2_sim$g1, levels = c("-.5", "+.5"))
+
+plot <- (delta2_sim
+  %>% ggplot(aes(y = stat, x = g1))
+  + geom_tufteboxplot()
+  + theme_tufte(base_size = 24)
+  + facet_grid(method ~ b2 + optim + d,
+               labeller = label_parsed)
+  + annotate(geom = "rect", xmin = -Inf, xmax = Inf, color = "grey10",
+             fill = "grey25", ymin = -tint, ymax = tint, alpha = .1)
+  # + geom_hline(yintercept = tint, linetype = 3, alpha = .25)
+  + geom_hline(yintercept = 0, linetype = 4, alpha = .25)
+  # + geom_hline(yintercept = -tint, linetype = 3, alpha = .25)
+  + labs(x = expression(gamma[2]), y = "t-statistic")
+  + theme(strip.text.y = element_text(angle = 0))
+)
+
+print(plot)
+```
+
+## Histogram of performance
+
+```{r hist-performance, fig.width=14, fig.height=9, out.width="900px", warning=FALSE}
+plot <- (readRDS("~/Dropbox/R/simcompl/application/simulated_paper/basic_sampels.Rds")
+         %>% ggplot(aes(x = y)) +
+           geom_histogram(binwidth = 0.5) +
+           theme_tufte(base_size = 36) +
+           facet_wrap(~ opt_param) + 
+           scale_x_continuous(breaks = scales::pretty_breaks(n = 5))
+)
+print(plot)
+```
+
