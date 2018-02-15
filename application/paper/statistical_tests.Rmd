@@ -3,7 +3,7 @@ title: "Statistical Tests for Accounting Systems"
 author: 
 - Stijn Masschelein^[University of Western Australia]
 - Frank Moers^[Maastricht University]
-date: "28/07/2017"
+date: "`r format(Sys.Date(), '%B, %Y')`"
 output:
   pdf_document:
     keep_tex: yes
@@ -244,12 +244,11 @@ the appropriate level for each management control practice. The first-order
 condition for a practice, $j$, in firm, $i$, can be written according to
 equation \eqref{eq:demand1}.
 
-\begin{equation}\label{eq:demand1}
-\delta_j x^*_{ji} = \beta_j + \gamma_j z_i + \epsilon_{ji} + \beta_{12} x^*_{ki}
-\end{equation}
-$$
-j,k \in \{1,2\}, j \neq k
-$$
+\begin{align}\label{eq:demand1}
+\delta_1 x^*_{1i} = \beta_1 + \gamma_1 z_i + \epsilon_{1i} + \beta_{12} x^*_{2i} \\
+\delta_2 x^*_{2i} = \beta_2 + \gamma_2 z_i + \epsilon_{2i} + \beta_{12} x^*_{1i} 
+\nonumber
+\end{align}
 
 It is instructive to write the optimal solution, $x^*_{ji}$ as a function of the
 exogenous factors, $z_i$, $\epsilon_{ji}$, and $\epsilon_{ki}$. The formulation
@@ -310,6 +309,30 @@ The conditional correlation specification estimates the correlation between the
 management controls, $\mathbf{x_1}$ and $\mathbf{x_2}$, controlling for the
 observable exogenous factor, $\mathbf{z}$.
 
+```{r, eval = FALSE}
+library(tidyverse)
+z = rnorm(1e5)
+x2 = rnorm(1e5, mean = z, sd = 1)
+x1 = rnorm(1e5, mean = .5 * x2 + z, sd = 1)
+xz = tibble(x1, x2, z)
+cor(xz)
+x1z = cor(x1, z)
+x2z = cor(x2, z)
+x1x2 = cor(x1, x2)
+residx1 = resid(lm(x1 ~ z, data = xz))
+residx2 = resid(lm(x2 ~ z, data = xz))
+rho = cor(residx1, residx2)
+beta = coef(lm(x1 ~ x2 + z, data = xz))["x2"]
+sd(x1) / sd(x2) * sqrt((1 - x1z^2)/(1 - x2z^2)) * rho
+
+semi_partial_cor = function(x1x2, x1z, x2z){
+   (x1x2 - x1z * x2z)/(1 - x2z^2)
+}
+partial_cor = function(x1x2, x1z, x2z){
+   semi_partial_cor(x1x2, x1z, x2z)/(1 - x1z^2)
+}
+```
+
 \begin{align*}
 \mathbf{x_1} &= \beta_1^c + \gamma_1^c \mathbf{z} + \mathbf{\epsilon^c_1} \\
 \mathbf{x_2} &= \beta_2^c + \gamma_2^c \mathbf{z} + \mathbf{\epsilon^c_2} \\
@@ -319,20 +342,40 @@ observable exogenous factor, $\mathbf{z}$.
 It is easy to show that $\rho^c$ and $\beta^d_{12}$ always have the same sign.
 
 \begin{align}\label{eq:coefficient}
-\rho^c &= cor(x_1|z, x_2|z) =
-          \frac{cor(\mathbf{x_1},\mathbf{x_2}|\mathbf{z})}
-               {\sqrt{1 - cor^2(\mathbf{x_1}, \mathbf{z})}} \nonumber \\
-\beta^d_{12} &= \frac{sd(\mathbf{x_1})}{sd(\mathbf{x_2)}}
-                \frac{cor(\mathbf{x_1, x_2})
-                      - cor(\mathbf{x_1, z}) cor(\mathbf{x_1, z})}
-                {1 - cor^2(\mathbf{x_2, z})} \nonumber \\
-             &= \frac{sd(\mathbf{x_1})}{sd(\mathbf{x_2)}}
-                \frac{cor(\mathbf{x_1, x_2|z})}
-                {\sqrt{1 - cor^2(\mathbf{x_2, z})}} \nonumber \\
-             &= \frac{sd(\mathbf{x_1})}{sd(\mathbf{x_2)}}
-                \sqrt{\frac{1 - cor^2(\mathbf{x_1, z})}
-                           {1 - cor^2(\mathbf{x_2, z})}} \rho^c
+\rho^c &= cor(\mathbf{x_1}|\mathbf{z}, \mathbf{x_2}|\mathbf{z}) =
+\frac{
+      cov(\mathbf{x_1}|\mathbf{z},\mathbf{x_2}|\mathbf{z})
+      }{
+      sd(\mathbf{x_1}|\mathbf{z}) sd(\mathbf{x_2}|\mathbf{z})
+      } \nonumber \\
+\beta^d_{12} &= 
+\frac{
+      cor(\mathbf{x_1}, \mathbf{x_2}|\mathbf{z}) sd(\mathbf{x_1})
+      }{
+      sd(\mathbf{x_2} | \mathbf{z})
+      }
+      = 
+ \frac{
+      cor(\mathbf{x_1}|\mathbf{z}, \mathbf{x_2}|\mathbf{z})
+      sd(\mathbf{x_1} | \mathbf{z})
+      }{
+      sd(\mathbf{x_2} | \mathbf{z})
+      }
+      =
+\frac{
+     cov(\mathbf{x_1}|\mathbf{z}, \mathbf{x_2}|\mathbf{z})
+     }{
+     var(\mathbf{x_2} | \mathbf{z})
+     }
 \end{align}
+
+[//]: # (Add explanation that both approaches yield identical results and only 
+         the regression approach will be used)
+
+## Conditional correlation in equilibrium with correlated omitted variables
+
+*Let's investigate the conditional correlation/covariance*
+*Add correlated omitted variables to establish the limits of demand function approach*
 
 Under the assumption that firms choose the optimal level for the management
 controls, we can derive the partical correlation as follows from the reduced
@@ -436,27 +479,35 @@ library(ggthemes, quietly = TRUE, warn.conflicts = FALSE)
 
 ```{r, eval = runsim}
 sample2 <- tbl_df(create_sample(obs = 300, rate = 1/2, b2 = c(.5, 0, 0),
-                  sd_eps = c(.5,.5,0), g1 = c(.5, 0, 0))) %>% mutate(opt_param = 2)
+                  sd_eps = c(.5,.5,0), g1 = c(.5, 0, 0),
+                  d = c(1, 1, 0))) %>% mutate(opt_param = 2)
 sample4 <- tbl_df(create_sample(obs = 300, rate = 1/4, b2 = c(.5, 0, 0),
-                  sd_eps = c(.5,.5,0), g1 = c(.5, 0, 0))) %>% mutate(opt_param = 4)
+                  sd_eps = c(.5,.5,0), g1 = c(.5, 0, 0),
+                  d = c(1, 1, 0))) %>% mutate(opt_param = 2)
 sample8 <- tbl_df(create_sample(obs = 300, rate = 1/8, b2 = c(.5, 0, 0),
-                  sd_eps = c(.5,.5,0), g1 = c(.5, 0, 0))) %>% mutate(opt_param = 8)
+                  sd_eps = c(.5,.5,0), g1 = c(.5, 0, 0),
+                  d = c(1, 1, 0))) %>% mutate(opt_param = 2)
 sample16 <- tbl_df(create_sample(obs = 300, rate = 1/16, b2 = c(.5, 0, 0),
-                  sd_eps = c(.5,.5,0), g1 = c(.5, 0, 0))) %>% mutate(opt_param = 16)
+                  sd_eps = c(.5,.5,0), g1 = c(.5, 0, 0),
+                  d = c(1, 1, 0))) %>% mutate(opt_param = 2)
 sample32 <- tbl_df(create_sample(obs = 300, rate = 1/32, b2 = c(.5, 0, 0),
-                  sd_eps = c(.5,.5,0), g1 = c(.5, 0, 0))) %>% mutate(opt_param = 32)
+                  sd_eps = c(.5,.5,0), g1 = c(.5, 0, 0),
+                  d = c(1, 1, 0))) %>% mutate(opt_param = 2)
 sample64 <- tbl_df(create_sample(obs = 300, rate = 1/64, b2 = c(.5, 0, 0),
-                  sd_eps = c(.5,.5,0), g1 = c(.5, 0, 0))) %>% mutate(opt_param = 64)
+                  sd_eps = c(.5,.5,0), g1 = c(.5, 0, 0),
+                  d = c(1, 1, 0))) %>% mutate(opt_param = 2)
 sample128 <- tbl_df(create_sample(obs = 300, rate = 1/128, b2 = c(.5, 0, 0),
-                  sd_eps = c(.5,.5,0), g1 = c(.5, 0, 0))) %>% mutate(opt_param = 128)
+                  sd_eps = c(.5,.5,0), g1 = c(.5, 0, 0),
+                  d = c(1, 1, 0))) %>% mutate(opt_param = 2)
 sample256 <- tbl_df(create_sample(obs = 300, rate = 1/256, b2 = c(.5, 0, 0),
-                  sd_eps = c(.5,.5,0), g1 = c(.5, 0, 0))) %>% mutate(opt_param = 256)
+                  sd_eps = c(.5,.5,0), g1 = c(.5, 0, 0),
+                  d = c(1, 1, 0))) %>% mutate(opt_param = 2)
 saveRDS(bind_rows(sample2, sample4, sample8, sample16, sample32, sample64),
         file = "~/Dropbox/R/simcompl/application/simulated_paper/basic_sampels.Rds")
 ```
 
 \begin{figure}
-```{r scatter, fig.width=6, fig.height=3, out.width="600px", warning=FALSE}
+```{r scatter, fig.width=6, fig.height=5, out.width="600px", warning=FALSE}
 plot <- (readRDS("~/Dropbox/R/simcompl/application/simulated_paper/basic_sampels.Rds")
          %>% ggplot(aes(y = x1, x = x2)) +
            geom_point(alpha = .1) +
@@ -511,6 +562,7 @@ g1_in <- list(c(0.5, 0, 0), c(0.5, 0.5, 0), c(0.5, -0.5, 0))
 sd_eps_in <- c(.5, .5, 0)
 b2_in <- list(c(0, 0, 0), c(.5, 0, 0))
 rate_in <- list(1/2, 1/4, 1/8, 1/16, 1/32, 1/64)
+d_in <- c(1, 1, 0)
 method <- list("match", "interaction_control", "interaction_moderation",
                "interaction_moderationaugmented")
 ```
@@ -518,12 +570,12 @@ method <- list("match", "interaction_control", "interaction_moderation",
 ```{r, eval = runsim}
 sims <- run_sim(family_method = method, rate = rate_in, b2 = b2_in,
                 nsim = nsim, mc_cores = 4, obs = nobs, g1 = g1_in,
-                sd_eps = sd_eps_in)
+                d = d_in , sd_eps = sd_eps_in)
 saveRDS(sims, "~/Dropbox/R/simcompl/application/simulated_paper/basic_sim.Rds")
 ```
 
 \begin{figure}
-```{r fig.width=7, fig.height=3, out.width="600px", warning=FALSE}
+```{r fig.width=7, fig.height= 5, out.width="600px", warning=FALSE}
 
 tint <- qt(.975, df = nobs - 5)
 basic_sim <- (readRDS("~/Dropbox/R/simcompl/application/simulated_paper/basic_sim.Rds")
@@ -744,13 +796,13 @@ method <- list("match", "interaction_control", "interaction_moderation",
 ```{r noise-sim, eval = runsim}
 simsnoise <- run_sim(family_method = method, rate = rate_in, b2 = b2_in,
                 nsim = nsim, mc_cores = 4, obs = nobs, g1 = g1_in,
-                sd_eps = sd_eps_in, sd = sd_in)
+                d = d_in, sd_eps = sd_eps_in, sd = sd_in)
 saveRDS(simsnoise, "~/Dropbox/R/simcompl/application/simulated_paper/noise_sims.Rds")
 ggplot()
 ```
 
 \begin{figure}
-```{r fig.width=7, fig.height=3, out.width="600px", warning=FALSE}
+```{r fig.width=7, fig.height=5, out.width="600px", warning=FALSE}
 noise_sim <- (readRDS("~/Dropbox/R/simcompl/application/simulated_paper/noise_sims.Rds")
   %>% tbl_df %>% mutate(
     method = recode(method,"matching" = "demand",
@@ -865,7 +917,7 @@ $\beta_{12} < \sqrt{\delta_1 \delta_2}$. The extreme case is when
 $\delta_1 = \delta_2 = 0$ which may impede the performance of the *demand*
 specification even further.
 
-```{r scatter-delta}
+```{r scatter-delta, eval = FALSE}
 sample2 <- tbl_df(create_sample(obs = 300, rate = 1/2, b2 = c(.5, 0, 0),
                   sd_eps = c(.5,.5,0), g1 = c(.5, 0, 0))) %>% mutate(opt_param = 2)
 sample4 <- tbl_df(create_sample(obs = 300, rate = 1/4, b2 = c(.5, 0, 0),
@@ -886,7 +938,7 @@ saveRDS(bind_rows(sample2, sample4, sample8, sample16, sample32, sample64),
         file = "~/Dropbox/R/simcompl/application/simulated_paper/basic_sampels.Rds")
 ```
 \begin{figure}
-```{r scatterplot-delta, fig.width=6, fig.height=3, out.width="600px", warning=FALSE}
+```{r scatterplot-delta, fig.width=6, fig.height=5, out.width="600px", warning=FALSE}
 if (runsim){
   create_delta_sample <- function(opt_in, b2_in, d_in){
    dplyr::tbl_df(simcompl::create_sample(
@@ -985,7 +1037,7 @@ saveRDS(simsdelta, "~/Dropbox/R/simcompl/application/simulated_paper/delta_sims.
 ```
 
 \begin{figure}
-```{r fig.width=7, fig.height=3, out.width="600px", warning=FALSE}
+```{r fig.width=7, fig.height=5, out.width="600px", warning=FALSE}
 delta_sim <- (readRDS("~/Dropbox/R/simcompl/application/simulated_paper/delta_sims.Rds")
   %>% tbl_df %>% mutate(
     method = recode(method,"matching" = "demand",
@@ -1098,7 +1150,7 @@ due to numerical differences. As before, for brevity we only report the results
 for the *demand* regression approach.
 
 \begin{figure}
-```{r scatterplot-delta2, fig.width=6, fig.height=3, out.width="600px", warning=FALSE}
+```{r scatterplot-delta2, fig.width=6, fig.height=5, out.width="600px", warning=FALSE}
 if (runsim){
   b2 = list(c(0.5, 0, 0), c(0, 0, 0))
   N1 = length(b2)
@@ -1178,7 +1230,7 @@ saveRDS(simsdelta2,
 ```
 
 \begin{figure}
-```{r fig.width=7, fig.height=3, out.width="600px", warning=FALSE}
+```{r fig.width=7, fig.height=5, out.width="600px", warning=FALSE}
 delta2_sim <- (readRDS("~/Dropbox/R/simcompl/application/simulated_paper/delta2_sims.Rds")
   %>% tbl_df %>% mutate(
     method = recode(method,
@@ -1332,4 +1384,188 @@ sub-optimal management control practices.
 
 \pagebreak
 
-# References
+# Appendix
+
+### The equilibrium conditions
+
+\begin{align}
+(\delta_1 \delta_2 - \beta_{12} ^ 2) x_1 =
+  \delta_2 (\beta_1 + \gamma_1 z + \theta_1 w + \epsilon_1) +
+  \beta_{12} (\beta_2 + \gamma_2 z + \theta_2 w + \epsilon_2) \nonumber \\
+(\delta_1 \delta_2 - \beta_{12} ^ 2) x_2 =
+  \delta_1 (\beta_2 + \gamma_2 z + \theta_2 w + \epsilon_2) +
+  \beta_{12} (\beta_1 + \gamma_1 z + \theta_1 w + \epsilon_1)
+\end{align}
+
+### The conditional covariance
+
+\begin{align}
+(\delta_1 \delta_1 - \beta_{12}^2)^2 cov(\mathbf{x_1 | z, x_2 | z}) 
+&=
+(\delta_2 \theta_1 + \beta_{12} \theta_2)(\delta_1 \theta_2 + \beta_{12} \theta_1)
++ \beta_{12} (\delta_2 \sigma_1^2 + \delta_1\sigma_2^2) \nonumber \\
+&=
+(\delta_1 \delta_2 + \beta_{12}^2) \theta_1 \theta_2 
++ \beta_{12}(\delta_2 \theta_1^2 + \delta_1 \theta_2^2)
++ \beta_{12} (\delta_2 \sigma_1^2 + \delta_1\sigma_2^2) \nonumber \\
+&=
+\delta_1^2 \delta_2^2 \Bigl [(1 + \beta^2) \overline{\theta} + 
+\beta \Bigl (\frac{v_1^2}{\delta} + \delta v_2^2 \Bigr) \Bigr]
+\end{align}
+
+$$
+\beta = \frac{\beta_{12}}{\sqrt{\delta_1 \delta_2}} \land
+\overline{\theta_i} = \frac{\theta_i}{\sqrt{\delta_1 \delta_2}} \land
+\overline{\theta} = \overline{\theta_1} \overline{\theta_2} \land
+\delta = \sqrt{\frac{\delta_1}{\delta_2}} \land
+v_i^2 = \frac{\theta_i^2 + \sigma_i^2}{\delta_1 \delta_2}
+$$
+
+### Conditional variance
+
+\begin{align}
+(\delta_1 \delta_2 + \beta_{12}^2)^2 var(\mathbf{x_1 | z}) 
+&= 
+(\delta_2 \theta_1 + \beta_{12} \theta_2)^2 
++ \delta_2^2 \sigma_1^2 + \beta_{12}^2 \sigma^2_2 \nonumber \\
+&=
+\delta_1^2 \delta_2^2 \Bigl [
+\frac{v^2_1}{\delta^2} + \beta^2 v^2_2 
++ 2 \frac{\beta}{\delta} \overline{\theta} \Bigr ]\\ 
+(\delta_1 \delta_2 + \beta_{12}^2)^2 var(\mathbf{x_2 | z}) 
+&= 
+\delta_1^2 \delta_2^2 \Bigl [
+\beta^2 v_1^2 + \delta^2 v^2_2 
++ 2 \beta \delta \overline{\theta}
+\Bigr ]
+\end{align}
+
+### Conditional correlation
+
+\begin{align} \label{eq:cond-corr}
+cor(\mathbf{x_1|z, x_2|z}) 
+&=
+\frac{
+  (1 + \beta^2) \overline{\theta} + 
+  \beta \Bigl (\frac{v_1^2}{\delta} + \delta v_2^2 \Bigr)
+}{ 
+\sqrt{
+  \Bigl (\frac{v^2_1}{\delta^2} + \beta^2 v^2_2 
+  + 2 \frac{\beta}{\delta} \overline{\theta} \Bigr)
+  \Bigl (\beta^2 v_1^2 + \delta^2 v^2_2 + 2 \beta \delta 
+  \overline{\theta} \Big)
+}} \nonumber \\
+&=
+\frac{
+  (1 + \beta^2) \overline{\theta} + 
+  \beta \Bigl (\frac{v_1^2}{\delta} + \delta v_2^2 \Bigr)
+}{ 
+\sqrt{
+  4 \beta^2 \overline{\theta}^2 
+  + (1 + \beta^4) v_1^2 v_2^2 
+  + \beta^2 \Bigl (\frac{v_1^4}{\delta^2} + \delta^2 v_2^4 \Bigr)
+  + 2 \beta \overline{\theta} 
+  \Bigr (\frac{\beta^2 v_1^2}{\delta} + \delta v_2^2 
+         + \frac{v^2_1}{\delta} + \delta \beta^2 v^2_2
+  \Bigl )  
+}} \nonumber \\
+&=
+\frac{
+  (1 + \beta^2) \overline{\theta} + 
+  \beta \Bigl (\frac{v_1^2}{\delta} + \delta v_2^2 \Bigr)
+}{ 
+\sqrt{
+  4 \beta^2 \overline{\theta}^2 
+  + (1 + \beta^4) v_1^2 v_2^2 
+  + \beta^2 \Bigl (\frac{v_1^4}{\delta^2} + \delta^2 v_2^4 \Bigr)
+  + 2 \beta \overline{\theta} (1 + \beta^2)
+  \Bigr (
+  \frac{v_1^2}{\delta} + \delta v_2^2
+  \Bigl )
+}} \nonumber \\
+&=
+\frac{
+  (1 + \beta^2) \overline{\theta} + 
+  \beta \Bigl (\frac{v_1^2}{\delta} + \delta v_2^2 \Bigr)
+}{ 
+\sqrt{
+  4 \beta^2 \overline{\theta}^2 
+  + (1 + \beta^4) v_1^2 v_2^2 
+  - 2 \beta^2 v_1^2 v_2^2 
+  + \beta^2 \Bigl (  \frac{v_1^2}{\delta} + \delta v_2^2 \Bigr )^2
+  + 2 \beta \overline{\theta} (1 + \beta^2)
+  \Bigr (
+  \frac{v_1^2}{\delta} + \delta v_2^2
+  \Bigl )
+}} \nonumber \\
+&=
+\frac{
+  (1 + \beta^2) \overline{\theta} + \beta v_1 v_2 \Delta 
+}{ 
+\sqrt{
+  4 \beta^2 \overline{\theta}^2 
+  + (1 - \beta^2)^2 v_1^2 v_2^2 
+  + \beta^2 v_1^2 v_2^2 \Delta^2 
+  + 2 \beta \overline{\theta} (1 + \beta^2) v_1 v_2 \Delta
+}} \nonumber \\
+&=
+\frac{
+  (1 + \beta^2) \overline{\theta} + \beta v_1 v_2 \Delta 
+}{ 
+\sqrt{
+  4 \beta^2 \overline{\theta}^2 
+  + (1 - \beta^2)^2 v_1^2 v_2^2 
+  - (1 + 2\beta^2 + \beta^4) \overline{\theta}^2
+  + [(1 + \beta^2) \overline{\theta} + \beta v_1 v_2 \Delta] ^ 2
+}} \nonumber \\
+&=
+\frac{
+  (1 + \beta^2) \overline{\theta} + \beta v_1 v_2 \Delta 
+}{ 
+\sqrt{
+  (1 - \beta^2)^2 (v_1^2 v_2^2 - \overline{\theta}^2)
+  + [(1 + \beta^2) \overline{\theta} + \beta v_1 v_2 \Delta] ^ 2
+}} \nonumber \\
+&=
+\frac{
+  (1 + \beta^2) r + \beta \Delta 
+}{ 
+\sqrt{
+  (1 - \beta^2)^2 (1 - r^2)
+  + [(1 + \beta^2) r + \beta \Delta] ^ 2
+}}
+\end{align}
+
+$$
+\Delta = \frac{v_1}{\delta v_2} + \frac{\delta v_2}{v_1} 
+\land r = \frac{\overline{\theta}}{v_1 v_2}
+$$
+$\Delta \geq 2$ is a parameter that purely captures the asymmetry. $r$ is the
+ommitted correlation of the performance effects of the choices. Equation
+$\ref{eq:cond-corr}$ can be seen as explained variation in the numerator and the
+sum of unexplained and explained variation in the denominator. In the end,
+the conditional correlation only depends on three factors the interdependency
+$\beta$, the unobserved correlation $r$, a the asymmetry of the unobserved
+performance effects $\Delta$.
+
+### Correlation between $\mathbf{z}$ and $\mathbf{w}$
+
+Two correlated environmental factors ($\mathbf{z}, \mathbf{w}$) can always be
+rewritten as two uncorrelated ($\mathbf{z}, \mathbf{\widehat{w}}$) variables.
+The measured variable will have a biased estimate, $\widehat{\gamma_i}$ 
+$= \gamma_i + \rho \theta_i$, but this estimate is not of interest when we are
+testing for an interdependency between $\mathbf{x_1}$ and $\mathbf{x_2}$.
+
+\begin{align}
+  \gamma_i \mathbf{z} + \theta_i \mathbf{w} &= \gamma_i \mathbf{z} +
+  \theta (\rho \mathbf{z} + \sqrt{(1 - \rho^2)} \mathbf{\widehat{w}})
+  \nonumber \\
+  &= (\gamma_i + \rho \theta_i) \mathbf{z} + \theta_i \sqrt{1 - \rho^2} 
+  \mathbf{\widehat{w}} \nonumber \\
+  &= \widehat{\gamma_i} \mathbf{z} + \widehat{\theta_i} 
+  \mathbf{\widehat{w}} \nonumber
+\end{align}
+
+\newpage
+
+# Reference
