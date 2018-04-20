@@ -71,6 +71,7 @@ run_sim <- function(obs = 200,
   set.seed(seed)
   output_names <- c("method", "coefficient", "stat", "pvalue", "r2")
 
+  ## Parameter cleaning
   make_list <- function(x, len){
     if (!is.list(x)){
       return(list(x))
@@ -88,20 +89,19 @@ run_sim <- function(obs = 200,
   g2 <- make_list(g2)
   sd_eps <- make_list(sd_eps)
 
-  parameters <- expand.grid(obs, rate, sd, b1, b2, d, g1, g2, sd_eps)
-  N_variations <- nrow(parameters)
-  names(parameters) <- c("obs", "rate", "sd", "b1", "b2",
-                         "d", "g1", "g2", "sd_eps")
   if (family_method == "all"){
     family_method <- list("match", "interaction_traditional",
                           "interaction_augmented", "interaction_moderation",
-                          "interaction_moderationaugmented", "conditional")
+                          "interaction_moderationaugmented",
+                          "interaction_control",
+                          "conditional")
   } else if (family_method == "basic"){
     family_method <- list("match", "interaction_traditional")
   } else{
     family_method <- make_list(family_method)
   }
 
+  ## The tests to be performed
   len_fm <- length(family_method)
   familys_in <- vector("list", len_fm)
   methods_in <- vector("list", len_fm)
@@ -119,6 +119,13 @@ run_sim <- function(obs = 200,
       }
   }
 
+  ## Variations
+  parameters <- expand.grid(obs, rate, sd, b1, b2, d, g1, g2, sd_eps)
+  N_variations <- nrow(parameters)
+  names(parameters) <- c("obs", "rate", "sd", "b1", "b2",
+                         "d", "g1", "g2", "sd_eps")
+
+  ## Results
   N_res <- N_variations * len_fm * nsim
   result <- data.frame(method = character(0),
                        coefficient = numeric(0),
@@ -140,60 +147,43 @@ run_sim <- function(obs = 200,
   for (r in 1:N_variations) {
     cat(paste(r, N_variations, sep = "/"))
     cat("\n")
-
     if (show_progress == TRUE){
       pb <- txtProgressBar(min = 0, max = nsim)
     }
-    params <- parameters[r,]
-    b1_in <- unlist(params$b1)
-    b2_in <- unlist(params$b2)
-    d_in <- unlist(params$d)
-    sd_in <- unlist(params$sd)
-    g1_in <- unlist(params$g1)
-    g2_in <- unlist(params$g2)
-    sd_eps_in <- unlist(params$sd_eps)
-    obs_in <- unlist(params$obs)
-    rate_in <- unlist(params$rate)
-
-    params_in <- list(b1 = paste(b1_in, collapse = ", "),
-                      b2 = paste(b2_in, collapse = ", "),
-                      d = paste(d_in, collapse = ", "), sd = sd_in,
-                      g1 = paste(g1_in, collapse = ", "),
-                      g2 = paste(g2_in, collapse = ", "),
-                      sd_eps = paste(sd_eps_in, collapse = ", "),
-                      obs = obs_in, rate = rate_in)
+    params <- lapply(parameters[r,], unlist)
+    params_in <- lapply(params, function(x){
+      ifelse(length(x) == 1, x, paste(x, collapse = ", "))
+    })
 
     #### parallel ###
-    run_single_sim <- function(x, ...){
-      # All variables are from above
-      # The advantage is that all variabls are already calculated I guess
-      result_run <- data.frame()
-      dat <- create_sample(b1 = unlist(params$b1), b2 = unlist(params$b2),
-                          d = unlist(params$d), sd = unlist(params$sd),
-                          g1 = unlist(params$g1), g2 = unlist(params$g2),
-                          sd_eps = unlist(params$sd_eps),
-                          obs = unlist(params$obs), rate = unlist(params$rate))
-      for (fm in 1:length(familys_in)){
-        reg_list <- run_regression(dat, familys_in[[fm]],
-                                   method = methods_in[[fm]])
-        new_result <- format_reg(reg_list)
-        for (i in 1:nrow(new_result)){
-          result_run <- rbind(result_run, cbind(new_result[i,], params_in,
-                                        ## Adapt this
-                                        list(sim_id = x)))
-        }
-      }
-      return(result_run)
-    }
 
     result_list <- parallel::mclapply(1:nsim,
                                       run_single_sim,
+                                      params,
+                                      params_in,
+                                      familys_in,
+                                      methods_in,
                                       mc.cores = mc_cores)
-
     result <- rbind(result, do.call(rbind, result_list))
   }
   return(result)
 }
 
+run_single_sim <- function(x, params, params_in, familys, methods){
+  result_run <- data.frame()
+  dat <- do.call(create_sample, params)
+
+  for (fm in 1:length(familys)){
+    reg_list <- run_regression(dat,
+                               family = familys[[fm]],
+                               method = methods[[fm]])
+    new_result <- format_reg(reg_list)
+    for (i in 1:nrow(new_result)){
+      result_run <- rbind(result_run, cbind(new_result[i,], params_in,
+                                            list(sim_id = x)))
+    }
+  }
+  return(result_run)
+}
 
 

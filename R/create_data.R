@@ -84,9 +84,9 @@ create_sample <-
       w <- rep(rnorm(1), N) # 'fixed' effects
       for (j in 1:rep){
         z <- rep(rnorm(1), N) # varies for identification
-        x1 <- rnorm(N)
-        x2 <- rnorm(N)
-        x3 <- rnorm(N)
+        x1 <- runif(N, min = -5, max = 5)
+        x2 <- runif(N, min = -5, max = 5)
+        x3 <- runif(N, min = -5, max = 5)
         x_exp  <- cbind(model.matrix( ~ (x1 + x2 + x3) ^ 2), x1 ^ 2,  x2 ^ 2,
                         x3 ^ 2, z * x1, z * x2, z * x3, w * x1, w * x2, w * x3)
         yhat = x_exp %*% c(b1 + eps, b2, -d/2, g1, g2)

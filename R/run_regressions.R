@@ -124,7 +124,7 @@ run_regression <- function(dat, family = "match", method = "traditional"){
   if (!(family %in% family_options)){
     family_options_str <- paste(family_options, collapse = ", ")
     stop("family has no valid input. It should be one of the following: ",
-       family_options_str, ".")
+         family_options_str, ".")
   } else {
     reg_list <- switch(family,
                        match = match_reg(dat, method),
@@ -168,28 +168,28 @@ format_reg <- function(list_reg){
     summ2 <- summary(reg2)
     cortest <- cor.test(resid(reg1), resid(reg2))
     results <- data.frame(method = "conditional",
-                          coefficient = cortest$statistic,
+                          coefficient = cortest$estimate,
                           r2 = mean(summ1$r.squared, summ2$r.squared),
                           pvalue = cortest$p.value,
                           stat = cortest$statistic,
                           stringsAsFactors = FALSE)
   }
-    else {
+  else {
     reg <- list_reg$reg
     approach <- list_reg$method
     family <- strsplit(approach, split = "_")[[1]][1]
     method <- strsplit(approach, split = "_")[[1]][2]
     summ <- summary(reg)
     coefstring <- switch(family,
-                   interaction = "x1:x2",
-                   matching = "x2")
+                         interaction = "x1:x2",
+                         matching = "x2")
     results <- data.frame(
-                 method = approach,
-                 coefficient = reg$coefficients[coefstring],
-                 stat = summ$coefficients[coefstring, "t value"],
-                 pvalue = summ$coefficients[coefstring, "Pr(>|t|)"],
-                 r2 = summ$r.squared,
-                 stringsAsFactors = FALSE)
+      method = approach,
+      coefficient = reg$coefficients[coefstring],
+      stat = summ$coefficients[coefstring, "t value"],
+      pvalue = summ$coefficients[coefstring, "Pr(>|t|)"],
+      r2 = summ$r.squared,
+      stringsAsFactors = FALSE)
     if (!is.na(method)){
       if (method == "residual"){
         reg2 <- list_reg$reg2
@@ -204,8 +204,8 @@ format_reg <- function(list_reg){
                            pvalue = summ2$coefficients[coefstring2, "Pr(>|t|)"],
                            r2 = rep(summ$r.squared, 2),
                            stringsAsFactors = FALSE
-                           )
                          )
+        )
       }
     }
   }
